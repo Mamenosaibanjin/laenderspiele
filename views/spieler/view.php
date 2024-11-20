@@ -1,5 +1,6 @@
 <?php
 use yii\helpers\Html;
+use app\components\Helper;
 
 /** @var $spieler app\models\Spieler */
 /** @var $vereinsKarriere app\models\SpielerVereinSaison[] */
@@ -49,7 +50,7 @@ $this->title = $spieler->fullname;
                         </td>
                         <td><?= Html::encode($karriere->verein->name) ?></td>
                         <td>
-                            <img src="/flags/<?= Html::encode(strtolower($karriere->verein->land)) ?>.png" alt="<?= Html::encode($karriere->verein->land) ?>">
+                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>">
                         </td>
                         <td><?= Html::encode($karriere->position->positionKurz) ?></td>
                     </tr>
