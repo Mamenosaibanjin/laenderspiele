@@ -2,13 +2,22 @@
 
 namespace app\components;
 
+use app\models\Nation;
+
 class Helper
 {
-    public static function getFlagUrl($countryCode, $year = null)
+    public static function getFlagUrl($iocCode, $year = null)
     {
+        // Abfrage der Nation anhand des IOC-Codes
+        $nation = Nation::findOne(['kuerzel' => $iocCode]);
+        if (!$nation) {
+            return null; // Kein ISO-Code gefunden, keine Flagge verfügbar
+        }
+        
+        $isoCode = strtolower($nation->ISO3166);
         $baseUrl = "https://flagpedia.net/data/flags/w20/";
-        $currentFlag = strtolower($countryCode) . ".png";
-
+        $currentFlag = $isoCode . ".png";
+        
         // Historische Flaggen-Logik
         if ($year !== null) {
             $historicalFlags = [
@@ -17,8 +26,8 @@ class Helper
                 ],
             ];
 
-            if (isset($historicalFlags[$countryCode])) {
-                foreach ($historicalFlags[$countryCode] as $flag) {
+            if (isset($historicalFlags[$isoCode])) {
+                foreach ($historicalFlags[$isoCode] as $flag) {
                     if ($year >= $flag['start'] && $year <= $flag['end']) {
                         return $flag['url'];
                     }

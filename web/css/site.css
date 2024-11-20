@@ -86,3 +86,9 @@ a.desc:after {
 .form-group {
     margin-bottom: 1rem;
 }
+
+.flag {
+    width: 32px;   /* Breite der Flagge */
+    height: auto;  /* Automatische Höhe beibehalten */
+    border-radius: 4px; /* Optional: Abgerundete Ecken */
+}

@@ -50,7 +50,7 @@ $this->title = $spieler->fullname;
                         </td>
                         <td><?= Html::encode($karriere->verein->name) ?></td>
                         <td>
-                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>">
+                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>" style="border-radius: 7px; height: 15px; width: 15px;">
                         </td>
                         <td><?= Html::encode($karriere->position->positionKurz) ?></td>
                     </tr>
