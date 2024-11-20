@@ -45,8 +45,8 @@ $this->title = $spieler->fullname;
             <tbody>
                 <?php foreach ($vereinsKarriere as $karriere): ?>
                     <tr>
-                        <td><?= Html::encode(Yii::$app->formatter->asDate($karriere->von, 'MM/yyyy')) ?> - 
-                            <?= Html::encode($karriere->bis ? Yii::$app->formatter->asDate($karriere->bis, 'MM/yyyy') : 'heute') ?>
+                        <td><?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->von)->format('Y-m-d'), 'MM/yyyy')) ?> - 
+                            <?= Html::encode($karriere->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
                         </td>
                         <td><?= Html::encode($karriere->verein->name) ?></td>
                         <td>
