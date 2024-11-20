@@ -42,14 +42,15 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
+        
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'spieler/<id:\d+>' => 'spieler/view',
             ],
         ],
-        */
+        
     ],
     'params' => $params,
 ];
