@@ -30,34 +30,69 @@ $this->title = $spieler->fullname;
         </p>
     </div>
 
-    <!-- Widget: Vereins-Karriere -->
-    <div class="widget">
-        <h2>Vereins-Karriere</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Zeitraum</th>
-                    <th>Verein</th>
-                    <th>Land</th>
-                    <th>Pos</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($vereinsKarriere as $karriere): ?>
-                    <tr>
-                        <td><?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->von)->format('Y-m-d'), 'MM/yyyy')) ?> - 
-                            <?= Html::encode($karriere->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
-                        </td>
-                        <td><?= Html::encode($karriere->verein->name) ?></td>
-                        <td>
-                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>" style="border-radius: 7px; height: 15px; width: 15px;">
-                        </td>
-                        <td><?= Html::encode($karriere->position->positionKurz) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+ <!-- Widget: Vereins-Karriere -->
+    <div class="container">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col col-sm-5 col-xs-12">
+                                <h4 class="title">Vereins-Karriere</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Zeitraum</th>
+                                    <th>Verein</th>
+                                    <th>Land</th>
+                                    <th>Position</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($vereinsKarriere as $karriere): ?>
+                                    <tr>
+                                        <!-- Zeitraum -->
+                                        <td>
+                                            <?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->von)->format('Y-m-d'), 'MM/yyyy')) ?> -
+                                            <?= Html::encode($karriere->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
+                                        </td>
+    
+                                        <!-- Verein -->
+                                        <td>
+                                            <div class="user_icon">
+                                                <img src="<?= Html::encode(Helper::getClubLogoUrl($karriere->verein->ID)) ?>" alt="<?= Html::encode($karriere->verein->name) ?>">
+                                            </div>
+                                            <?= Html::encode($karriere->verein->name) ?>
+                                        </td>
+    
+                                        <!-- Land -->
+                                        <td>
+                                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" 
+                                                 alt="<?= Html::encode($karriere->verein->land) ?>" 
+                                                 style="width: 20px; height: 20px;">
+                                        </td>
+    
+                                        <!-- Position -->
+                                        <td>
+                                            <?= Html::encode($karriere->position->positionKurz) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer">
+                        <!-- Optional Footer: Falls nicht benötigt, kannst du das entfernen -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
 
     <!-- Widget: Jugendvereine -->
     <div class="widget">

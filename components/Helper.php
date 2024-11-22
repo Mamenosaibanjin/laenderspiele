@@ -37,5 +37,27 @@ class Helper
 
         return $baseUrl . $currentFlag;
     }
+    
+    /**
+     * Gibt die URL eines Vereinswappens zurück.
+     * @param int|string $clubId Die ID des Vereins.
+     * @return string Die URL des Vereinswappens.
+     */
+    public static function getClubLogoUrl($clubId)
+    {
+        $basePath = \Yii::getAlias('@webroot/assets/img/vereine/');
+        $baseUrl = \Yii::getAlias('@web/assets/img/vereine/');
+        
+        // Dateiname basierend auf der Club-ID
+        $filePath = $basePath . $clubId . '.gif';
+        
+        // Prüfe, ob die Datei existiert
+        if (file_exists($filePath)) {
+            return $baseUrl . $clubId . '.gif';
+        }
+        
+        // Fallback: Standardbild, wenn kein Logo verfügbar
+        return \Yii::getAlias('@web/assets/img/vereine/standard.gif');
+    }
 }
 ?>
