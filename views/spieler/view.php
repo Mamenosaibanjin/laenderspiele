@@ -46,7 +46,7 @@ $this->title = $spieler->fullname;
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Zeitraum</th>
+                                    <th style="width: 150px;">Zeitraum</th>
                                     <th>Verein</th>
                                     <th>Land</th>
                                     <th>Position</th>
@@ -92,19 +92,69 @@ $this->title = $spieler->fullname;
             </div>
         </div>
     </div>
+    
+    <div style="height: 50px;">&nbsp;</div>
 
 
     <!-- Widget: Jugendvereine -->
-    <div class="widget">
-        <h2>Jugendvereine</h2>
-        <ul>
-            <?php foreach ($jugendvereine as $jugend): ?>
-                <li>
-                    <?= Html::encode($jugend->verein->name) ?> 
-                    <img src="/flags/<?= Html::encode(strtolower($jugend->verein->land)) ?>.png" alt="<?= Html::encode($jugend->verein->land) ?>">
-                </li>
-            <?php endforeach; ?>
-        </ul>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-10">
+                <div class="panel">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col col-sm-5 col-xs-12">
+                                <h4 class="title">Jugendvereine</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 140px;">&nbsp;</th>
+                                    <th>Verein</th>
+                                    <th>Land</th>
+                                    <th>Position</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($jugendvereine as $jugend): ?>
+                                    <tr>
+                                        <!-- kein Zeitraum: leere Spalte -->
+                                        <td>
+                                        </td>
+    
+                                        <!-- Verein -->
+                                        <td>
+                                            <div class="user_icon">
+                                                <img src="<?= Html::encode(Helper::getClubLogoUrl($jugend->verein->ID)) ?>" alt="<?= Html::encode($jugend->verein->name) ?>">
+                                            </div>
+                                            <?= Html::encode($jugend->verein->name) ?>
+                                        </td>
+    
+                                        <!-- Land -->
+                                        <td>
+                                            <div class="flag_icon">
+	                                            <img src="<?= Html::encode(Helper::getFlagUrl($jugend->verein->land, $jugend->von)) ?>" alt="<?= Html::encode($jugend->verein->land) ?>" style="width: 20px; height: 20px;">
+											</div>
+                                        </td>
+    
+                                        <!-- Position -->
+                                        <td>
+                                            <?= Html::encode($jugend->position->positionKurz) ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="panel-footer">
+                        <!-- Optional Footer: Falls nicht benötigt, kannst du das entfernen -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Widget: Länderspiel-Karriere -->
