@@ -64,12 +64,13 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     display: inline-block;
 }
 .panel .panel-body .table .user_icon img{
+	border-radius: 0px;
     width: 30px; /* Größe des Logos */
     height: 30px; /* Höhe anpassen */
 }
 
 /* Länderflagge */
-.panel .table tbody tr td img {
+.panel .table tbody tr td .flag_icon img {
     border-radius: 5px; /* Runde Ecken für die Flagge */
     width: 20px; /* Breite */
     height: 20px; /* Höhe */

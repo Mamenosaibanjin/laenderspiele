@@ -71,9 +71,9 @@ $this->title = $spieler->fullname;
     
                                         <!-- Land -->
                                         <td>
-                                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" 
-                                                 alt="<?= Html::encode($karriere->verein->land) ?>" 
-                                                 style="width: 20px; height: 20px;">
+                                            <div class="flag_icon">
+	                                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>" style="width: 20px; height: 20px;">
+											</div>
                                         </td>
     
                                         <!-- Position -->
@@ -123,10 +123,10 @@ $this->title = $spieler->fullname;
                     <tr>
                         <td><?= Html::encode($spiel->wettbewerb->name) ?></td>
                         <td>
-                            <img src="/flags/<?= Html::encode(strtolower($spiel->land->ioc)) ?>.png" alt="<?= Html::encode($spiel->land->name) ?>"> 
-                            <?= Html::encode($spiel->land->name) ?>
+                            <?= Html::encode(Helper::getFlagUrl($spiel->landID, $spiel->jahr)) ?>
+                            <?= Html::encode($spiel->landID) ?>
                         </td>
-                        <td><?= Html::encode($spiel->position->shortname) ?></td>
+                        <td><?= Html::encode($spiel->position->positionKurz) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
