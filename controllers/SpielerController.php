@@ -22,6 +22,7 @@ class SpielerController extends Controller
         // Jugendvereine
         $jugendvereine = SpielerVereinSaison::find()
         ->where(['spielerID' => $id, 'jugend' => 1])
+        ->orderBy(['von' => SORT_DESC])
         ->all();
         
         // Länderspiel-Karriere

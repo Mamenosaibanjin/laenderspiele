@@ -23,7 +23,6 @@ class SpielerLandWettbewerb extends ActiveRecord
             [['spielerID', 'wettbewerbID', 'landID', 'positionID', 'jahr'], 'required'],
             [['spielerID', 'wettbewerbID', 'landID', 'positionID'], 'integer'],
             [['jahr'], 'integer'], // YYYY
-            [['land'], 'string', 'max' => 255], // Optionales Feld für Land
         ];
     }
     
