@@ -74,6 +74,7 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     border-radius: 5px; /* Runde Ecken für die Flagge */
     width: 20px; /* Breite */
     height: 20px; /* Höhe */
+    border: 1px solid darkgrey;
 }
 
 .panel .panel-body .table tbody td span.label{ font-size: 13px; }

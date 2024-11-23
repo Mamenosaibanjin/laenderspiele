@@ -11,7 +11,12 @@ $this->title = $spieler->fullname;
 ?>
 
 <div class="spieler-view">
-    <h1><?= Html::encode($spieler->fullname) ?></h1>
+    <h1>
+    	<?php if ($spieler->vorname): ?>
+    		<?= Html::encode($spieler->vorname);?>
+    	<?php endif;?>
+		<?= Html::encode($spieler->name); ?>
+    </h1>
 
 <div style="height: 50px;">&nbsp;</div>
 
@@ -41,10 +46,10 @@ $this->title = $spieler->fullname;
                                 </tr>
                             <?php endif; ?>
                             <!-- Vollständiger Name -->
-                            <?php if ($spieler->vorname || $spieler->name): ?>
+                            <?php if ($spieler->fullname): ?>
                                 <tr>
                                     <td><strong>Vollständiger Name:</strong></td>
-                                    <td><?= Html::encode(($spieler->vorname ?? '') . ' ' . ($spieler->name ?? '')) ?></td>
+                                    <td><?= Html::encode(($spieler->fullname ?? '')) ?></td>
                                 </tr>
                             <?php endif; ?>
                             <!-- Geburtstag -->
@@ -325,7 +330,7 @@ $this->title = $spieler->fullname;
                                                 <div class="nation_icon">
                                                     <img src="<?= Html::encode(Helper::getClubLogoUrl($spiel->landID)) ?>" 
                                                          alt="<?= Html::encode($spiel->landID) ?>" 
-                                                         style="width: 20px; height: 20px;">
+                                                         style="width: 30px; height: 30px;">
                                                     <?= Html::encode(Helper::getClubName($spiel->landID) ?? 'Unbekannt') ?>
                                                 </div>
                                             </td>
