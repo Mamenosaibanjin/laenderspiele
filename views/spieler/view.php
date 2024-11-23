@@ -13,22 +13,148 @@ $this->title = $spieler->fullname;
 <div class="spieler-view">
     <h1><?= Html::encode($spieler->fullname) ?></h1>
 
-    <!-- Widget: Spielerdaten -->
-    <div class="widget">
-        <h2>Spielerdaten</h2>
-        <p><strong>Name:</strong> <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?></p>
-        <p><strong>Geboren am:</strong> <?= Yii::$app->formatter->asDate($spieler->geburtstag) ?></p>
-        <p><strong>Geburtsort:</strong> <?= Html::encode($spieler->geburtsort) ?>, 
-            <img src="/flags/<?= Html::encode(strtolower($spieler->geburtsland)) ?>.png" alt="<?= Html::encode($spieler->geburtsland) ?>"></p>
-        <p><strong>Größe:</strong> <?= Html::encode($spieler->height) ?> m</p>
-        <p><strong>Gewicht:</strong> <?= Html::encode($spieler->weight) ?> kg</p>
-        <p><strong>Spielfuß:</strong> <?= Html::encode($spieler->spielfuss) ?></p>
-        <p>
-            <strong>Social Media:</strong>
-            <?= $spieler->facebook ? Html::a('Facebook', $spieler->facebook, ['target' => '_blank']) : '' ?>
-            <?= $spieler->instagram ? Html::a('Instagram', $spieler->instagram, ['target' => '_blank']) : '' ?>
-        </p>
+<div style="height: 50px;">&nbsp;</div>
+
+<!-- Widget: Spielerdaten -->
+<div class="container">
+    <div class="row">
+        <div class="col-md-offset-1 col-md-10">
+            <div class="panel">
+                <div class="panel-heading">
+                    <h4 class="title">Spielerdaten</h4>
+                </div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tbody>
+                            <!-- Vorname -->
+                            <?php if ($spieler->vorname): ?>
+                                <tr>
+                                    <td><strong>Vorname:</strong></td>
+                                    <td><?= Html::encode($spieler->vorname) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Nachname -->
+                            <?php if ($spieler->name): ?>
+                                <tr>
+                                    <td><strong>Nachname:</strong></td>
+                                    <td><?= Html::encode($spieler->name) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Vollständiger Name -->
+                            <?php if ($spieler->vorname || $spieler->name): ?>
+                                <tr>
+                                    <td><strong>Vollständiger Name:</strong></td>
+                                    <td><?= Html::encode(($spieler->vorname ?? '') . ' ' . ($spieler->name ?? '')) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Geburtstag -->
+                            <?php if ($spieler->geburtstag): ?>
+                                <tr>
+                                    <td><strong>Geboren am:</strong></td>
+                                    <td><?= Yii::$app->formatter->asDate($spieler->geburtstag, 'dd.MM.yyyy') ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Geburtsort und Geburtsland -->
+                            <?php if ($spieler->geburtsort || $spieler->geburtsland): ?>
+                                <tr>
+                                    <td><strong>Geburtsort:</strong></td>
+                                    <td>
+                                    	<div class="flag_icon">
+                                            <?= Html::encode($spieler->geburtsort) ?>
+                                            <?php if ($spieler->geburtsland): ?>
+                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->geburtsland)) ?>" 
+                                                     alt="<?= Html::encode($spieler->geburtsland) ?>" 
+                                                     style="width: 20px; height: 20px;">
+                                            <?php endif; ?>
+                                         </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Nationalität -->
+                            <?php if ($spieler->nati1 || $spieler->nati2 || $spieler->nati3): ?>
+                                <tr>
+                                    <td><strong>Nationalität:</strong></td>
+                                    <td>
+                                    	<div class="flag_icon">
+                                            <?php if ($spieler->nati1): ?>
+                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati1)) ?>" 
+                                                     alt="<?= Html::encode($spieler->nati1) ?>" 
+                                                     style="width: 20px; height: 20px;">
+                                            <?php endif; ?>
+                                            <?php if ($spieler->nati2): ?>
+                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati2)) ?>" 
+                                                     alt="<?= Html::encode($spieler->nati2) ?>" 
+                                                     style="width: 20px; height: 20px;">
+                                            <?php endif; ?>
+                                            <?php if ($spieler->nati3): ?>
+                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati3)) ?>" 
+                                                     alt="<?= Html::encode($spieler->nati3) ?>" 
+                                                     style="width: 20px; height: 20px;">
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Größe -->
+                            <?php if ($spieler->height): ?>
+                                <tr>
+                                    <td><strong>Größe:</strong></td>
+                                    <td><?= Html::encode($spieler->height) ?> m</td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Gewicht -->
+                            <?php if ($spieler->weight): ?>
+                                <tr>
+                                    <td><strong>Gewicht:</strong></td>
+                                    <td><?= Html::encode($spieler->weight) ?> kg</td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Spielfuß -->
+                            <?php if ($spieler->spielfuss): ?>
+                                <tr>
+                                    <td><strong>Spielfuß:</strong></td>
+                                    <td><?= Html::encode($spieler->spielfuss) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Homepage -->
+                            <?php if ($spieler->homepage): ?>
+                                <tr>
+                                    <td><strong>Homepage:</strong></td>
+                                    <td>
+                                        <?= Html::a('<i class="fa fa-laptop-code"></i>', 'http://' . $spieler->homepage, ['target' => '_blank', 'title' => 'Homepage']) ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Facebook -->
+                            <?php if ($spieler->facebook): ?>
+                                <tr>
+                                    <td><strong>Facebook:</strong></td>
+                                    <td>
+										<?= Html::a('<i class="fab fa-facebook"></i>', 'http://www.facebook.com/' . $spieler->facebook, ['target' => '_blank', 'title' => 'Facebook']) ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <!-- Instagram -->
+                            <?php if ($spieler->instagram): ?>
+                                <tr>
+                                    <td><strong>Instagram:</strong></td>
+                                    <td>
+                                        <?= Html::a('<i class="fab fa-instagram"></i>', 'http://www.instagram.com/' . $spieler->instagram, ['target' => '_blank', 'title' => 'Instagram']) ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="panel-footer">
+                    <!-- Optional Footer -->
+                </div>
+            </div>
+        </div>
     </div>
+</div>
+
+<div style="height: 50px;">&nbsp;</div>
 
  <!-- Widget: Vereins-Karriere -->
     <div class="container">

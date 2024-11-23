@@ -134,3 +134,8 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     .panel .panel-heading .title{ margin: 0 0 15px; }
     .panel .panel-heading .text-right{ text-align: center; }
 }
+.spieler-view h1 {
+    font-family: 'Monoton';
+    font-weight: 700;
+    text-shadow: rgba(33, 33, 33, 0.2) 3px 3px 3px;
+}
