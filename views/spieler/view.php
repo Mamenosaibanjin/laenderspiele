@@ -67,9 +67,9 @@ $this->title = $spieler->fullname;
                                     	<div class="flag_icon">
                                             <?= Html::encode($spieler->geburtsort) ?>
                                             <?php if ($spieler->geburtsland): ?>
-                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->geburtsland)) ?>" 
+                                                <img src="<?= Html::encode(Helper::getFlagUrl($spieler->geburtsland, $spieler->geburtstag)) ?>" 
                                                      alt="<?= Html::encode($spieler->geburtsland) ?>" 
-                                                     style="width: 20px; height: 20px;">
+                                                     style="width: 25px; height: 20px;">
                                             <?php endif; ?>
                                          </div>
                                     </td>
@@ -84,17 +84,17 @@ $this->title = $spieler->fullname;
                                             <?php if ($spieler->nati1): ?>
                                                 <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati1)) ?>" 
                                                      alt="<?= Html::encode($spieler->nati1) ?>" 
-                                                     style="width: 20px; height: 20px;">
+                                                     style="width: 25px; height: 20px;">
                                             <?php endif; ?>
                                             <?php if ($spieler->nati2): ?>
                                                 <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati2)) ?>" 
                                                      alt="<?= Html::encode($spieler->nati2) ?>" 
-                                                     style="width: 20px; height: 20px;">
+                                                     style="width: 25px; height: 20px;">
                                             <?php endif; ?>
                                             <?php if ($spieler->nati3): ?>
                                                 <img src="<?= Html::encode(Helper::getFlagUrl($spieler->nati3)) ?>" 
                                                      alt="<?= Html::encode($spieler->nati3) ?>" 
-                                                     style="width: 20px; height: 20px;">
+                                                     style="width:25px; height: 20px;">
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -203,7 +203,7 @@ $this->title = $spieler->fullname;
                                         <!-- Land -->
                                         <td>
                                             <div class="flag_icon">
-	                                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>" style="width: 20px; height: 20px;">
+	                                            <img src="<?= Html::encode(Helper::getFlagUrl($karriere->verein->land, $karriere->von)) ?>" alt="<?= Html::encode($karriere->verein->land) ?>" style="width: 25px; height: 20px;">
 											</div>
                                         </td>
     
@@ -269,7 +269,7 @@ $this->title = $spieler->fullname;
                                             <!-- Land -->
                                             <td>
                                                 <div class="flag_icon">
-    	                                            <img src="<?= Html::encode(Helper::getFlagUrl($jugend->verein->land, $jugend->von)) ?>" alt="<?= Html::encode($jugend->verein->land) ?>" style="width: 20px; height: 20px;">
+    	                                            <img src="<?= Html::encode(Helper::getFlagUrl($jugend->verein->land, $jugend->von)) ?>" alt="<?= Html::encode($jugend->verein->land) ?>" style="width: 25px; height: 20px;">
     											</div>
                                             </td>
         
@@ -340,7 +340,7 @@ $this->title = $spieler->fullname;
                                             	<div class="flag_icon">
                                               	  <img src="<?= Html::encode(Helper::getFlagUrl(Html::encode(Helper::getClubNation($spiel->landID)), $spiel->jahr)) ?>" 
                                                 	     alt="<?= Html::encode($spiel->landID) ?>" 
-                                                    	 style="width: 20px; height: 20px;">
+                                                    	 style="width: 25px; height: 20px;">
                                             	</div>
                                             </td>
     

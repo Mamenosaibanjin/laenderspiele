@@ -6,7 +6,7 @@ use app\models\Nation;
 
 class Helper
 {
-    public static function getFlagUrl($iocCode, $year = null)
+    public static function getFlagUrl($iocCode, $date = null)
     {
         // Abfrage der Nation anhand des IOC-Codes
         $nation = Nation::findOne(['kuerzel' => $iocCode]);
@@ -18,26 +18,40 @@ class Helper
         $baseUrl = "https://flagpedia.net/data/flags/w580/";
         $currentFlag = $isoCode . ".png";
         
+        // Datumskonvertierung
+        $dateTimestamp = null;
+        if ($date !== null) {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) { // Format: YYYY-MM-DD
+                $dateTimestamp = strtotime($date);
+            } elseif (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date)) { // Format: DD.MM.YYYY
+                $dateTimestamp = strtotime(str_replace('.', '-', $date));
+            } elseif (preg_match('/^\d{6}$/', $date)) { // Format: YYYYMM
+                $dateTimestamp = strtotime(substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-01');
+            }
+        }
+        
         // Historische Flaggen-Logik
-        if ($year !== null) {
-            $historicalFlags = [
-                'IRQ' => [
-                    ['start' => 1991, 'end' => 2004, 'url' => 'https://example.com/flags/irq_1991_2004.png'],
-                ],
-            ];
-
-            if (isset($historicalFlags[$isoCode])) {
-                foreach ($historicalFlags[$isoCode] as $flag) {
-                    if ($year >= $flag['start'] && $year <= $flag['end']) {
-                        return $flag['url'];
-                    }
+        $historicalFlags = [
+            'IRQ' => [
+                ['start' => '01.01.1991', 'end' => '30.06.2004', 'url' => 'https://example.com/flags/irq_1991_2004.png'],
+            ],
+            'ba' => [
+                ['start' => '01.03.1992', 'end' => '04.02.1998', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg/1920px-Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg.png'],
+            ],
+        ];
+        if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
+            foreach ($historicalFlags[$isoCode] as $flag) {
+                $startTimestamp = strtotime(str_replace('.', '-', $flag['start']));
+                $endTimestamp = strtotime(str_replace('.', '-', $flag['end']));
+                if ($dateTimestamp >= $startTimestamp && $dateTimestamp <= $endTimestamp) {
+                    return $flag['url'];
                 }
             }
         }
-
+        
+        // Aktuelle Flagge zurückgeben, wenn keine historische Flagge zutrifft
         return $baseUrl . $currentFlag;
     }
-    
     /**
      * Gibt die URL eines Vereinswappens zurück.
      * @param int|string $clubId Die ID des Vereins.
