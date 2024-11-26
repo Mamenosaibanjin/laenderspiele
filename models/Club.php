@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\models\Spiel;
 use yii\db\ActiveRecord;
 
 class Club extends ActiveRecord
@@ -12,6 +13,11 @@ class Club extends ActiveRecord
     public static function tableName()
     {
         return 'clubs'; // Tabellenname
+    }
+    
+    public static function primaryKey()
+    {
+        return ['id'];
     }
     
     /**
@@ -42,9 +48,49 @@ class Club extends ActiveRecord
         return $this->hasOne(Club::class, ['id' => 'nachfolgerID']); // Selbstreferenz für Nachfolger
     }
     
-    public function getStadium()
+    public function getStadion()
     {
-        return $this->hasOne(Stadiums::class, ['id' => 'stadiumID']); // Relation zu Stadium
+        return $this->hasOne(Stadion::class, ['id' => 'stadionID']) // Relation zu Stadium
+        ->alias('stadion'); // Alias für die Tabelle
     }
+    
+    public function getNation()
+    {
+        return $this->hasOne(Nation::class, ['kuerzel' => 'land']);
+    }
+    
+    public function getRecentMatches($limit = 5)
+    {
+        return Spiel::find()
+        ->joinWith('turnier') // Verknüpft mit Turnier für das Datum
+        ->where(['or', ['club1ID' => $this->id], ['club2ID' => $this->id]]) // Spiele des Clubs
+        ->orderBy(['turnier.datum' => SORT_DESC]) // Sortiert nach Datum absteigend
+        ->limit($limit) // Begrenzung auf die letzten $limit Spiele
+        ->all();
+    }
+    
+    public function getSquad($clubID)
+    {
+        $currentYear = date('Y'); // Aktuelles Jahr
+        
+        // Spieler basierend auf den Bedingungen laden
+        return Spieler::find()
+        ->select(['spieler.name', 'spieler.vorname', 'spieler.id']) // Nur die gewünschten Spalten auswählen
+        ->joinWith(['vereinSaison' => function ($query) {
+            $query->alias('spieler_verein_saison'); // Alias explizit setzen
+        }])
+        ->where([
+            'spieler_verein_saison.vereinID' => $clubID, // Club-ID
+            'spieler_verein_saison.jugend' => 0, // Keine Jugendspieler
+        ])
+        ->andWhere([
+            '<', 'spieler_verein_saison.von', ($currentYear + 1) . '07', // Startdatum
+        ])
+        ->andWhere([
+            '>=', 'spieler_verein_saison.bis', $currentYear . '06', // Enddatum
+        ])
+        ->all();
+    }
+    
 }
 ?>

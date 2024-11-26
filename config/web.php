@@ -26,7 +26,7 @@ $config = [
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
-            'errorAction' => 'site/error',
+            'errorAction' => null,
         ],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
@@ -50,6 +50,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 'spieler/<id:\d+>' => 'spieler/view',
+                'club/<id:\d+>' => 'club/view',
             ],
         ],
         

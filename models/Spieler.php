@@ -32,7 +32,7 @@ class Spieler extends ActiveRecord
     /**
      * Relationen zu anderen Tabellen.
      */
-    public function getVereinSaisons()
+    public function getVereinSaison()
     {
         return $this->hasMany(SpielerVereinSaison::class, ['spielerID' => 'id']);
     }
@@ -41,5 +41,7 @@ class Spieler extends ActiveRecord
     {
         return $this->hasMany(SpielerLandWettbewerb::class, ['spielerID' => 'id']);
     }
+    
+    
 }
 ?>
