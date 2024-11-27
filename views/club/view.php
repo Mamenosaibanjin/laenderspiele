@@ -40,7 +40,7 @@ $this->title = $club->namevoll;
                         </tr>
                         <tr>
                             <th>gegründet:</th>
-                            <td><?= Html::encode($club->founded) ?></td>
+                            <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
                         </tr>
                         <tr>
                             <th>Farben:</th>
@@ -93,7 +93,7 @@ $this->title = $club->namevoll;
                         <div class="col-6">Land:</div>
                         <div class="col-6"><?= Html::encode($nation->land_de) ?></div>
                         <div class="col-6">gegründet:</div>
-                        <div class="col-6"><?= Html::encode($club->founded) ?></div>
+                        <div class="col-6"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
                         <div class="col-6">Stadion:</div>
                         <div class="col-6"><?= Html::encode($stadium->name) ?></div>
                         <div class="col-6">Homepage:</div>
