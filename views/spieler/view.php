@@ -195,7 +195,7 @@ $this->title = $spieler->fullname;
                                         <!-- Verein -->
                                         <td>
                                             <div class="user_icon">
-                                                <img src="<?= Html::encode(Helper::getClubLogoUrl($karriere->verein->ID)) ?>" alt="<?= Html::encode($karriere->verein->name) ?>">
+                                                <img src="<?= Html::encode(Helper::getClubLogoUrl($karriere->verein->id)) ?>" alt="<?= Html::encode($karriere->verein->name) ?>">
                                             </div>
                                             <?= Html::encode($karriere->verein->name) ?>
                                         </td>

@@ -61,8 +61,8 @@ $this->title = $club->namevoll;
                             <th>Anschrift:</th>
                             <td>
                                 <?= Html::encode($club->name) ?><br>
+                                <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
                                 <?= $club->strasse ? Html::encode($club->strasse) . '<br>' : '' ?>
-                                <?= $club->postfach ? Html::encode($club->postfach) . '<br>' : '' ?>
                                 <?= $club->ort ? Html::encode($club->ort) . '<br>' : '' ?>
                             </td>
                         </tr>
@@ -84,9 +84,7 @@ $this->title = $club->namevoll;
             <div class="card">
                 <div class="card-body text-center">
                     <h3><?= Html::encode($club->name) ?></h3>
-                    <?php if (file_exists("assets/img/vereine/{$club->id}.png")): ?>
-                        <img src="assets/img/vereine/<?= $club->id ?>.png" class="img-fluid" alt="<?= Html::encode($club->name) ?>">
-                    <?php endif; ?>
+                    <img src="<?= Html::encode(Helper::getClubLogoUrl($club->id)) ?>" class="img-fluid" alt="<?= Html::encode($club->name) ?>" style="width: 100px; height: 100px;">
                     <p><?= Html::encode($club->namevoll) ?></p>
                     <hr>
                     <div class="row">
@@ -180,8 +178,8 @@ $this->title = $club->namevoll;
                                         <?php foreach ($squad as $player): ?>
                                 		<?php 
                                 		// Über die Relation vereinSaison die positionID abrufen
-                                		$positionID = $player->vereinSaison->positionID ?? null; 
-                                        // Übersetzung der numerischen Position
+                                		$positionID = $player->vereinSaison[0]->positionID ?? null; 
+                                		// Übersetzung der numerischen Position
                                         $playerPositionName = $positionMapping[$positionID] ?? null; 
                                         ?>
                                             <?php if ($playerPositionName == $position): ?>
