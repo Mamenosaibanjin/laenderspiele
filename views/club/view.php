@@ -46,7 +46,7 @@ $this->title = $club->namevoll;
                             <th>Farben:</th>
                             <td>
                                 <?php foreach (explode('-', $club->farben) as $color): ?>
-                                    <span style="display:inline-block; width:20px; height:20px; background-color:<?= Html::encode($color) ?>; border:1px solid #000;"></span>
+                                    <span style="display:inline-block; width:20px; height:20px; background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; border:1px solid #000;"></span>
                                 <?php endforeach; ?>
                             </td>
                         </tr>

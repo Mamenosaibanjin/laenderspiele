@@ -122,5 +122,20 @@ class Helper
         }
     }
     
+    public static function colorToHex($colorName) {
+   
+        $colors = [
+            'weiss' => '#FFFFFF',
+            'schwarz' => '#000000',
+            'rot' => '#FF0000',
+            'blau' => '#0000FF',
+            'gelb' => '#FFFF00',
+            'grün' => '#008000',
+            // Weitere Farben hier einfügen
+        ];
+        
+        return $colors[strtolower($colorName)] ?? '#FFFFFF'; // Fallback zu Schwarz
+    }
+    
 }
 ?>
