@@ -24,26 +24,26 @@ $this->title = $club->namevoll;
                 <div class="card-body">
                     <table class="table">
                         <tr>
-                            <th>Mannschaft:</th>
+                            <th><i class="fas fa-shield-alt"></i></th>
                             <td><?= Html::encode($club->name) ?></td>
                         </tr>
                         <tr>
-                            <th>vollst. Name:</th>
+                            <th><i class="fas fa-address-card"></i></th>
                             <td><?= Html::encode($club->namevoll) ?></td>
                         </tr>
                         <tr>
-                            <th>Land:</th>
+                            <th><i class="fas fa-earth-europe"></i></th>
                             <td>
-                                <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 20px; height: 15px;']) : '' ?>
+                                <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px;']) : '' ?>
                                 <?= Html::encode($nation->land_de) ?>
                             </td>
                         </tr>
                         <tr>
-                            <th>gegründet:</th>
+                            <th><i class="fas fa-calendar-alt"></i></th>
                             <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
                         </tr>
                         <tr>
-                            <th>Farben:</th>
+                            <th><i class="fas fa-palette"></i></th>
                             <td>
                                 <?php foreach (explode('-', $club->farben) as $color): ?>
                                     <span style="display:inline-block; width:20px; height:20px; background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; border:1px solid #000;"></span>
@@ -51,14 +51,14 @@ $this->title = $club->namevoll;
                             </td>
                         </tr>
                         <tr>
-                            <th>Stadion:</th>
+                            <th><i class="fas fa-location-dot"></i></th>
                             <td>
                                 <?= Html::encode($stadium->name) ?><br>
                                 <?= Html::encode($stadium->kapazitaet) ?> Plätze
                             </td>
                         </tr>
                         <tr>
-                            <th>Anschrift:</th>
+                            <th><i class="fas fa-envelope"></i></th>
                             <td>
                                 <?= Html::encode($club->name) ?><br>
                                 <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
@@ -67,11 +67,11 @@ $this->title = $club->namevoll;
                             </td>
                         </tr>
                         <tr>
-                            <th>Telefon:</th>
+                            <th><i class="fas fa-phone"></i></th>
                             <td><?= Html::encode($club->telefon) ?></td>
                         </tr>
                         <tr>
-                            <th>Homepage:</th>
+                            <th><i class="fas fa-laptop-code"></i></th>
                             <td><?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?></td>
                         </tr>
                     </table>
