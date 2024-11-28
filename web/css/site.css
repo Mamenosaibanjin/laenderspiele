@@ -1,5 +1,5 @@
 main > .container {
-    padding: 70px 15px 20px;
+    padding: 15px;
 }
 
 .footer {
@@ -94,7 +94,7 @@ a.desc:after {
 }
 
 #footer .nav-link {
-    color: #6c757d;
+    color: #1C75AC;
     transition: color 0.3s ease;
 }
 
@@ -104,6 +104,89 @@ a.desc:after {
 
 .navbar-text {
     font-size: 1rem; /* Größe anpassen */
-    color: #6c757d; /* Farbton anpassen */
+    color: #1C75AC; /* Farbton anpassen */
 }
 
+#header .navbar-dark {
+    background-color: #f8f9fa !important; /* Leichtes Grau */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important; /* Optional: leichter Schatten für Trennung */
+    transition: background-color 0.3s ease-in-out !important;
+    height: 110px !important;
+}
+ 
+#header .nav-link {
+	
+   color: #1C75AC !important;
+}
+
+/* Header Container */
+#header {
+    height: 150px;
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa; /* Hintergrundfarbe */
+    z-index: 1030;
+    display: flex;
+    flex-direction: column;
+    align-items: baseline;
+    padding: 10px;
+    padding-bottom: 175px;
+    transition: background-color 0.3s ease; /* Nur Farbwechsel animieren */
+    overflow: hidden; /* Kein Inhalt außerhalb anzeigen */
+}
+
+/* Logo-Einstellungen */
+#header-logo {
+    max-height: 100px;
+    margin: 0 auto; /* Zentrierung */
+}
+
+/* Navigation zentrieren */
+.navbar {
+    width: 100%;
+    justify-content: center;
+}
+
+/* Abstand zwischen Logo und Navigation */
+.logo-container {
+    margin-bottom: 10px;
+   
+}
+
+/* Header-Hintergrund beim Scrollen */
+#header.scrolled {
+    background-color: #f8f9fa;
+    transition: background-color 0.3s ease-in-out;
+    flex-direction: row;
+    height: 70px;
+    padding-bottom: 60px;
+}
+
+#header.scrolled .navbar-dark {
+	height: 50px !important;
+	margin-left: 10px;
+}
+
+#header.scrolled #header-logo {
+	max-height: 50px !important;
+}
+
+
+
+/* Main-Tag Abstände */
+#main {
+    /*padding-top: 160px; /* Platz für Header */
+}
+
+.container-fluid {
+	display: block !important;
+}
+
+.card-header {
+	color: #1C75AC;
+	font-weight: bold;
+}
+
+.fas {
+	color: #1C75AC;	
+}

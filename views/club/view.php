@@ -24,7 +24,7 @@ $this->title = $club->namevoll;
                 <div class="card-body">
                     <table class="table">
                         <tr>
-                            <th><i class="fas fa-shield-alt"></i></th>
+                            <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
                             <td><?= Html::encode($club->name) ?></td>
                         </tr>
                         <tr>
@@ -45,9 +45,25 @@ $this->title = $club->namevoll;
                         <tr>
                             <th><i class="fas fa-palette"></i></th>
                             <td>
-                                <?php foreach (explode('-', $club->farben) as $color): ?>
-                                    <span style="display:inline-block; width:20px; height:20px; background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; border:1px solid #000;"></span>
-                                <?php endforeach; ?>
+                            <?php 
+                            $colors = explode('-', $club->farben);
+                            $lastIndex = count($colors) - 1; // Index der letzten Farbe
+                            ?>
+                            
+                            <?php foreach ($colors as $index => $color): ?>
+                                <span 
+                                    style="
+                                        display:inline-block; 
+                                        width:20px; 
+                                        height:20px; 
+                                        background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; 
+                                        border:1px solid #000; 
+                                        <?= $index === 0 ? 'border-radius: 10px 0 0 10px;' : '' ?> 
+                                        <?= $index === $lastIndex ? 'border-radius: 0 10px 10px 0;' : '' ?> 
+                                        <?= $index !== $lastIndex ? 'margin-right: -5px;' : '' ?>
+                                    ">
+                                </span>
+                            <?php endforeach; ?>
                             </td>
                         </tr>
                         <tr>
@@ -72,7 +88,7 @@ $this->title = $club->namevoll;
                         </tr>
                         <tr>
                             <th><i class="fas fa-laptop-code"></i></th>
-                            <td><?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?></td>
+                            <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
                         </tr>
                     </table>
                 </div>
@@ -82,22 +98,40 @@ $this->title = $club->namevoll;
         <!-- Widget 2: Zusammenfassung -->
         <div class="col-md-5">
             <div class="card">
-                <div class="card-body text-center">
-                    <h3><?= Html::encode($club->name) ?></h3>
-                    <img src="<?= Html::encode(Helper::getClubLogoUrl($club->id)) ?>" class="img-fluid" alt="<?= Html::encode($club->name) ?>" style="width: 100px; height: 100px;">
-                    <p><?= Html::encode($club->namevoll) ?></p>
-                    <hr>
-                    <div class="row">
-                        <div class="col-6">Land:</div>
-                        <div class="col-6"><?= Html::encode($nation->land_de) ?></div>
-                        <div class="col-6">gegründet:</div>
-                        <div class="col-6"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
-                        <div class="col-6">Stadion:</div>
-                        <div class="col-6"><?= Html::encode($stadium->name) ?></div>
-                        <div class="col-6">Homepage:</div>
-                        <div class="col-6"><?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?></div>
+                <div class="card-header"><h3><?= Html::encode($club->name) ?></h3></div>
+                <div class="card-body d-flex align-items-center">
+                    <!-- Bild als separater Div-Container -->
+                    <div class="text-center" style="flex: 0 0 auto; margin-right: 20px;">
+                        <img src="<?= Html::encode(Helper::getClubLogoUrl($club->id)) ?>" 
+                             class="img-fluid" 
+                             alt="<?= Html::encode($club->name) ?>" 
+                             style="width: 100px; height: 100px;">
+                    </div>
+                    
+                    <!-- Informationen im Row-Container -->
+                    <div class="flex-grow-1">
+                        <p class="text-center"><?= Html::encode($club->namevoll) ?></p>
+                        <hr>
+                        <div class="row">
+                            <div class="col-2" style="text-align: right;"><i class="fas fa-earth-europe"></i></div>
+                            <div class="col-10" style="text-align: left;">
+                				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px;']) : '' ?>
+                                <?= Html::encode($nation->land_de) ?></div>
+                            
+                            <div class="col-2" style="text-align: right;"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="col-10" style="text-align: left;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
+                            
+                            <div class="col-2" style="text-align: right;"><i class="fas fa-location-dot"></i></div>
+                            <div class="col-10" style="text-align: left;"><?= Html::encode($stadium->name) ?></div>
+                            
+                            <div class="col-2" style="text-align: right;"><i class="fas fa-laptop-code"></i></div>
+                            <div class="col-10" style="text-align: left;">
+                                <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

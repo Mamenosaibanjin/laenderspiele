@@ -19,6 +19,25 @@ $this->registerMetaTag(['name' => 'description', 'content' => $this->params['met
 $this->registerMetaTag(['name' => 'keywords', 'content' => $this->params['meta_keywords'] ?? '']);
 $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii::getAlias('@web/favicon.ico')]);
 ?>
+
+<?php 
+// JavaScript für das Scroll-Event einfügen
+$scrollJs = <<<JS
+document.addEventListener('scroll', function () {
+    const header = document.getElementById('header');
+    const logo = document.getElementById('header-logo');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+        logo.src = '/projects/laenderspiele2.0/yii2-app-basic/web/assets/img/logo_short.png'; // Neues Logo
+    } else {
+        header.classList.remove('scrolled');
+        logo.src = '/projects/laenderspiele2.0/yii2-app-basic/web/assets/img/logo_header.png'; // Ursprüngliches Logo
+    }
+});
+JS;
+//$this->registerJs($scrollJs, \yii\web\View::POS_READY); // noch ausgeklammert, da Flackern erzeugt 
+?>
+
 <?php $this->beginPage() ?>
 <!DOCTYPE html>
 <html lang="<?= Yii::$app->language ?>" class="h-100">
@@ -30,45 +49,28 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <?php $this->beginBody() ?>
 
 <header id="header">
-    <?php
-    NavBar::begin([
-        'brandLabel' => Yii::$app->name,
-        'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
-    ]);
-    ?>
-    <div class="navbar-collapse">
-        <div class="d-flex w-100">
-            <!-- Linke Navigation -->
+    <div class="logo-container text-center">
+        <?= Html::a(
+            Html::img(Yii::getAlias('@web/assets/img/logo_header.png'), [
+                'alt' => 'Logo',
+                'id' => 'header-logo',
+                'class' => 'img-fluid',
+            ]),
+            Yii::$app->homeUrl
+        ) ?>
+    </div>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container-fluid justify-content-center">
             <?= Nav::widget([
-                'options' => ['class' => 'navbar-nav me-auto'], // "me-auto" schiebt die Navigation nach links
+                'options' => ['class' => 'navbar-nav'], // Navigation zentriert
                 'items' => [
                     ['label' => 'Home', 'url' => ['/site/index']],
-                ],
-            ]); ?>
-
-            <!-- Pipe-Trennung -->
-            <div class="navbar-text mx-2 text-muted">|</div>
-
-            <!-- Rechte Navigation -->
-            <?= Nav::widget([
-                'options' => ['class' => 'navbar-nav'], // Rechte Navigation
-                'items' => [
-                    Yii::$app->user->isGuest
-                        ? ['label' => 'Login', 'url' => ['/site/login']]
-                        : '<li class="nav-item">'
-                            . Html::beginForm(['/site/logout'])
-                            . Html::submitButton(
-                                'Logout (' . Yii::$app->user->identity->username . ')',
-                                ['class' => 'nav-link btn btn-link logout']
-                            )
-                            . Html::endForm()
-                            . '</li>',
+                    ['label' => 'About', 'url' => ['/site/about']],
+                    // Weitere Links...
                 ],
             ]); ?>
         </div>
-    </div>
-    <?php NavBar::end(); ?>
+    </nav>
 </header>
 
 <main id="main" class="flex-shrink-0" role="main">
