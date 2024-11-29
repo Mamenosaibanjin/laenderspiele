@@ -75,7 +75,7 @@ class Club extends ActiveRecord
         
         // Spieler basierend auf den Bedingungen laden
         return Spieler::find()
-        ->select(['spieler.name', 'spieler.vorname', 'spieler.id']) // Nur die gewünschten Spalten auswählen
+        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1']) // Nur die gewünschten Spalten auswählen
         ->joinWith(['vereinSaison' => function ($query) {
             $query->alias('spieler_verein_saison'); // Alias explizit setzen
         }])

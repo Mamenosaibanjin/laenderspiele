@@ -20,7 +20,7 @@ $this->title = $club->namevoll;
         <!-- Widget 1: Vereinsdaten -->
         <div class="col-md-7">
             <div class="card">
-                <div class="card-header">Vereinsdaten</div>
+                <div class="card-header"><h3>Vereinsdaten</h3></div>
                 <div class="card-body">
                     <table class="table">
                         <tr>
@@ -186,54 +186,73 @@ $this->title = $club->namevoll;
         </div>
 	<?php endif; ?>
 
-	<?php if($squad): 
-	
-        // Mapping-Array für Positionen
-        $positionMapping = [
-            1 => 'Tor',
-            2 => 'Abwehr',
-            3 => 'Mittelfeld',
-            4 => 'Sturm',
-            5 => 'Trainer',
-        ];
-        ?>
+<?php if ($squad): 
+    // Mapping-Array für Positionen
+    $positionMapping = [
+        1 => 'Tor',
+        2 => 'Abwehr',
+        3 => 'Mittelfeld',
+        4 => 'Sturm',
+        5 => 'Trainer',
+    ];
+?>
+<div class="card"> <!-- Gesamtrahmen für den Kader -->
+    <div class="card-header">
+        <h3>Kader</h3> <!-- Überschrift für den gesamten Abschnitt -->
+    </div>
+    <div class="card-body">
         <!-- Dritte Widgetreihe -->
-        <div class="row">
-            <!-- Widget 5: Aktueller Kader -->
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">Aktueller Kader</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
-                                <div class="col-md-2">
-                                    <h5><?= Html::encode($position) ?></h5>
-                                    <ul>
-                                        <?php foreach ($squad as $player): ?>
-                                		<?php 
-                                		// Über die Relation vereinSaison die positionID abrufen
-                                		$positionID = $player->vereinSaison[0]->positionID ?? null; 
-                                		// Übersetzung der numerischen Position
-                                        $playerPositionName = $positionMapping[$positionID] ?? null; 
-                                        ?>
-                                            <?php if ($playerPositionName == $position): ?>
-                                                <li>
-                                                    <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . $player->vorname[0] . '.' : '')), ['/spieler/view', 'id' => $player->id]) ?>
-                                                </li>
-                                            <?php endif; ?>
-                                        <?php endforeach; ?>
-                                    </ul>
-                                </div>
-                            <?php endforeach; ?>
+        <div class="row five-column-layout">
+            <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
+                <?php 
+                // Spieler filtern, die der aktuellen Position entsprechen
+                $filteredPlayers = array_filter($squad, function ($player) use ($position, $positionMapping) {
+                    $positionID = $player->vereinSaison[0]->positionID ?? null;
+                    $playerPositionName = $positionMapping[$positionID] ?? null;
+                    return $playerPositionName === $position;
+                });
+
+                // Wenn keine Spieler für diese Position vorhanden sind, überspringen
+                if (empty($filteredPlayers)) {
+                    continue;
+                }
+
+                // Spieler alphabetisch sortieren
+                usort($filteredPlayers, function ($a, $b) {
+                    return strcmp($a->name, $b->name);
+                });
+                ?>
+                <div class="col-5">
+                    <div class="panel">
+                        <div class="panel-heading">
+                            <h4 class="title"><?= Html::encode($position) ?></h4>
                         </div>
-                        <div class="text-end">
-                            <?= Html::a('Detaillierter Kader', ['/kader/view', 'id' => $club->id], ['class' => 'btn btn-primary']) ?>
+                        <div class="panel-body">
+                            <ul class="list-unstyled">
+                                <?php 
+                                $counter = 0;
+                                foreach ($filteredPlayers as $player): 
+                                    $backgroundStyle = $counter % 2 === 0 ? '#f0f8ff' : '#ffffff';
+                                    $counter++;
+                                ?>
+                                    <li class="d-flex align-items-center p-2" style="background-color: <?= $backgroundStyle ?> !important; border-width: 1px 0 0 0; border-style: solid; border-color: #e7e7e7;">
+                                        <?php if (!empty($player->nati1)): ?>
+                                            <img src="<?= Html::encode(Helper::getFlagUrl($player->nati1)) ?>" 
+                                                 alt="<?= Html::encode($player->nati1) ?>" 
+                                                 style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;">
+                                        <?php endif; ?>
+                                        <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . $player->vorname[0] . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
                         </div>
                     </div>
                 </div>
-            </div>
+            <?php endforeach; ?>
         </div>
+    </div>
+</div>
+<?php endif; ?>
 
-	<?php endif; ?>
 
 </div>

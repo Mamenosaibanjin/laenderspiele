@@ -190,3 +190,12 @@ a.desc:after {
 .fas {
 	color: #1C75AC;	
 }
+
+.title {
+	font-size: 22px !important;
+}
+
+.five-column-layout .col-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
+}
