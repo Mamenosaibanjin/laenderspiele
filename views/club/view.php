@@ -34,7 +34,7 @@ $this->title = $club->namevoll;
                         <tr>
                             <th><i class="fas fa-earth-europe"></i></th>
                             <td>
-                                <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px;']) : '' ?>
+                                <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                                 <?= Html::encode($nation->land_de) ?>
                             </td>
                         </tr>
@@ -115,7 +115,7 @@ $this->title = $club->namevoll;
                         <div class="row">
                             <div class="col-2" style="text-align: right;"><i class="fas fa-earth-europe"></i></div>
                             <div class="col-10" style="text-align: left;">
-                				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px;']) : '' ?>
+                				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                                 <?= Html::encode($nation->land_de) ?></div>
                             
                             <div class="col-2" style="text-align: right;"><i class="fas fa-calendar-alt"></i></div>
@@ -241,7 +241,7 @@ $this->title = $club->namevoll;
                                                  alt="<?= Html::encode($player->nati1) ?>" 
                                                  style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;">
                                         <?php endif; ?>
-                                        <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . $player->vorname[0] . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
+                                        <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
