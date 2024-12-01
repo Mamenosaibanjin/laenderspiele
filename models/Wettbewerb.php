@@ -20,19 +20,17 @@ class Wettbewerb extends ActiveRecord
     public function rules()
     {
         return [
-            [['wettbewerbtypID'], 'integer'], // Wettbewerbstyp-ID als Integer
-            [['jahr'], 'integer', 'min' => 0], // Jahr als positive Ganzzahl
-            [['land'], 'string', 'max' => 3], // Dreistelliger IOC-Code für Länder, kann NULL sein
-            [['wettbewerbtypID'], 'required'], // Wettbewerbstyp ist erforderlich
+            [['name'], 'string', 'max' => 255], // Name ist ein String mit max. 255 Zeichen
+            [['name'], 'required'], // Name ist erforderlich
         ];
     }
     
     /**
      * Relationen zu anderen Tabellen.
      */
-    public function getWettbewerbTyp()
+    public function getTurniere()
     {
-        return $this->hasOne(WettbewerbTyp::class, ['id' => 'wettbewerbtypID']); // Relation zu WettbewerbTyp
+        return $this->hasMany(Turnier::class, ['wettbewerbID' => 'id']); // Relation zu Turnieren
     }
 }
 ?>

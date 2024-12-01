@@ -59,13 +59,29 @@ class Club extends ActiveRecord
         return $this->hasOne(Nation::class, ['kuerzel' => 'land']);
     }
     
-    public function getRecentMatches($limit = 5)
+    public function getRecentMatches()
     {
         return Spiel::find()
-        ->joinWith('turnier') // Verknüpft mit Turnier für das Datum
-        ->where(['or', ['club1ID' => $this->id], ['club2ID' => $this->id]]) // Spiele des Clubs
-        ->orderBy(['turnier.datum' => SORT_DESC]) // Sortiert nach Datum absteigend
-        ->limit($limit) // Begrenzung auf die letzten $limit Spiele
+        ->alias('s') // Alias für Spiele-Tabelle
+        ->leftJoin('turnier t', 's.id = t.spielID') // Verknüpfung mit Turnier
+        ->where(['or', ['s.club1ID' => $this->id], ['s.club2ID' => $this->id]]) // Bedingung korrekt setzen
+        ->andWhere(['<=', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
+        ->select(['s.*', 't.*']) // Spalten auswählen
+        ->orderBy(['t.datum' => SORT_DESC]) // Sortieren
+        ->limit(5)
+        ->all();
+    }
+    
+    public function getUpcomingMatches($limit = 5)
+    {
+        return Spiel::find()
+        ->alias('s') // Alias für Spiele-Tabelle
+        ->leftJoin('turnier t', 's.id = t.spielID') // Verknüpfung mit Turnier
+        ->where(['or', ['s.club1ID' => $this->id], ['s.club2ID' => $this->id]]) // Bedingung korrekt setzen
+        ->andWhere(['>=', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
+        ->select(['s.*', 't.*']) // Spalten auswählen
+        ->orderBy(['t.datum' => SORT_ASC]) // Sortieren
+        ->limit(5)
         ->all();
     }
     

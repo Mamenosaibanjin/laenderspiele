@@ -21,9 +21,8 @@ class Spiel extends ActiveRecord
     public function rules()
     {
         return [
-            [['club1ID', 'club2ID', 'tore1', 'tore2', 'extratime', 'penalty'], 'integer'], // Zahlenwerte
-            [['datum'], 'safe'], // Unterstützt Datumsformate
-            [['turnierID'], 'integer'], // Turnier-ID
+            [['club1ID', 'club2ID', 'tore1', 'tore2', 'extratime', 'penalty', 'turnierID'], 'integer'], // Zahlenwerte
+            [['club1ID', 'club2ID'], 'exist', 'targetClass' => Club::class, 'targetAttribute' => 'id'], // Prüfung auf Existenz in der Club-Tabelle
         ];
     }
     

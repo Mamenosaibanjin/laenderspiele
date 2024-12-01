@@ -131,6 +131,8 @@ class Helper
             'blau' => '#0000FF',
             'gelb' => '#FFFF00',
             'grün' => '#008000',
+            'violett' => '#441678',
+            'himmelblau' => '#6CABDD',
             // Weitere Farben hier einfügen
         ];
         

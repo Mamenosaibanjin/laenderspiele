@@ -18,7 +18,7 @@ $this->title = $club->namevoll;
     <!-- Erste Widgetreihe -->
     <div class="row mb-3">
         <!-- Widget 1: Vereinsdaten -->
-        <div class="col-md-7">
+        <div class="col-md-6">
             <div class="card">
                 <div class="card-header"><h3>Vereinsdaten</h3></div>
                 <div class="card-body">
@@ -66,19 +66,22 @@ $this->title = $club->namevoll;
                             <?php endforeach; ?>
                             </td>
                         </tr>
+
+						<?php if (!is_null($stadium)): ?>
                         <tr>
                             <th><i class="fas fa-location-dot"></i></th>
                             <td>
                                 <?= Html::encode($stadium->name) ?><br>
                                 <?= Html::encode($stadium->kapazitaet) ?> Plätze
                             </td>
+                        <?php endif; ?>
                         </tr>
                         <tr>
                             <th><i class="fas fa-envelope"></i></th>
                             <td>
                                 <?= Html::encode($club->name) ?><br>
                                 <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
-                                <?= $club->strasse ? Html::encode($club->strasse) . '<br>' : '' ?>
+                                <?= $club->strasse ? nl2br(Html::encode($club->strasse)) . '<br>' : '' ?>
                                 <?= $club->ort ? Html::encode($club->ort) . '<br>' : '' ?>
                             </td>
                         </tr>
@@ -95,8 +98,11 @@ $this->title = $club->namevoll;
             </div>
         </div>
 
+		<div class="col-md-2">
+		&nbsp;</div>
+
         <!-- Widget 2: Zusammenfassung -->
-        <div class="col-md-5">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-header"><h3><?= Html::encode($club->name) ?></h3></div>
                 <div class="card-body d-flex align-items-center">
@@ -121,12 +127,16 @@ $this->title = $club->namevoll;
                             <div class="col-2" style="text-align: right;"><i class="fas fa-calendar-alt"></i></div>
                             <div class="col-10" style="text-align: left;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
                             
-                            <div class="col-2" style="text-align: right;"><i class="fas fa-location-dot"></i></div>
-                            <div class="col-10" style="text-align: left;"><?= Html::encode($stadium->name) ?></div>
-                            
-                            <div class="col-2" style="text-align: right;"><i class="fas fa-laptop-code"></i></div>
-                            <div class="col-10" style="text-align: left;">
-                                <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>
+							<?php if (!is_null($stadium)): ?>
+                                <div class="col-2" style="text-align: right;"><i class="fas fa-location-dot"></i></div>
+                                <div class="col-10" style="text-align: left;"><?= Html::encode($stadium->name) ?></div>
+        					<?php endif; ?>
+                                
+                            <?php if (!empty($stadium)): ?>
+                                <div class="col-2" style="text-align: right;"><i class="fas fa-laptop-code"></i></div>
+                                <div class="col-10" style="text-align: left;">
+                            <?php endif; ?>
+                            <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>
                             </div>
                         </div>
                     </div>
@@ -135,7 +145,6 @@ $this->title = $club->namevoll;
             </div>
         </div>
     </div>
-
 	<?php if ($recentMatches || $upcomingMatches): ?>
         <!-- Zweite Widgetreihe -->
         <div class="row mb-3">
@@ -148,7 +157,7 @@ $this->title = $club->namevoll;
                             <ul class="list-group">
                                 <?php foreach ($recentMatches as $match): ?>
                                     <li class="list-group-item">
-                                        <?= Html::encode($match->datum) ?> - 
+                                        <?= Html::encode($match->turnier->datum) ?> - 
                                         <?= Html::encode($match->club1ID == $club->id ? $match->club2->name : $match->club1->name) ?>
                                         (<?= $match->tore1 ?>:<?= $match->tore2 ?> 
                                         <?php if ($match->extratime): ?>n.V.<?php endif; ?>
@@ -172,7 +181,7 @@ $this->title = $club->namevoll;
                             <ul class="list-group">
                                 <?php foreach ($upcomingMatches as $match): ?>
                                     <li class="list-group-item">
-                                        <?= Html::encode($match->datum) ?> - 
+                                        <?= Html::encode($match->turnier->datum) ?> - 
                                         <?= Html::encode($match->club1ID == $club->id ? $match->club2->name : $match->club1->name) ?>
                                     </li>
                                 <?php endforeach; ?>
