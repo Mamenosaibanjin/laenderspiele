@@ -85,13 +85,26 @@ class Club extends ActiveRecord
         ->all();
     }
     
+    public function getLastMatch()
+    {
+        return Spiel::find()
+        ->alias('s')
+        ->leftJoin('turnier t', 's.id = t.spielID')
+        ->where(['or', ['s.club1ID' => $this->id], ['s.club2ID' => $this->id]])
+        ->andWhere(['<=', 't.datum', new \yii\db\Expression('NOW()')])
+        ->select(['wettbewerbID' => 't.wettbewerbID', 'jahr' => 't.jahr'])
+        ->orderBy(['t.datum' => SORT_DESC])
+        ->asArray() // Rückgabe als Array
+        ->one(); // Nur ein Ergebnis zurückgeben
+    }
+    
     public function getSquad($clubID)
     {
         $currentYear = date('Y'); // Aktuelles Jahr
         
         // Spieler basierend auf den Bedingungen laden
         return Spieler::find()
-        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1']) // Nur die gewünschten Spalten auswählen
+        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1, spieler.birthday']) // Nur die gewünschten Spalten auswählen
         ->joinWith(['vereinSaison' => function ($query) {
             $query->alias('spieler_verein_saison'); // Alias explizit setzen
         }])
@@ -104,6 +117,37 @@ class Club extends ActiveRecord
         ])
         ->andWhere([
             '>=', 'spieler_verein_saison.bis', $currentYear . '06', // Enddatum
+        ])
+        ->all();
+    }
+    
+
+    public function getNationalSquad($clubID)
+    {
+        // Werte von getLastMatch holen
+        $lastMatch = $this->getLastMatch();
+        
+        if (!$lastMatch) {
+            // Keine Spiele gefunden, leere Sammlung zurückgeben
+            return [];
+        }
+        
+        $wettbewerbID = $lastMatch['wettbewerbID'];
+        $jahr = $lastMatch['jahr'];
+        // Spieler basierend auf den Bedingungen laden
+        return Spieler::find()
+        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1', 'spieler_land_wettbewerb.positionID']) // Nur die gewünschten Spalten auswählen
+        ->joinWith(['landWettbewerb' => function ($query) {
+            $query->alias('spieler_land_wettbewerb'); // Alias explizit setzen
+        }])
+        ->where([
+            'spieler_land_wettbewerb.landID' => $clubID, // Club-ID
+        ])
+        ->andWhere([
+            'spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID,
+        ])
+        ->andWhere([
+            'spieler_land_wettbewerb.jahr' => $jahr,
         ])
         ->all();
     }

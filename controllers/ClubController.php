@@ -27,6 +27,9 @@ class ClubController extends Controller
         // Kader nur laden, wenn TypID 3 oder 5
         $squad = in_array($club->typID, [3, 5]) ? $club->getSquad($id) : null;
         
+        // National-Kader laden (Prüfe, ob diese Logik zutrifft)
+        $nationalSquad = in_array($club->typID, [1, 2]) ? $club->getNationalSquad($id) : null;
+        
         // View rendern
         return $this->render('view', [
             'club' => $club,
@@ -35,6 +38,7 @@ class ClubController extends Controller
             'recentMatches' => $recentMatches,
             'upcomingMatches' => $upcomingMatches,
             'squad' => $squad,
+            'nationalSquad' => $nationalSquad, // Übergebe nationalSquad an die View
         ]);
     }
 }

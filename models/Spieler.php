@@ -37,7 +37,7 @@ class Spieler extends ActiveRecord
         return $this->hasMany(SpielerVereinSaison::class, ['spielerID' => 'id']);
     }
     
-    public function getLandWettbewerbe()
+    public function getLandWettbewerb()
     {
         return $this->hasMany(SpielerLandWettbewerb::class, ['spielerID' => 'id']);
     }
