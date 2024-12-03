@@ -139,5 +139,146 @@ class Helper
         return $colors[strtolower($colorName)] ?? '#FFFFFF'; // Fallback zu Schwarz
     }
     
+    public static function getImVereinSeit($player, $clubID, $year)
+    {
+        $vereinSaison = $player->vereinSaison;
+        $latestYear = null; 
+        
+        // Das Saisonende berechnen
+        $saisonEnde = intval($year+1 . '06');
+        foreach ($vereinSaison as $entry) {
+            if ($entry->vereinID == $clubID) {
+                // Prüfen, ob der Zeitraum gültig ist
+                $entryStart = intval($entry->von);
+                $entryEnd = intval($entry->bis);
+                
+                if ($entryStart <= $saisonEnde && $entryEnd >= $year . '01') {
+                    // Spätesten Transfer in der Saison auswählen
+                    $entryYear = substr($entry->von, 0, 4); // Nur das Jahr des Transfers
+                    if ($latestYear === null || $entryYear > $latestYear) {
+                        $latestYear = $entryYear;
+                    }
+                }
+            }
+        }
+        
+        return $latestYear;
+    }
+    
+    private static function getVorherigerVereinName($currentClubName, $vorherigerVerein)
+    {
+        $vorherigerClubName = $vorherigerVerein->verein->name;
+        $jugend = $vorherigerVerein->jugend == 1;
+        
+        // Prüfen, ob der vorherige Verein ein Teil des aktuellen Vereinsnamens ist
+        if (stripos($vorherigerClubName, $currentClubName) === 0) {
+            // Sonderfall: Jugend
+            if ($jugend) {
+                return 'eigene Jugend';
+            }
+            
+            // Prüfen auf Zusätze wie "II", "III", etc.
+            $suffix = trim(str_ireplace($currentClubName, '', $vorherigerClubName));
+            if (!empty($suffix)) {
+                // Beispiel: "Hamburger SV II" -> "eigene Zweite"
+                return 'eigene ' . $suffix;
+            } else {
+                // Beispiel: "Hamburger SV" -> "eigene Erste"
+                return 'eigene Erste';
+            }
+        }
+        // Standard: Rückgabe des normalen Vereinsnamens
+        return $vorherigerClubName;
+    }
+    
+    
+    public static function getVorherigerClub($player, $clubID)
+    {
+        $vereinSaison = $player->vereinSaison;
+        $currentEntry = null;
+        
+        foreach ($vereinSaison as $entry) {
+            if ($entry->vereinID == $clubID) {
+                $currentEntry = $entry;
+                break;
+            }
+        }
+        
+        if (!$currentEntry) {
+            return null;
+        }
+        
+        // Vorgängerverein finden
+        $vorherigeVereine = array_filter($vereinSaison, function ($entry) use ($currentEntry) {
+            return $entry->bis < $currentEntry->von;
+        });
+            
+            usort($vorherigeVereine, function ($a, $b) {
+                return $b->bis <=> $a->bis; // Absteigend sortieren
+            });
+                
+                $vorherigerVerein = reset($vorherigeVereine);
+                
+                if ($vorherigerVerein) {
+                    return $vorherigerVerein->verein->name;
+                }
+                
+                return null;
+    }
+    
+                /* Sonderfälle behandeln
+                if ($vorherigerVerein) {
+                    if (stripos($vorherigerVerein->verein->name, $clubID) !== false) {
+                        if ($vorherigerVerein->jugend == 1) {
+                            return 'eigene Jugend';
+                        }
+                        return 'eigene ' . $vorherigerVerein->verein->name;
+                    }
+                    
+                    if ($vorherigerVerein->jugend == 1) {
+                        $jugend = ' Jugend';
+                    } else {
+                        $jugend = '';
+                    }
+                
+                    return $vorherigerVerein->verein->name;
+                    
+                }*/
+    
+    public static function getVorherigerClubID($player, $clubID)
+    {
+        $vereinSaison = $player->vereinSaison;
+        $currentEntry = null;
+        
+        foreach ($vereinSaison as $entry) {
+            if ($entry->vereinID == $clubID) {
+                $currentEntry = $entry;
+                break;
+            }
+        }
+        
+        if (!$currentEntry) {
+            return null;
+        }
+        
+        // Vorgängerverein finden
+        $vorherigeVereine = array_filter($vereinSaison, function ($entry) use ($currentEntry) {
+            return $entry->bis < $currentEntry->von;
+        });
+            
+            usort($vorherigeVereine, function ($a, $b) {
+                return $b->bis <=> $a->bis; // Absteigend sortieren
+            });
+                
+                $vorherigerVerein = reset($vorherigeVereine);
+                
+                if ($vorherigerVerein) {
+                    return $vorherigerVerein->verein->id;
+                }
+                
+                return null;
+    }
+    
+    
 }
 ?>

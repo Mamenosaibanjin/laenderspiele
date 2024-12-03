@@ -98,27 +98,33 @@ class Club extends ActiveRecord
         ->one(); // Nur ein Ergebnis zurückgeben
     }
     
-    public function getSquad($clubID)
+    public function getSquad($clubID, $year = null)
     {
-        $currentYear = date('Y'); // Aktuelles Jahr
+        $currentYear = $year ?? date('Y');
         
-        // Spieler basierend auf den Bedingungen laden
-        return Spieler::find()
-        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1, spieler.birthday']) // Nur die gewünschten Spalten auswählen
-        ->joinWith(['vereinSaison' => function ($query) {
-            $query->alias('spieler_verein_saison'); // Alias explizit setzen
+        $query = Spieler::find()
+        ->select([
+            'spieler.name',
+            'spieler.vorname',
+            'spieler.id',
+            'spieler.nati1',
+            'spieler.geburtstag',
+            'spieler_verein_saison.positionID',
+        ])
+        ->joinWith(['vereinSaison' => function ($query) use ($clubID, $currentYear) {
+            $query->alias('spieler_verein_saison')
+            ->andWhere(['spieler_verein_saison.vereinID' => $clubID])
+            ->andWhere(['<', 'spieler_verein_saison.von', ($currentYear + 1) . '07'])
+            ->andWhere(['>=', 'spieler_verein_saison.bis', $currentYear . '06']);
         }])
-        ->where([
-            'spieler_verein_saison.vereinID' => $clubID, // Club-ID
-            'spieler_verein_saison.jugend' => 0, // Keine Jugendspieler
-        ])
-        ->andWhere([
-            '<', 'spieler_verein_saison.von', ($currentYear + 1) . '07', // Startdatum
-        ])
-        ->andWhere([
-            '>=', 'spieler_verein_saison.bis', $currentYear . '06', // Enddatum
-        ])
-        ->all();
+        ->where(['spieler_verein_saison.vereinID' => $clubID])
+        ->andWhere(['spieler_verein_saison.jugend' => 0])
+        ->orderBy([
+            'spieler_verein_saison.positionID' => SORT_ASC,
+            'spieler.name' => SORT_ASC,
+        ]);
+
+        return $query->all();
     }
     
 

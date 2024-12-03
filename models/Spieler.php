@@ -37,6 +37,18 @@ class Spieler extends ActiveRecord
         return $this->hasMany(SpielerVereinSaison::class, ['spielerID' => 'id']);
     }
     
+    public function getFilteredVereinSaison($clubID, $year = null)
+    {
+        $query = $this->getVereinSaison()->andWhere(['vereinID' => $clubID]);
+        
+        if ($year !== null) {
+            $query->andWhere(['<', 'von', ($year + 1) . '07'])
+            ->andWhere(['>=', 'bis', $year . '06']);
+        }
+        
+        return $query;
+    }
+    
     public function getLandWettbewerb()
     {
         return $this->hasMany(SpielerLandWettbewerb::class, ['spielerID' => 'id']);
