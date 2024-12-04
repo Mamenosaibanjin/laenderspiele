@@ -127,35 +127,49 @@ class Club extends ActiveRecord
         return $query->all();
     }
     
-
-    public function getNationalSquad($clubID)
+    public function getNationalSquad($clubID, $wettbewerbID = null, $jahr = null)
     {
-        // Werte von getLastMatch holen
-        $lastMatch = $this->getLastMatch();
-        
-        if (!$lastMatch) {
-            // Keine Spiele gefunden, leere Sammlung zurückgeben
-            return [];
+        // Werte von getLastMatch holen, wenn $wettbewerbID oder $jahr leer sind
+        if ((empty($wettbewerbID) && $wettbewerbID != 0) || empty($jahr)) {
+            echo "Beides leer";
+            $lastMatch = $this->getLastMatch();
+            
+            if (!$lastMatch) {
+                // Keine Spiele gefunden, leere Sammlung zurückgeben
+                return [];
+            }
+            
+            $wettbewerbID = $lastMatch['wettbewerbID'];
+            $jahr = $lastMatch['jahr'];
         }
         
-        $wettbewerbID = $lastMatch['wettbewerbID'];
-        $jahr = $lastMatch['jahr'];
         // Spieler basierend auf den Bedingungen laden
         return Spieler::find()
-        ->select(['spieler.name', 'spieler.vorname', 'spieler.id', 'spieler.nati1', 'spieler_land_wettbewerb.positionID']) // Nur die gewünschten Spalten auswählen
-        ->joinWith(['landWettbewerb' => function ($query) {
+        ->select([
+            'spieler.name',
+            'spieler.vorname',
+            'spieler.id',
+            'spieler.nati1',
+            'spieler.geburtstag',
+            'spieler_land_wettbewerb.positionID',
+        ]) // Nur die gewünschten Spalten auswählen
+        ->distinct() // Duplikate verhindern
+        ->joinWith(['landWettbewerb' => function ($query) use ($clubID, $wettbewerbID, $jahr) {
             $query->alias('spieler_land_wettbewerb'); // Alias explizit setzen
+            // Filter direkt in der joinWith-Abfrage
+            $query->andWhere([
+                'spieler_land_wettbewerb.landID' => $clubID,
+                'spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID,
+                'spieler_land_wettbewerb.jahr' => $jahr,
+            ]);
         }])
-        ->where([
-            'spieler_land_wettbewerb.landID' => $clubID, // Club-ID
-        ])
-        ->andWhere([
-            'spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID,
-        ])
-        ->andWhere([
-            'spieler_land_wettbewerb.jahr' => $jahr,
+        ->orderBy([
+            'spieler_land_wettbewerb.wettbewerbID' => SORT_ASC,
+            'spieler_land_wettbewerb.positionID' => SORT_ASC,
+            'spieler.name' => SORT_ASC,
         ])
         ->all();
+ 
     }
     
 }

@@ -54,6 +54,46 @@ class Spieler extends ActiveRecord
         return $this->hasMany(SpielerLandWettbewerb::class, ['spielerID' => 'id']);
     }
     
+    public function getLandWettbewerbFiltered($clubID, $wettbewerbID, $jahr)
+    {
+        return $this->hasMany(SpielerLandWettbewerb::class, ['spielerID' => 'id'])
+        ->andOnCondition([
+            'spieler_land_wettbewerb.landID' => $clubID,
+            'spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID,
+            'spieler_land_wettbewerb.jahr' => $jahr,
+        ]);
+    }
+    
+    public function getVereinVorSaison($month)
+    {
+        // Sicherstellen, dass $month ein gültiges Format hat (YYYYMM)
+        if (!preg_match('/^\d{6}$/', $month)) {
+            throw new InvalidArgumentException('Das Datum muss im Format YYYYMM übergeben werden.');
+        }
+        
+        // Datenbankabfrage
+        $query = (new \yii\db\Query())
+        ->select(['vereinID', 'jugend'])
+        ->from('spieler_verein_saison')
+        ->where(['spielerID' => $this->id]) // Spieler filtern
+        ->andWhere(['<=', 'bis', $month]) // Nur Einträge mit 'bis' <= $month
+        ->orderBy(['bis' => SORT_DESC]) // Nach 'bis' absteigend sortieren
+        ->limit(1); // Nur den letzten Eintrag
+        
+        // Abfrage ausführen
+        $result = $query->one();
+        
+        // Wenn kein Eintrag gefunden wurde, Rückgabe null
+        if (!$result) {
+            return null;
+        }
+        
+        // Rückgabe der gefundenen Werte als Array
+        return [
+            'vereinID' => $result['vereinID'],
+            'jugend' => $result['jugend'],
+        ];
+    }
     
 }
 ?>

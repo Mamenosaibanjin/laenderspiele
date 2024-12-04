@@ -6,6 +6,8 @@ use app\models\Nation;
 
 class Helper
 {
+
+    
     public static function getFlagUrl($iocCode, $date = null)
     {
         // Abfrage der Nation anhand des IOC-Codes
@@ -245,7 +247,7 @@ class Helper
                     
                 }*/
     
-    public static function getVorherigerClubID($player, $clubID)
+    public static function getVorherigerClubID($player, $clubID, $jahr)
     {
         $vereinSaison = $player->vereinSaison;
         $currentEntry = null;
@@ -278,7 +280,50 @@ class Helper
                 
                 return null;
     }
+     
     
+    /**
+     * Gibt die IDs der Vereine während eines Turniers zurück.
+     */
+    public static function getClubsAtTurnier($playerId, $turnier, $jahr)
+    {
+        // Wenn kein Turnier angegeben ist
+        if ($turnier == 0) {
+            $query = (new \yii\db\Query())
+            ->select(['c.id'])
+            ->from(['c' => 'clubs'])
+            ->innerJoin(['svs' => 'spieler_verein_saison'], 'svs.vereinID = c.id')
+            ->where([
+                'svs.spielerID' => $playerId,
+                'svs.jugend' => 0,
+            ])
+            ->andWhere([
+                'or',
+                ['and', ['>=', 'svs.bis', $jahr . '01'], ['<=', 'svs.von', $jahr . '12']],
+                ['between', 'svs.bis', $jahr . '01', $jahr . '12'],
+                ['between', 'svs.von', $jahr . '01', $jahr . '12'],
+            ])
+            ->groupBy(['c.id'])
+            ->orderBy(['svs.von' => SORT_DESC]);
+            
+            // Alle Ergebnisse abrufen
+            $clubIDs = $query->column(); // Gibt ein Array aller IDs zurück
+            
+            return !empty($clubIDs) ? $clubIDs : null;
+        }
+        
+        return null; // Wenn $turnier nicht 0 ist
+    }
     
+    public static function getTurniername($turnier)
+    {
+        $query = (new \yii\db\Query())
+        ->select(['name', 'land'])
+        ->from(['wettbewerb'])
+        ->where(['ID' => $turnier])
+        ->scalar();
+        
+        return $query;
+    }
 }
 ?>
