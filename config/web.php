@@ -52,6 +52,8 @@ $config = [
                 'spieler/<id:\d+>' => 'spieler/view',
                 'club/<id:\d+>' => 'club/view',
                 'kader/<id:\d+>/<year:\d+>' => 'kader/view',
+                'impressum' => 'impressum/view',
+                'about' => 'ueber/view',
             ],
         ],
         
