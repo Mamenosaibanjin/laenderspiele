@@ -61,7 +61,7 @@ $currentPositionID = null;
                     }
                     ?>
                     <tr>
-                        <td style="background-color: <?= $backgroundStyle; ?> !important; width: 30%;">
+                        <td style="background-color: <?= $backgroundStyle; ?> !important; width: <?= $turnier == '' ? '30%' : '40%'?>;">
                             <?php if (($turnier == '') OR ($positionID > 4)) :?>
                             	<?php if (!empty($player->nati1)): ?>
                                 	<img src="<?= Html::encode(Helper::getFlagUrl($player->nati1)) ?>" alt="<?= Html::encode($player->nati1) ?>" style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey;">
@@ -73,7 +73,7 @@ $currentPositionID = null;
                         <?php if ($turnier == ''): ?>
                         	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 20%;"><?= Html::encode(Helper::getImVereinSeit($player, $club->id, $jahr)) ?></td>
                         <?php else: ?>
-                        	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 20%;">
+                        	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 40%;">
                         		<?php 
                         		if ($positionID <= 4) {
                             		$vereine = Helper::getClubsAtTurnier($player->id, $turnier, $jahr);
@@ -90,7 +90,7 @@ $currentPositionID = null;
                             		        echo "</div>";
                             		    }
                             		} else {
-                            		    echo "Keine Vereine gefunden.";
+                            		    echo "unbekannt/vereinslos";
                             		}
                         		}
                         		?>

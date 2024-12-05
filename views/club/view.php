@@ -1,6 +1,7 @@
 <?php
 use yii\helpers\Html;
 use app\components\Helper;
+use app\models\Club;
 
 /* @var $this yii\web\View */
 /* @var $club app\models\Club */
@@ -11,6 +12,7 @@ use app\components\Helper;
 /* @var $squad app\models\Spieler[] */
 
 $this->title = $club->namevoll;
+$currentYear = date('Y');
 ?>
 
 <div class="verein-page">
@@ -227,7 +229,7 @@ $this->title = $club->namevoll;
             <div class="card-body">
                 <!-- Vereins-Kader anzeigen, falls vorhanden -->
                 <?php if ($squad): ?>
-                    <h4>Vereins-Kader</h4>
+                    <h4>Saison <?= $currentYear . '/' . ($currentYear+1); ?></h4><br>
                     <div class="row five-column-layout">
                         <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
                             <?php 
@@ -269,12 +271,26 @@ $this->title = $club->namevoll;
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <div style="text-align: right;">
+							<?= Html::a('Kompletter Kader', ['/kader/' . $club->id . '/' . $currentYear], ['class' => 'text-decoration-none']) ?>
+						</div>
                     </div>
                 <?php endif; ?>
                 
                 <!-- National-Kader anzeigen, falls vorhanden -->
                 <?php if ($nationalSquad): ?>
-                    <h4>National-Kader</h4>
+                <?php 
+                    $lastMatch = Club::getLastMatch($club->id);
+                    
+                    if (!$lastMatch) {
+                        // Keine Spiele gefunden, leere Sammlung zurückgeben
+                        return [];
+                    }
+                    
+                    $wettbewerbID = $lastMatch['wettbewerbID'];
+                    $jahr = $lastMatch['jahr'];
+                ?>
+                    <h4><?= Helper::getTurniername($wettbewerbID) . ' ' . $jahr; ?></h4><br>
                     <div class="row five-column-layout">
                         <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
                             <?php 
@@ -316,6 +332,9 @@ $this->title = $club->namevoll;
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <div style="text-align: right;">
+							<?= Html::a('Kompletter Kader', ['/kader/' . $club->id . '/' . $jahr . '/' . $wettbewerbID], ['class' => 'text-decoration-none']) ?>
+						</div>
                     </div>
                 <?php endif; ?>
             </div>

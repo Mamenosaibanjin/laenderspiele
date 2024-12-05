@@ -288,7 +288,7 @@ class Helper
     public static function getClubsAtTurnier($playerId, $turnier, $jahr)
     {
         // Wenn kein Turnier angegeben ist
-        if ($turnier == 0) {
+        if ($turnier == 0 OR $turnier == 42) {
             $query = (new \yii\db\Query())
             ->select(['c.id'])
             ->from(['c' => 'clubs'])

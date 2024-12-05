@@ -85,12 +85,12 @@ class Club extends ActiveRecord
         ->all();
     }
     
-    public function getLastMatch()
+    public static function getLastMatch($clubID)
     {
         return Spiel::find()
         ->alias('s')
         ->leftJoin('turnier t', 's.id = t.spielID')
-        ->where(['or', ['s.club1ID' => $this->id], ['s.club2ID' => $this->id]])
+        ->where(['or', ['s.club1ID' => $clubID], ['s.club2ID' => $clubID]])
         ->andWhere(['<=', 't.datum', new \yii\db\Expression('NOW()')])
         ->select(['wettbewerbID' => 't.wettbewerbID', 'jahr' => 't.jahr'])
         ->orderBy(['t.datum' => SORT_DESC])
@@ -131,8 +131,7 @@ class Club extends ActiveRecord
     {
         // Werte von getLastMatch holen, wenn $wettbewerbID oder $jahr leer sind
         if ((empty($wettbewerbID) && $wettbewerbID != 0) || empty($jahr)) {
-            echo "Beides leer";
-            $lastMatch = $this->getLastMatch();
+            $lastMatch = Club::getLastMatch($clubID);
             
             if (!$lastMatch) {
                 // Keine Spiele gefunden, leere Sammlung zurückgeben
