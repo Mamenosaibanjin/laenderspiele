@@ -140,3 +140,20 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     font-weight: 700;
     text-shadow: rgba(33, 33, 33, 0.2) 3px 3px 3px;
 }
+
+.digital-scoreboard {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2A2A2A; /* Schwarzer Hintergrund */
+    color: #fff; /* Leuchtendes Grün wie bei digitalen Anzeigen */
+    padding: 0px 5px;
+    border-radius: 5px;
+    font-family: 'DSEG', monospace; /* Digitale Segment-Schrift */
+}
+
+
+.digital-scoreboard .divider {
+    color: #fff; /* Divider passt zum Text */
+    margin: 0 3px;
+}

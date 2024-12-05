@@ -27,6 +27,48 @@ class Turnier extends ActiveRecord
         ];
     }
     
+    public static function findTurniere($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
+    {
+        $query = self::find()
+        ->where(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr])
+        ->andFilterWhere(['gruppe' => $gruppe])
+        ->andFilterWhere(['runde' => $runde])
+        ->andFilterWhere(['spieltag' => $spieltag])
+        ->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC]);
+        
+        return $query->all();
+    }
+    
+    public function getErgebnis()
+    {
+        if ($this->spiel) {
+            return $this->spiel->tore1 . ' : ' . $this->spiel->tore2;
+        }
+        return '- : -';
+    }
+    
+    public function getErgebnisHtml()
+    {
+        if ($this->spiel) {
+            return "<div class='digital-scoreboard'>
+                    <span class='digit'>{$this->spiel->tore1}</span>
+                    <span class='divider'>:</span>
+                    <span class='digit'>{$this->spiel->tore2}</span>
+                </div>";
+        }
+        return "<div class='digital-scoreboard'>
+                <span class='digit'>-</span>
+                <span class='divider'>:</span>
+                <span class='digit'>-</span>
+            </div>";
+    }
+    
+    public function getFormattedDate()
+    {
+        return \Yii::$app->formatter->asDate($this->datum, 'php:d.m.Y');
+    }
+    
+    
     /**
      * Relationen zu anderen Tabellen.
      */
@@ -39,6 +81,18 @@ class Turnier extends ActiveRecord
     public function getSpiel()
     {
         return $this->hasOne(Spiel::class, ['id' => 'spielID']);
+    }
+    
+    public function getClub1()
+    {
+        return $this->hasOne(Club::class, ['id' => 'club1ID'])
+        ->via('spiel');
+    }
+    
+    public function getClub2()
+    {
+        return $this->hasOne(Club::class, ['id' => 'club2ID'])
+        ->via('spiel');
     }
 }
 ?>
