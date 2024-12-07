@@ -32,6 +32,34 @@ class Spielbericht extends \yii\base\Model
         });
     }
     
+    public function getTore()
+    {
+        return array_filter($this->games, function ($game) {
+            return in_array($game->aktion, ['TOR', '11m', 'ET']);
+        });
+    }
+    
+    public function getKarten()
+    {
+        return array_filter($this->games, function ($game) {
+            return in_array($game->aktion, ['GK', 'RK', 'GRK']);
+        });
+    }
+    
+    public function getWechsel()
+    {
+        return array_filter($this->games, function ($game) {
+            return in_array($game->aktion, ['AUS']);
+        });
+    }
+    
+    public function getBesondereEreignisse()
+    {
+        return array_filter($this->games, function ($game) {
+            return in_array($game->aktion, ['11,X']);
+        });
+    }
+    
     public function isHeimAktion($game)
     {
         return $this->spiel->isHeimAktion($game);

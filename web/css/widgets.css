@@ -157,3 +157,23 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     color: #fff; /* Divider passt zum Text */
     margin: 0 3px;
 }
+
+.threerows {
+    display: flex;
+    justify-content: space-between; /* Verteilt Widgets gleichmäßig mit Abstand */
+    align-items: flex-start; /* Widgets werden oben ausgerichtet */
+    flex-wrap: wrap; /* Umbrechen der Widgets bei kleiner Bildschirmbreite */
+    gap: 20px; /* Abstand zwischen den Widgets */
+    padding: 0x; /* Optional: Innenabstand */
+    margin-top: 10px;
+}
+
+.oneofthree {
+    flex: 1 1 30%; /* Lässt Widgets flexibel wachsen, minimal 30% */
+    max-width: 30%; /* Begrenzung auf 30% Breite */
+    text-align: left;
+    box-sizing: border-box; /* Padding wird berücksichtigt */
+    padding: 10px;
+    margin: 0 !important;
+}
+

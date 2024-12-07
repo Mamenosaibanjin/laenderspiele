@@ -1,18 +1,17 @@
-<div class="panel panel-default">
-    <div class="panel-heading">Tore</div>
-    <div class="panel-body">
-        <ul>
-            <?php use yii\bootstrap5\Html;
+<div class="minute">
+<?php use app\components\Helper;
+use yii\helpers\Html;
 
-foreach ($highlightAktionen as $aktion): ?>
-                <?php if (in_array($aktion->aktion, ['TOR', '11m'])): ?>
-                    <li>
-                        <?= Html::encode($aktion->minute) ?>' 
-                        <?= Html::encode($aktion->spieler->name) ?> 
-                        <?= $aktion->aktion === '11m' ? '(11m)' : '' ?>
-                    </li>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        </ul>
-    </div>
+Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) . '.' : ' ' ?>
 </div>
+<div class="auswaerts">
+	<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
+   <?= Helper::getActionSvg($aktion->aktion); ?>
+<?php endif;?>
+</div>
+<div class="auswaerts">
+	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
+	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+<?php endif; ?>
+</div>
+<div class="auswaertsname"><?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?></div>

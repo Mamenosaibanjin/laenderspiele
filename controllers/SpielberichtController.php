@@ -26,12 +26,42 @@ class SpielberichtController extends Controller
         ->andWhere(['aktion' => ['TOR', '11m', 'ET', '11mX', 'RK', 'GRK']])
         ->orderBy(['minute' => SORT_ASC])
         ->all();
+                
+        $toreAktionen = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['TOR', '11m', 'ET']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
         
+        $kartenAktionen = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['GK', 'RK', 'GRK']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
+        
+        $wechselAktionen = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['AUS']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
+        
+        
+        $besondereAktionen = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['11mX']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
+        
+       
         return $this->render('view', [
             'spiel' => $spiel,
             'aufstellung1' => $aufstellung1,
             'aufstellung2' => $aufstellung2,
             'highlightAktionen' => $highlightAktionen,
+            'toreAktionen' => $toreAktionen,
+            'kartenAktionen' => $kartenAktionen,
+            'wechselAktionen' => $wechselAktionen,
+            'besondereAktionen' => $besondereAktionen,
         ]);
     }
 }
