@@ -44,7 +44,6 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             <div class="highlights-content">
             <?php foreach ($highlightAktionen as $aktion): ?>
                 <div class="highlight-row">
-                <?php var_dump($aktion);?>
 	                <div class="heimname"><?php Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name);?>
 	                	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
 	                </div>

@@ -121,7 +121,7 @@ class Spiel extends ActiveRecord
         
         // Prüfen, ob Spieler eingewechselt wurde
         return Games::find()
-        ->where(['spielID' => $this->id, 'aktion' => 'EIN', 'spieler2ID' => $spielerID])
+        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
         ->andWhere(['spielerID' => $heimSpielerIDs])
         ->exists();
     }
@@ -156,7 +156,7 @@ class Spiel extends ActiveRecord
         
         // Prüfen, ob Spieler eingewechselt wurde
         return Games::find()
-        ->where(['spielID' => $this->id, 'aktion' => 'EIN', 'spieler2ID' => $spielerID])
+        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
         ->andWhere(['spielerID' => $auswaertsSpielerIDs])
         ->exists();
     }
