@@ -57,6 +57,7 @@ $config = [
                 'about' => 'ueber/view',
                 'spiele/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'spiele/view',
                 'spiele/<wettbewerbID:\d+>/<jahr:\d+>' => 'spiele/view', // Fallback für minimale Parameter
+                'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
                 
             ],
         ],

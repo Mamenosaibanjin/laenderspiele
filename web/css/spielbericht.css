@@ -1,0 +1,76 @@
+.highlights-box {
+    border: 1px solid #ccc; /* Rahmenfarbe */
+    border-radius: 8px; /* Abgerundete Ecken */
+    padding: 10px; /* Innenabstand */
+    margin: auto; /* Außenabstand */
+    background-color: white; /* Hintergrundfarbe */
+    max-width: 640px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Schatteneffekt */
+    text-align: center;
+}
+
+.highlights-header {
+    font-weight: bold;
+    font-size: 13px;
+    text-align: center;
+    color: rgb(132, 140, 156);
+    background: white;
+    margin: -0.75rem auto auto;
+    padding: 0px 0.5rem;
+}
+
+.highlights-content {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.heim {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: rgb(97, 102, 114);
+	width: 5%;
+}
+
+.auswaerts {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: rgb(97, 102, 114);
+	width: 5%;
+}
+
+.minute {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: rgb(97, 102, 114);
+	width: 10%;
+}
+
+.auswaertsname {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: rgb(97, 102, 114);
+	width: 35% !important;
+	text-align: left;
+}
+.heimname {
+	font-size: 0.75rem;
+	font-weight: 400;
+	color: rgb(97, 102, 114);
+	width: 35%;
+	text-align: right;
+}
+
+.highlight-row{
+	display: flex;
+	justify-content: center; /* Horizontale Zentrierung */
+    align-items: center; /* Vertikale Zentrierung */
+    gap: 10px; /* Abstand zwischen den Elementen */
+    padding: 5px 0; /* Vertikaler Abstand zwischen den Reihen */
+}
+
+.material-icons {
+	position: relative !important;
+	top: 7px !important;
+	padding-right: 5px !important;
+	color: #1C75AC;
+}

@@ -27,6 +27,10 @@ class AppAsset extends AssetBundle
         'https://keshikan.net/fonts-e.html',
         'css/site.css',
         'css/widgets.css',
+        'css/spielbericht.css',
+        'css/site.css',
+        'https://fonts.googleapis.com/css2?family=Material+Icons&display=swap',
+        
     ];
     public $js = [
     ];

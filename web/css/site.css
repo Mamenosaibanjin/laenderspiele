@@ -88,9 +88,10 @@ a.desc:after {
 }
 
 .flag {
-    width: 32px;   /* Breite der Flagge */
-    height: auto;  /* Automatische Höhe beibehalten */
+    height: 20px;   /* Höhe der Flagge */
+    width: auto;  /* Automatische Breite beibehalten */
     border-radius: 4px; /* Optional: Abgerundete Ecken */
+    border: 1px solid darkgrey;
 }
 
 #footer .nav-link {
