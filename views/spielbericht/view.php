@@ -211,7 +211,22 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                 $spieler = $spiel->aufstellung1->$spielerProperty ?? null;
                 ?>
                 <?php if ($spieler): ?>
-                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?><br>
+                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
+                    <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
+                    <?php 
+                    if ($aktionen) :
+                        foreach ($aktionen AS $aktion) :
+                        
+                        if ($aktion == 'TOR' || $aktion == '11mX' || $aktion == '11m' || $aktion == 'ET' || $aktion == 'RK' || $aktion == 'GRK' || $aktion == 'GK' || $aktion == 'AUS') :
+                        
+                            echo Helper::getActionSvg($aktion);
+                        
+                        endif;
+                    
+                        endforeach;
+                    endif;
+                    ?>
+                    <br>
                 <?php endif; ?>
             <?php endforeach; ?>
         	<?php if ($trainer = $spiel->aufstellung1->coach ?? null): ?>
@@ -236,7 +251,22 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                 $spieler = $spiel->aufstellung2->$spielerProperty ?? null;
                 ?>
                 <?php if ($spieler): ?>
-                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?><br>
+                    <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
+                    <?php 
+                    if ($aktionen) :
+                        foreach ($aktionen AS $aktion) :
+                        
+                        if ($aktion == 'TOR' || $aktion == '11mX' || $aktion == '11m' || $aktion == 'ET' || $aktion == 'RK' || $aktion == 'GRK' || $aktion == 'GK' || $aktion == 'AUS') :
+                        
+                            echo Helper::getActionSvg($aktion);
+                        
+                        endif;
+                    
+                        endforeach;
+                    endif;
+                    ?>
+                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
+                    <br>
                 <?php endif; ?>
             <?php endforeach; ?>
         	<?php if ($trainer = $spiel->aufstellung2->coach ?? null): ?>

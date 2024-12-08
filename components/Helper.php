@@ -383,8 +383,31 @@ class Helper
     	                			 <path fill="#C00" d="M.62 3.48C1.9 3.14 12.2.37 13.49.02c.5-.1.89.2.99.59.51 1.88 4.55 16.93 5.05 18.82C19.53 19.587.62 3.48.62 3.48z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
     	                		</svg>';
                 break;
+            case 'AUS':
+                $svgGrafik = '<span class="substitutebutton">
+                                    <svg style="color: rgb(204,0,0); height: 12px; fill: currentcolor;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                        data-sentry-element="Svg" data-sentry-component="ArrowDown" data-sentry-source-file="icons.tsx">
+                                        <path d="M9.22 15.87H4l4.09 4.04L12.14 24l4.05-4.09 4.09-4.04h-5.22V0H9.22V15.87z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
+                                    </svg>
+                               </span>';
         }
         return $svgGrafik;
+    }
+    
+    public static function getActionSymbol($spielId, $spielerId) {
+        $query = (new \yii\db\Query())
+        ->select(['aktion'])
+        ->from(['games'])
+        ->where([
+            'spielID' => $spielId,
+            'spielerID' => $spielerId,
+        ])
+        ->orderBy(['minute' => SORT_DESC]);
+        
+        // Alle Ergebnisse abrufen
+        $aktionen = $query->column(); // Gibt ein Array aller IDs zurück
+        
+        return !empty($aktionen) ? $aktionen : null;
     }
 }
 ?>
