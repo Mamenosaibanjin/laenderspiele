@@ -54,36 +54,59 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             <div class="highlights-content">
             <?php foreach ($highlightAktionen as $aktion): ?>
                 <div class="highlight-row">
-                <?php echo "Aktion: " . $aktion->aktion . "<br>";
-                if ($spiel->isHeimAktion($aktion->spieler->id)) { echo "HeimAktion: " . $spiel->isHeimAktion($aktion->spieler->id) . "<br>"; }
-                if ($spiel->isAuswaertsAktion($aktion->spieler->id)) { echo "AuswaertsAktion: " . $spiel->isAuswaertsAktion($aktion->spieler->id) . "<br>"; }?>
-                <div class="heimname"><?php Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name);?>
-	                	<?= ($aktion != 'ET' && $spiel->isHeimAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id))) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+	                <div class="heimname"><?php Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name);?>
+	                	<?php if ($aktion->aktion != 'ET') :?>
+	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+	                	<?php else :?>
+	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+	                	<?php endif;?>
 	                </div>
 	                <div class="heim">
 	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
-	                		<?= ($aktion != 'ET' && $spiel->isHeimAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id))) ? Html::encode($aktion->zusatz) : ' ' ?>
+	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+	                   	<?php elseif ($aktion->aktion == 'ET') :?>
+	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
 	                	<?php endif; ?>
 	                </div>
 	                <div class="heim">
-	                	<?php if ($aktion != 'ET' && $spiel->isHeimAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id))) : ?>
-           	            	<?= Helper::getActionSvg($aktion->aktion); ?>
+	                	<?php if ($aktion->aktion != 'ET') :?>
+	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
+	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+	                	    <?php endif; ?>
+	                	<?php else :?>
+	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
+	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+	                	    <?php endif; ?>
 	                	<?php endif;?>
 	                </div>
                     <div class="minute">
                     	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) . '.' : ' ' ?>
                     </div>
 	                <div class="auswaerts">
-	                	<?php if ($aktion != 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isHeimAktion($aktion->spieler->id))) : ?>
-           	               <?= Helper::getActionSvg($aktion->aktion); ?>
+	                	<?php if ($aktion->aktion != 'ET') :?>
+	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
+	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+	                	    <?php endif; ?>
+	                	<?php else :?>
+	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
+	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+	                	    <?php endif; ?>
 	                	<?php endif;?>
 	                </div>
 	                <div class="auswaerts">
-	                	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
-	                		<?= ($aktion != 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isHeimAktion($aktion->spieler->id))) ? Html::encode($aktion->zusatz) : ' ' ?>
+	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
+	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+	                   	<?php elseif ($aktion->aktion == 'ET') :?>
+	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
 	                	<?php endif; ?>
 	                </div>
-	                <div class="auswaertsname"><?= ($aktion != 'ET' && $spiel->isAuswaertsAktion($aktion->spieler->id) || ($aktion == 'ET' && $spiel->isHeimAktion($aktion->spieler->id))) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?></div>
+	                <div class="auswaertsname">
+	                	<?php if ($aktion->aktion != 'ET') :?>
+	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+	                	<?php else :?>
+	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+	                	<?php endif;?>
+	               	</div>
                 </div>
             <?php endforeach; ?>
             </div>
