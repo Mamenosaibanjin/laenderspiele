@@ -12,7 +12,7 @@ use app\models\Spielbericht;
 $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' . Html::encode($spiel->auswaertsClub->name);
 ?>
 
-<div class="card" style="padding-bottom: 25px";>
+<div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
 		<?= '('. Html::encode($spiel->turnier->getErgebnis()) . ')'?>
@@ -26,7 +26,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
     <div class="card-body">
         <div class="row">
             <div class="col-sm-4 text-center">
-                <?= Html::img(Helper::getClubLogoUrl($spiel->heimClub->id), ['alt' => $spiel->heimClub->name, 'class' => 'team-logo', 'style' => 'height: 100px;']) ?>
+                <?= Html::img(Helper::getClubLogoUrl($spiel->heimClub->id), ['alt' => $spiel->heimClub->name, 'class' => 'team-logo', 'style' => 'height: 100px; padding: 10px;']) ?>
                 <div><?= Html::encode($spiel->heimClub->name) ?></div>
             </div>
             <?php //echo "<pre>";var_dump($spiel);echo "</pre>";exit;?>
@@ -39,12 +39,12 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                 <?php endif; ?>
             </div>
             <div class="col-sm-4 text-center">
-                <?= Html::img(Helper::getClubLogoUrl($spiel->auswaertsClub->id), ['alt' => $spiel->auswaertsClub->name, 'class' => 'team-logo', 'style' => 'height: 100px;']) ?>
+                <?= Html::img(Helper::getClubLogoUrl($spiel->auswaertsClub->id), ['alt' => $spiel->auswaertsClub->name, 'class' => 'team-logo', 'style' => 'height: 100px; padding: 10px;']) ?>
                 <div><?= Html::encode($spiel->auswaertsClub->name) ?></div>
             </div>
         </div>
     </div>
-    <div class="panel-body" style="padding-top: 25px;">
+    <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
@@ -113,7 +113,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
         </div>
     </div>
 
-    <div class="panel-body" style="padding-top: 25px;">
+    <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
@@ -189,153 +189,206 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                         </div>
                     <?php endif; ?>
                 <?php endif; ?>
-            </div>            
+            	</div>            
             </div>
         </div>
     </div>
     
     <!-- Widget Aufstellungen -->
-    <div class="panel-body" style="padding-top: 25px;">
+    <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div style="max-width: 640px; margin: auto;">
-        <div class="highlights-box" style="width: 45%; margin-left: 0; float: left;">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Heim
-                </span>
-            </div>
-            <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-            
-    		<?php foreach (range(1, 11) as $i): ?>
-                <?php 
-                $spielerProperty = "spieler{$i}";
-                $spieler = $spiel->aufstellung1->$spielerProperty ?? null;
-                ?>
-                <?php if ($spieler): ?>
-                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
-                    <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
-                    <?php 
-                    if ($aktionen) :
-                        foreach ($aktionen AS $aktion) :
-                        
-                        if ($aktion == 'TOR' || $aktion == '11mX' || $aktion == '11m' || $aktion == 'ET' || $aktion == 'RK' || $aktion == 'GRK' || $aktion == 'GK' || $aktion == 'AUS') :
-                        
-                            echo Helper::getActionSvg($aktion);
-                        
-                        endif;
-                    
-                        endforeach;
-                    endif;
-                    ?>
-                    <br>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        	<?php if ($trainer = $spiel->aufstellung1->coach ?? null): ?>
-    	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
-        	<?php endif; ?>
+            <div style="float: left; width: 45%;">
+            <div class="highlights-box" style="margin-left: 0; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-bottom-style: dashed;">
+            	<div style="margin-top: -23px;">
+                    <span class="highlights-header">
+                        Heim
+                    </span>
+                </div>
+                <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
                 
-            </div>
-        </div>
-        
-        <div class="highlights-box" style="width: 45%; margin-right: 0px; padding-right: 20px;">
-        
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Auswärts
-                </span>
-            </div>
-                        <div class="highlights-content auswaertsname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-            
-    		<?php foreach (range(1, 11) as $i): ?>
-                <?php 
-                $spielerProperty = "spieler{$i}";
-                $spieler = $spiel->aufstellung2->$spielerProperty ?? null;
-                ?>
-                <?php if ($spieler): ?>
-                    <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
-                    <?php 
-                    if ($aktionen) :
-                        foreach ($aktionen AS $aktion) :
-                        
-                        if ($aktion == 'TOR' || $aktion == '11mX' || $aktion == '11m' || $aktion == 'ET' || $aktion == 'RK' || $aktion == 'GRK' || $aktion == 'GK' || $aktion == 'AUS') :
-                        
-                            echo Helper::getActionSvg($aktion);
-                        
-                        endif;
+            		<?php foreach (range(1, 11) as $i): ?>
+                        <?php 
+                        $spielerProperty = "spieler{$i}";
+                        $spieler = $spiel->aufstellung1->$spielerProperty ?? null;
+                        ?>
+                        <?php if ($spieler): ?>
+                            <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?> 
+                            <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
+                            <?php 
+                            if ($aktionen) :
+                                foreach ($aktionen AS $aktion) :
+                                if (isset($aktionen[0]['aktion']) &&
+                                    in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                        
+                                        echo Helper::getActionSvg($aktionen[0]['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>';
+                                    }
+                                    
+                                endforeach;
+                            endif;
+                            ?>
+                            <br>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+
                     
-                        endforeach;
-                    endif;
-                    ?>
-                    <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
-                    <br>
-                <?php endif; ?>
-            <?php endforeach; ?>
-        	<?php if ($trainer = $spiel->aufstellung2->coach ?? null): ?>
-    	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
-        	<?php endif; ?>
-                
+                </div>
             </div>
+            <div class="highlights-box" style="margin-left: 0px; padding: 10p; border-radius: 0px; border-top-style: dashed;">
+				<div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
+                	<?php foreach ($wechselHeim as $aktion): ?>
+    	                <?= Html::encode(($aktion->spieler2->vorname ? $aktion->spieler2->vorname : '') . ' '  . $aktion->spieler2->name)?>
+    	                <?php $aktionen = Helper::getActionSymbol($spiel->id, $aktion->spieler2->id); ?>
+    	                <?php 
+                            if ($aktionen) :
+                            foreach ($aktionen AS $aktion) :
+                                    if (isset($aktionen[0]['aktion']) &&
+                                        in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                            
+                                            echo Helper::getActionSvg($aktionen[0]['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>';
+                                        }
+                                endforeach;
+                            endif;
+                            ?>
+                            <br>
+
+                	<?php endforeach; ?>
+				</div>            
+        	</div>
+        	<div class="highlights-box" style="margin-left: 0px; padding: 10px 20px 0 20px; border-top-left-radius: 0px; border-top-right-radius: 0px;">
+				<div class="highlights-content heimname" style="text-align: left; width: 100% !important; font-weight: bold;">
+                	<?php if ($trainer = $spiel->aufstellung1->coach ?? null): ?>
+            	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
+                	<?php endif; ?>
+				</div>            
+        	</div>
+        	</div><div style="float: left; width: 10%;">&nbsp;
+        	</div><div style="float: left; width: 45%;">
+        	<div class="highlights-box" style="margin-right: 0px; padding-right: 20px; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px;">
+        
+            	<div style="margin-top: -23px;">
+                    <span class="highlights-header">
+                        Auswärts
+                    </span>
+                </div>
+                
+				<div class="highlights-content auswaertsname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
+            
+            		<?php foreach (range(1, 11) as $i): ?>
+                        <?php 
+                        $spielerProperty = "spieler{$i}";
+                        $spieler = $spiel->aufstellung2->$spielerProperty ?? null;
+                        ?>
+                        <?php if ($spieler): ?>
+                            <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
+                            <?php 
+                            if ($aktionen) :
+                                foreach ($aktionen AS $aktion) :
+                                
+                                if (isset($aktionen[0]['aktion']) &&
+                                    in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS'])) {
+                                        
+                                        echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>' . Helper::getActionSvg($aktionen[0]['aktion']);
+                                    }
+                            
+                                endforeach;
+                            endif;
+                            ?>
+                            <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
+                            <br>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+        	</div>
+            <div class="highlights-box" style="margin-left: 0px; padding: 10p; border-radius: 0px; border-top-style: dashed;">
+				<div class="highlights-content heimname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
+                	<?php foreach ($wechselAuswaerts as $aktion): ?>
+    	                <?php $aktionen = Helper::getActionSymbol($spiel->id, $aktion->spieler2->id); ?>
+    	                <?php 
+                            if ($aktionen) :
+                                if (isset($aktionen[0]['aktion']) && in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                    echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>' . Helper::getActionSvg($aktionen[0]['aktion']);
+                                }
+                            endif;
+                            ?>
+    	                <?= Html::encode(($aktion->spieler2->vorname ? $aktion->spieler2->vorname : '') . ' '  . $aktion->spieler2->name)?>
+                            <br>
+
+                	<?php endforeach; ?>
+				</div>            
+        	</div>
+        	<div class="highlights-box" style="margin-left: 0px; padding: 10px 20px 0 20px; border-top-left-radius: 0px; border-top-right-radius: 0px;">
+				<div class="highlights-content auswaertsname" style="text-align: right; width: 100% !important; font-weight: bold;">
+                	<?php if ($trainer = $spiel->aufstellung2->coach ?? null): ?>
+            	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
+                	<?php endif; ?>
+				</div>            
+        	</div>
+        	</div>
         </div>
+    </div>
 
     <!-- Tore-Widget -->
-    <div class="panel-body threerows" style="padding-top: 25px;">
-        <div class="highlights-box oneofthree">
+    <div class="panel-body" style="padding: 25px 25px 0 25px;">
+        <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
                     Tore
                 </span>
             </div>
-            <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-            
+            <div class="highlights-content">
 			<?php foreach ($toreAktionen as $aktion): ?>
                 <div class="highlight-row">
-                    <div class="minute">
-                    	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) . '.' : ' ' ?>
+                    <div class="minute" style="width: 10%;">
+                    	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) : ' ' ?>
                     </div>
 	                <div class="auswaerts" style="width: 10%;"><?= Helper::getActionSvg($aktion->aktion); ?></div>
 	                <div class="auswaerts" style="width: 10%;">
-	                	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
+	                	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m' || $aktion->aktion == 'ET') :?>
 	                		<?= Html::encode($aktion->zusatz); ?>
 	                	<?php endif; ?>
 	                </div>
 	                <div class="auswaertsname" style="width: 70% !important;"><?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?></div>
                 </div>
-            <?php endforeach; ?>                
+            <?php endforeach; ?>
+            
             </div>
         </div>
+    </div>
         
-		<!-- Karten-Widget -->
-        <div class="highlights-box oneofthree">
+    <!-- Karten-Widget -->
+   <div class="panel-body" style="padding: 25px 25px 0 25px;">
+        <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
                     Karten
                 </span>
             </div>
-            <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
+            <div class="highlights-content">
 			<?php foreach ($kartenAktionen as $aktion): ?>
                 <div class="highlight-row">
-                    <div class="minute"><?= Html::encode($aktion->minute)?>
-                    </div>
+                    <div class="minute" style="width: 10%;"><?= Html::encode($aktion->minute)?></div>
 	                <div class="auswaerts" style="width: 10%;"><?= Helper::getActionSvg($aktion->aktion); ?></div>
-	                <div class="auswaertsname" style="width: 70% !important;"><?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?></div>
+	                <div class="auswaertsname" style="width: 80% !important;"><?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?></div>
                 </div>
             <?php endforeach; ?>                
             </div>
         </div>
+    </div>
 
-		<!-- Wechsel-Widget -->
-        <div class="highlights-box oneofthree">
+	<!-- Wechsel-Widget -->
+   <div class="panel-body" style="padding: 25px 25px 0 25px;">
+        <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
                     Wechsel
                 </span>
             </div>
-            <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
+            <div class="highlights-content">
 			<?php foreach ($wechselAktionen as $aktion): ?>
                 <div class="highlight-row">
-                    <div class="minute"><?= Html::encode($aktion->minute)?>
-                    </div>
+                    <div class="minute" style="width: 10%;"><?= Html::encode($aktion->minute)?></div>
 	                <div class="auswaerts" style="width: 10%;"><i class="fa fa-exchange" aria-hidden="true"></i></div>
-	                <div class="auswaertsname" style="width: 70% !important; line-height: 19px;">
+	                <div class="auswaertsname" style="width: 80% !important; line-height: 19px;">
 	                <?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?><br>
 	                <?php if ($aktion->spieler2) : ?>
 	                	<?= Html::encode(($aktion->spieler2->vorname ? mb_substr($aktion->spieler2->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler2->name)?>
@@ -343,12 +396,10 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
 	                	unbekannt
 	                <?php endif; ?>
 	                
-	                	                </div>
+   	                </div>
                 </div>
             <?php endforeach; ?>                
             </div>
         </div>
     </div>
-        
 </div>
-            <?php //echo "<pre>";var_dump($highlightAktionen);echo "</pre>";die;?>

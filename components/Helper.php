@@ -389,23 +389,44 @@ class Helper
                                         data-sentry-element="Svg" data-sentry-component="ArrowDown" data-sentry-source-file="icons.tsx">
                                         <path d="M9.22 15.87H4l4.09 4.04L12.14 24l4.05-4.09 4.09-4.04h-5.22V0H9.22V15.87z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
                                     </svg>
-                               </span>';
+                               </span>';#
+                break;
+            case 'EIN':
+                $svgGrafik = '<span class="substitutebutton">
+                                    <svg style="transform: rotate(180deg); color: rgb(166, 184, 81); height: 12px; fill: currentcolor;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                        data-sentry-element="Svg" data-sentry-component="ArrowUp" data-sentry-source-file="icons.tsx">
+                                        <path d="M9.22 15.87H4l4.09 4.04L12.14 24l4.05-4.09 4.09-4.04h-5.22V0H9.22V15.87z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
+                                    </svg>
+                              </span>';
+                break;
         }
         return $svgGrafik;
     }
     
     public static function getActionSymbol($spielId, $spielerId) {
         $query = (new \yii\db\Query())
-        ->select(['aktion'])
-        ->from(['games'])
+        ->select(['spielID', 'minute', 'aktion', 'spielerID', 'zusatz', 'spieler2ID'])
+        ->from('games')
         ->where([
             'spielID' => $spielId,
-            'spielerID' => $spielerId,
+        ])
+        ->andWhere([
+            'or',
+            ['spielerID' => $spielerId],
+            ['and', ['spieler2ID' => $spielerId], ['aktion' => 'AUS']],
         ])
         ->orderBy(['minute' => SORT_DESC]);
         
         // Alle Ergebnisse abrufen
-        $aktionen = $query->column(); // Gibt ein Array aller IDs zurück
+        $aktionen = $query->all();
+        
+        // Transformation der Daten
+        foreach ($aktionen as &$aktion) {
+            if ($aktion['aktion'] === 'AUS' && $aktion['spieler2ID'] == $spielerId) {
+                $aktion['spielerID'] = $aktion['spieler2ID'];
+                $aktion['aktion'] = 'EIN';
+            }
+        }
         
         return !empty($aktionen) ? $aktionen : null;
     }

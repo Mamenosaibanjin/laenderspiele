@@ -45,6 +45,19 @@ class SpielberichtController extends Controller
         ->orderBy(['minute' => SORT_ASC])
         ->all();
         
+        $wechselHeim = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['AUS']])
+        ->andWhere(['zusatz' => ['H']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
+        
+        $wechselAuswaerts = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->andWhere(['aktion' => ['AUS']])
+        ->andWhere(['zusatz' => ['A']])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
         
         $besondereAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
@@ -62,6 +75,8 @@ class SpielberichtController extends Controller
             'kartenAktionen' => $kartenAktionen,
             'wechselAktionen' => $wechselAktionen,
             'besondereAktionen' => $besondereAktionen,
+            'wechselHeim' => $wechselHeim,
+            'wechselAuswaerts' => $wechselAuswaerts,
         ]);
     }
 }
