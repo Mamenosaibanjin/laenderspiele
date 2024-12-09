@@ -65,7 +65,7 @@ JS;
                 'options' => ['class' => 'navbar-nav'], // Navigation zentriert
                 'items' => [
                     ['label' => 'Home', 'url' => ['/site/index']],
-                    ['label' => 'About', 'url' => ['/site/about']],
+                   // ['label' => 'About', 'url' => ['/site/about']],
                     // Weitere Links...
                 ],
             ]); ?>
@@ -93,8 +93,8 @@ JS;
                 <?= Nav::widget([
                     'options' => ['class' => 'nav justify-content-end'],
                     'items' => [
-                        ['label' => 'About', 'url' => ['/site/about']],
-                        ['label' => 'Kontakt/Impressum', 'url' => ['/site/contact']],
+                        ['label' => 'Kontakt', 'url' => ['/contact']],
+                        ['label' => 'Impressum', 'url' => ['/impressum']],
                     ]
                 ]); ?>
             </div>

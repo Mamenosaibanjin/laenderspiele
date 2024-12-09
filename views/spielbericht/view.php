@@ -237,7 +237,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                         $spieler = $spiel->aufstellung1->$spielerProperty ?? null;
                         ?>
                         <?php if ($spieler): ?>
-                            <?= Html::a(Html::encode($spieler->vorname . ' ' . $spieler->name), ['spieler/' . $spieler->id], ['style' => 'font-size: 0,75 rem; font-weight: 400; color: rgb(97,102,114);']) ?> 
+                            <?= Html::a(Html::encode($spieler->vorname . ' ' . $spieler->name), ['spieler/' . $spieler->id], ['class' => 'text-decoration-none']) ?> 
                             <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
                             <?php 
                             if ($aktionen) :
