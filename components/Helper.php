@@ -415,7 +415,7 @@ class Helper
             ['spielerID' => $spielerId],
             ['and', ['spieler2ID' => $spielerId], ['aktion' => 'AUS']],
         ])
-        ->orderBy(['minute' => SORT_DESC]);
+        ->orderBy(['minute' => SORT_ASC]);
         
         // Alle Ergebnisse abrufen
         $aktionen = $query->all();

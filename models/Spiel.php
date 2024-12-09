@@ -97,6 +97,7 @@ class Spiel extends ActiveRecord
     public function isHeimAktion($spielerID)
     {
         if (!$spielerID || !$this->aufstellung1) {
+            echo "heim 1";
             return false;
         }
         
@@ -116,15 +117,39 @@ class Spiel extends ActiveRecord
         ];
         
         if (in_array($spielerID, $heimSpielerIDs, true)) {
+            echo "Heim 2";
             return true;
         }
         
-        // Prüfen, ob Spieler eingewechselt wurde
-        return Games::find()
-        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
-        ->andWhere(['spielerID' => $heimSpielerIDs])
-        ->exists();
+        // Prüfen, ob der Spieler über eine Wechselkette mit einem Heimspieler verbunden ist
+        return $this->isEingewechselterHeimspieler($spielerID, $heimSpielerIDs);
     }
+    
+    private function isEingewechselterHeimspieler($spielerID, $heimSpielerIDs)
+    {
+        // Initiale Abfrage: Spieler wurde eingewechselt
+        $wechselAktion = Games::find()
+        ->select(['spielerID'])
+        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
+        ->one();
+        
+        if (!$wechselAktion) {
+            // Kein vorheriger Wechsel gefunden
+            return false;
+        }
+        
+        // SpielerID des Auswechselspielers abrufen
+        $ausgewechselterSpielerID = $wechselAktion['spielerID'];
+        
+        // Prüfen, ob dieser Spieler in der Startaufstellung war
+        if (in_array($ausgewechselterSpielerID, $heimSpielerIDs, true)) {
+            return true;
+        }
+        
+        // Rekursive Überprüfung für den ausgewechselten Spieler
+        return $this->isEingewechselterHeimspieler($ausgewechselterSpielerID, $heimSpielerIDs);
+    }
+    
     
     /**
      * Prüft, ob eine Aktion einer Auswärtsmannschaft zugeordnet ist.
@@ -154,11 +179,34 @@ class Spiel extends ActiveRecord
             return true;
         }
         
-        // Prüfen, ob Spieler eingewechselt wurde
-        return Games::find()
-        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
-        ->andWhere(['spielerID' => $auswaertsSpielerIDs])
-        ->exists();
+        // Prüfen, ob der Spieler über eine Wechselkette mit einem Auswärtsspieler verbunden ist
+        return $this->isEingewechselterAuswaertsspieler($spielerID, $auswaertsSpielerIDs);
     }
+    
+    private function isEingewechselterAuswaertsspieler($spielerID, $auswaertsSpielerIDs)
+    {
+        // Initiale Abfrage: Spieler wurde eingewechselt
+        $wechselAktion = Games::find()
+        ->select(['spielerID'])
+        ->where(['spielID' => $this->id, 'aktion' => 'AUS', 'spieler2ID' => $spielerID])
+        ->one();
+        
+        if (!$wechselAktion) {
+            // Kein vorheriger Wechsel gefunden
+            return false;
+        }
+        
+        // SpielerID des Auswechselspielers abrufen
+        $ausgewechselterSpielerID = $wechselAktion['spielerID'];
+        
+        // Prüfen, ob dieser Spieler in der Startaufstellung war
+        if (in_array($ausgewechselterSpielerID, $auswaertsSpielerIDs, true)) {
+            return true;
+        }
+        
+        // Rekursive Überprüfung für den ausgewechselten Spieler
+        return $this->isEingewechselterAuswaertsspieler($ausgewechselterSpielerID, $auswaertsSpielerIDs);
+    }
+    
 }
 ?>

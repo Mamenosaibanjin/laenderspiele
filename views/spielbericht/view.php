@@ -52,63 +52,67 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                 </span>
             </div>
             <div class="highlights-content">
-            <?php foreach ($highlightAktionen as $aktion): ?>
-                <div class="highlight-row">
-	                <div class="heimname"><?php Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name);?>
-	                	<?php if ($aktion->aktion != 'ET') :?>
-	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
-	                	<?php else :?>
-	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
-	                	<?php endif;?>
-	                </div>
-	                <div class="heim">
-	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
-	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
-	                   	<?php elseif ($aktion->aktion == 'ET') :?>
-	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
-	                	<?php endif; ?>
-	                </div>
-	                <div class="heim">
-	                	<?php if ($aktion->aktion != 'ET') :?>
-	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
-	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
-	                	    <?php endif; ?>
-	                	<?php else :?>
-	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
-	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
-	                	    <?php endif; ?>
-	                	<?php endif;?>
-	                </div>
-                    <div class="minute">
-                    	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) . '.' : ' ' ?>
+			<?php if ($highlightAktionen) : ?>
+                <?php foreach ($highlightAktionen as $aktion): ?>
+                    <div class="highlight-row">
+    	                <div class="heimname"><?php Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name);?>
+    	                	<?php if ($aktion->aktion != 'ET') :?>
+    	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+    	                	<?php else :?>
+    	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+    	                	<?php endif;?>
+    	                </div>
+    	                <div class="heim">
+    	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
+    	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+    	                   	<?php elseif ($aktion->aktion == 'ET') :?>
+    	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+    	                	<?php endif; ?>
+    	                </div>
+    	                <div class="heim">
+    	                	<?php if ($aktion->aktion != 'ET') :?>
+    	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
+    	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+    	                	    <?php endif; ?>
+    	                	<?php else :?>
+    	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
+    	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+    	                	    <?php endif; ?>
+    	                	<?php endif;?>
+    	                </div>
+                        <div class="minute">
+                        	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) . '.' : ' ' ?>
+                        </div>
+    	                <div class="auswaerts">
+    	                	<?php if ($aktion->aktion != 'ET') :?>
+    	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
+    	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+    	                	    <?php endif; ?>
+    	                	<?php else :?>
+    	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
+    	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
+    	                	    <?php endif; ?>
+    	                	<?php endif;?>
+    	                </div>
+    	                <div class="auswaerts">
+    	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
+    	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+    	                   	<?php elseif ($aktion->aktion == 'ET') :?>
+    	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
+    	                	<?php endif; ?>
+    	                </div>
+    	                <div class="auswaertsname">
+    	                	<?php if ($aktion->aktion != 'ET') :?>
+    	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+    	                	<?php else :?>
+    	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
+    	                	<?php endif;?>
+    	               	</div>
                     </div>
-	                <div class="auswaerts">
-	                	<?php if ($aktion->aktion != 'ET') :?>
-	                		<?php if ($spiel->isAuswaertsAktion($aktion->spieler->id)) : ?>
-	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
-	                	    <?php endif; ?>
-	                	<?php else :?>
-	                		<?php if ($spiel->isHeimAktion($aktion->spieler->id)) : ?>
-	                	    	<?= Helper::getActionSvg($aktion->aktion); ?>
-	                	    <?php endif; ?>
-	                	<?php endif;?>
-	                </div>
-	                <div class="auswaerts">
-	                   	<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m') :?>
-	                		<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
-	                   	<?php elseif ($aktion->aktion == 'ET') :?>
-	                		<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode($aktion->zusatz) : ' ' ?>
-	                	<?php endif; ?>
-	                </div>
-	                <div class="auswaertsname">
-	                	<?php if ($aktion->aktion != 'ET') :?>
-	                	   	<?= $spiel->isAuswaertsAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
-	                	<?php else :?>
-	                	   	<?= $spiel->isHeimAktion($aktion->spieler->id) ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : ' ' ?>
-	                	<?php endif;?>
-	               	</div>
-                </div>
-            <?php endforeach; ?>
+                <?php endforeach; ?>
+                <?php else : ?>
+                	keine Highlights
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -217,10 +221,10 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                             <?php 
                             if ($aktionen) :
                                 foreach ($aktionen AS $aktion) :
-                                if (isset($aktionen[0]['aktion']) &&
-                                    in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                if (isset($aktion['aktion']) &&
+                                    in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
                                         
-                                        echo Helper::getActionSvg($aktionen[0]['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>';
+                                        echo Helper::getActionSvg($aktion['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
                                     }
                                     
                                 endforeach;
@@ -241,10 +245,10 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
     	                <?php 
                             if ($aktionen) :
                             foreach ($aktionen AS $aktion) :
-                                    if (isset($aktionen[0]['aktion']) &&
-                                        in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                    if (isset($aktion['aktion']) &&
+                                        in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
                                             
-                                            echo Helper::getActionSvg($aktionen[0]['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>';
+                                            echo Helper::getActionSvg($aktion['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
                                         }
                                 endforeach;
                             endif;
@@ -280,14 +284,14 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                         ?>
                         <?php if ($spieler): ?>
                             <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
-                            <?php 
+                            <?php
                             if ($aktionen) :
                                 foreach ($aktionen AS $aktion) :
                                 
-                                if (isset($aktionen[0]['aktion']) &&
-                                    in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS'])) {
+                                if (isset($aktion['aktion']) &&
+                                    in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS'])) {
                                         
-                                        echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>' . Helper::getActionSvg($aktionen[0]['aktion']);
+                                        echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px; padding-left: 5px;">' . $aktion['minute'] . '\'</span>' . Helper::getActionSvg($aktion['aktion']);
                                     }
                             
                                 endforeach;
@@ -305,8 +309,8 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
     	                <?php $aktionen = Helper::getActionSymbol($spiel->id, $aktion->spieler2->id); ?>
     	                <?php 
                             if ($aktionen) :
-                                if (isset($aktionen[0]['aktion']) && in_array($aktionen[0]['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
-                                    echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px;">' . $aktionen[0]['minute'] . '\'</span>' . Helper::getActionSvg($aktionen[0]['aktion']);
+                                if (isset($aktion['aktion']) && in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
+                                    echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px; padding-left: 5px;">' . $aktion['minute'] . '\'</span>' . Helper::getActionSvg($aktion['aktion']);
                                 }
                             endif;
                             ?>
@@ -328,6 +332,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
     </div>
 
     <!-- Tore-Widget -->
+    <?php if ($toreAktionen) :?>
     <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
         	<div style="margin-top: -23px;">
@@ -354,8 +359,10 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             </div>
         </div>
     </div>
+    <?php endif; ?>
         
     <!-- Karten-Widget -->
+    <?php if ($kartenAktionen) :?>
    <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
         	<div style="margin-top: -23px;">
@@ -374,8 +381,10 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             </div>
         </div>
     </div>
+    <?php endif; ?>
 
 	<!-- Wechsel-Widget -->
+	<?php if ($wechselAktionen) : ?>
    <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
         	<div style="margin-top: -23px;">
@@ -402,4 +411,5 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             </div>
         </div>
     </div>
+    <?php endif; ?>
 </div>
