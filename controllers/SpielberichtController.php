@@ -23,13 +23,14 @@ class SpielberichtController extends Controller
         
         $highlightAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
-        ->andWhere(['aktion' => ['TOR', '11m', 'ET', '11mX', 'RK', 'GRK']])
+        ->andWhere(['aktion' => ['TOR', '11m', 'ET', 'RK', 'GRK']])
+        ->andWhere(['<', 'minute', 200]) // Bedingung für Minuten kleiner als 200
         ->orderBy(['minute' => SORT_ASC])
         ->all();
                 
         $toreAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
-        ->andWhere(['aktion' => ['TOR', '11m', 'ET']])
+        ->andWhere(['aktion' => ['TOR', '11m', 'ET', '11mX']])
         ->orderBy(['minute' => SORT_ASC])
         ->all();
         
@@ -62,6 +63,7 @@ class SpielberichtController extends Controller
         $besondereAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
         ->andWhere(['aktion' => ['11mX']])
+        ->andWhere(['<', 'minute', 200]) // Bedingung für Minuten kleiner als 200
         ->orderBy(['minute' => SORT_ASC])
         ->all();
         

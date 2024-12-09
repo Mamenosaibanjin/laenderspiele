@@ -326,6 +326,26 @@ class Helper
         return $query;
     }
     
+    public static function getTurniernameFullname($turnier, $jahr)
+    {
+        $query = (new \yii\db\Query())
+        ->select(['name', 'land'])
+        ->from(['wettbewerb'])
+        ->where(['ID' => $turnier])
+        ->one(); // Ändere scalar() zu one()
+        
+        if ($query) {
+            $turniername = $query['name'] . " " . $jahr;
+            if ($turnier >= 500) :
+                $turniername .= "/" . ($jahr+1);
+            endif;
+            return '<b>' . $turniername . '</b>';
+        }
+        
+        return null; // Fallback, falls kein Datensatz gefunden wird
+    }
+    
+    
     // Funktion, um das passende SVG für die Aktion zu generieren
     public static function getActionSvg($aktion) {
         $svgGrafik = '';
@@ -415,6 +435,7 @@ class Helper
             ['spielerID' => $spielerId],
             ['and', ['spieler2ID' => $spielerId], ['aktion' => 'AUS']],
         ])
+        ->andWhere(['<', 'minute', 200]) // Bedingung für Minuten kleiner als 200
         ->orderBy(['minute' => SORT_ASC]);
         
         // Alle Ergebnisse abrufen

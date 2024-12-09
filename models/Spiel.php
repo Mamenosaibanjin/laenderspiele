@@ -71,6 +71,11 @@ class Spiel extends ActiveRecord
         return $this->hasOne(Stadiums::class, ['id' => 'stadiumID']);
     }
 
+    public function getSpieler($spielerID)
+    {
+        return Spieler::findOne(['id' => $spielerID]);
+    }
+    
     public function getReferee1()
     {
         return $this->hasOne(Referee::class, ['id' => 'referee1ID']);
@@ -97,7 +102,6 @@ class Spiel extends ActiveRecord
     public function isHeimAktion($spielerID)
     {
         if (!$spielerID || !$this->aufstellung1) {
-            echo "heim 1";
             return false;
         }
         
@@ -117,7 +121,6 @@ class Spiel extends ActiveRecord
         ];
         
         if (in_array($spielerID, $heimSpielerIDs, true)) {
-            echo "Heim 2";
             return true;
         }
         
@@ -208,5 +211,15 @@ class Spiel extends ActiveRecord
         return $this->isEingewechselterAuswaertsspieler($ausgewechselterSpielerID, $auswaertsSpielerIDs);
     }
     
+    public function getGegnerTorhueter($spielerID)
+    {
+        // Prüfen, ob der Spieler zur Heimmannschaft gehört
+        if ($this->isHeimAktion($spielerID)) {
+            // Wenn Heimspieler, Torhüter der Gastmannschaft abrufen
+            return $this->aufstellung2 ? $this->aufstellung2->spieler1ID : null;
+        }
+        // Wenn Gastspieler, Torhüter der Heimmannschaft abrufen
+        return $this->aufstellung1 ? $this->aufstellung1->spieler1ID : null;
+    }
 }
 ?>
