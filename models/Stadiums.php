@@ -41,5 +41,17 @@ class Stadiums extends ActiveRecord
             'kapazitaet' => 'Kapazität',
         ];
     }
+
+    public static function getZufallsId()
+    {
+        $query = Stadiums::find()
+        ->select(['id']) // Spalten auswählen
+        ->orderBy(['rand()' => SORT_DESC]) // Sortieren
+        ->limit(1)
+        ->all();
+        
+        return $query[0]['id'];
+    }
+    
 }
 ?>

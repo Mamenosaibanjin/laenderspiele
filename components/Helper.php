@@ -98,8 +98,59 @@ class Helper
         if ($land) {
             return $land; // Gebe den Wert der Spalte `land` zurück
         }
+        
+    }
+    
+        /**
+     * Gibt den Nationskürzel eines Vereins zurück.
+     * @param int|string $clubId Die ID des Vereins.
+     * @return string Der Nationskürzel des Vereinswappens.
+     */
+    public static function getStadionNation($stadionId)
+    {
+        // Holen Sie sich die Datenbankverbindung
+        $db = \Yii::$app->db;
+        
+        // SQL-Abfrage, um die Spalte `land` aus der Club-Tabelle abzurufen
+        $sql = "SELECT land FROM stadiums WHERE id = :stadionId";
+        
+        // Führe die Abfrage aus und hole das Ergebnis
+        $land = $db->createCommand($sql)
+        ->bindValue(':stadionId', $stadionId)
+        ->queryScalar();
+        
+        // Überprüfen, ob ein Ergebnis gefunden wurde
+        if ($land) {
+            return $land; // Gebe den Wert der Spalte `land` zurück
+        }
     
     }
+
+     /**
+     * Gibt den Nationskürzel eines Vereins zurück.
+     * @param int|string $clubId Die ID des Vereins.
+     * @return string Der Nationskürzel des Vereinswappens.
+     */
+    public static function getSpielerNation($spielerId)
+    {
+        // Holen Sie sich die Datenbankverbindung
+        $db = \Yii::$app->db;
+        
+        // SQL-Abfrage, um die Spalte `land` aus der Club-Tabelle abzurufen
+        $sql = "SELECT nati1 FROM spieler WHERE id = :spielerId";
+        
+        // Führe die Abfrage aus und hole das Ergebnis
+        $land = $db->createCommand($sql)
+        ->bindValue(':spielerId', $spielerId)
+        ->queryScalar();
+        
+        // Überprüfen, ob ein Ergebnis gefunden wurde
+        if ($land) {
+            return $land; // Gebe den Wert der Spalte `land` zurück
+        }
+    
+    }
+    
     /**
      * Gibt den Namen eines Vereins zurück.
      * @param int|string $clubId Die ID des Vereins.
@@ -123,6 +174,66 @@ class Helper
             return $name; // Gebe den Wert der Spalte `land` zurück
         }
     }
+    
+    
+    /**
+     * Gibt den Namen eines Vereins zurück.
+     * @param int|string $clubId Die ID des Vereins.
+     * @return string Der Name des Vereinswappens.
+     */
+    public static function getStadionName($stadiumId)
+    {
+        // Holen Sie sich die Datenbankverbindung
+        $db = \Yii::$app->db;
+        
+        // SQL-Abfrage, um die Spalte `land` aus der Club-Tabelle abzurufen
+        $sql = "SELECT name FROM stadiums WHERE id = :stadiumId";
+        
+        // Führe die Abfrage aus und hole das Ergebnis
+        $name = $db->createCommand($sql)
+        ->bindValue(':stadiumId', $stadiumId)
+        ->queryScalar();
+        
+        // Überprüfen, ob ein Ergebnis gefunden wurde
+        if ($name) {
+            return $name; // Gebe den Wert der Spalte `land` zurück
+        }
+    }
+    
+    
+    /**
+     * Gibt den Namen eines Vereins zurück.
+     * @param int|string $clubId Die ID des Vereins.
+     * @return string Der Name des Vereinswappens.
+     */
+    public static function getSpielerName($spielerId)
+    {
+        // Holen Sie sich die Datenbankverbindung
+        $db = \Yii::$app->db;
+        
+        // SQL-Abfrage, um die Spalten `vorname` und `name` aus der Tabelle `spieler` abzurufen
+        $sql = "SELECT vorname, name FROM spieler WHERE id = :spielerId";
+        
+        // Führe die Abfrage aus und hole das Ergebnis als Array
+        $result = $db->createCommand($sql)
+        ->bindValue(':spielerId', $spielerId)
+        ->queryOne(); // queryOne gibt ein assoziatives Array zurück
+        
+        // Überprüfen, ob ein Ergebnis gefunden wurde
+        if ($result) {
+            $vorname = $result['vorname'];
+            $name = $result['name'];
+            
+            // Überprüfen, ob `vorname` gesetzt ist und nicht leer
+            if (!empty($vorname)) {
+                return $vorname . ' ' . $name;
+            }
+            return $name; // Nur den Namen zurückgeben, wenn `vorname` nicht gesetzt ist
+        }
+        
+        return null; // Geben Sie null zurück, falls kein Spieler gefunden wurde
+    }
+    
     
     public static function colorToHex($colorName) {
    

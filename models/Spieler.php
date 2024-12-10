@@ -95,5 +95,36 @@ class Spieler extends ActiveRecord
         ];
     }
     
+    public static function getZufallsId()
+    {
+        $query = Spieler::find()
+        ->select(['id']) // Spalten auswählen
+        ->orderBy(['rand()' => SORT_DESC]) // Sortieren
+        ->limit(1)
+        ->all();
+        
+        return $query[0]['id'];
+    }
+    
+    public static function getGeburtstagskinder($datum) {
+        $result = Spieler::find()
+        ->select([
+            'id',
+            'nati1 AS land',
+            'vorname',
+            'name',
+            '(YEAR(CURDATE()) - YEAR(geburtstag)) AS Age',
+            'CURDATE() AS datum',
+        ])
+        ->where(['=', new \yii\db\Expression('SUBSTR(CURDATE(), 6, 5)'), new \yii\db\Expression('SUBSTR(geburtstag, 6, 5)')])
+        ->orderBy(['rand()' => SORT_DESC])
+        ->limit(5)
+        ->asArray()
+        ->all();
+        
+        return $result;
+    }
+    
+    
 }
 ?>

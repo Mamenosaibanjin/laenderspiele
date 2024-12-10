@@ -4,6 +4,8 @@ namespace app\models;
 
 use app\models\Spiel;
 use yii\db\ActiveRecord;
+use Random;
+use PhpParser\Node\Stmt\Expression;
 
 class Club extends ActiveRecord
 {
@@ -57,6 +59,17 @@ class Club extends ActiveRecord
     public function getNation()
     {
         return $this->hasOne(Nation::class, ['kuerzel' => 'land']);
+    }
+    
+    public static function getZufallsId()
+    {
+        $query = Club::find()
+        ->select(['id']) // Spalten auswählen
+        ->orderBy(['rand()' => SORT_DESC]) // Sortieren
+        ->limit(1)
+        ->all();
+        
+        return $query[0]['id'];
     }
     
     public function getRecentMatches()

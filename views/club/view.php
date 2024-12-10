@@ -40,10 +40,13 @@ $currentYear = date('Y');
                                 <?= Html::encode($nation->land_de) ?>
                             </td>
                         </tr>
+                        <?php if ($club->founded) :?>
                         <tr>
                             <th><i class="fas fa-calendar-alt"></i></th>
                             <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
                         </tr>
+                        <?php endif; ?>
+                        <?php if ($club->farben) : ?>
                         <tr>
                             <th><i class="fas fa-palette"></i></th>
                             <td>
@@ -68,7 +71,7 @@ $currentYear = date('Y');
                             <?php endforeach; ?>
                             </td>
                         </tr>
-
+						<?php endif; ?>
 						<?php if (!is_null($stadium)): ?>
                         <tr>
                             <th><i class="fas fa-location-dot"></i></th>
@@ -91,10 +94,12 @@ $currentYear = date('Y');
                             <th><i class="fas fa-phone"></i></th>
                             <td><?= Html::encode($club->telefon) ?></td>
                         </tr>
+                        <?php if ($club->homepage) : ?>
                         <tr>
                             <th><i class="fas fa-laptop-code"></i></th>
                             <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
                         </tr>
+                        <?php endif; ?>
                     </table>
                 </div>
             </div>
@@ -125,9 +130,11 @@ $currentYear = date('Y');
                             <div class="col-10" style="text-align: left;">
                 				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                                 <?= Html::encode($nation->land_de) ?></div>
-                            
+	
+	                        <?php if ($club->founded) :?>
                             <div class="col-2" style="text-align: right;"><i class="fas fa-calendar-alt"></i></div>
                             <div class="col-10" style="text-align: left;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
+                            <?php endif; ?>
                             
 							<?php if (!is_null($stadium)): ?>
                                 <div class="col-2" style="text-align: right;"><i class="fas fa-location-dot"></i></div>
