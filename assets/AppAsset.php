@@ -9,6 +9,7 @@ namespace app\assets;
 
 use yii\web\AssetBundle;
 
+
 /**
  * Main application asset bundle.
  *
@@ -33,6 +34,7 @@ class AppAsset extends AssetBundle
         
     ];
     public $js = [
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

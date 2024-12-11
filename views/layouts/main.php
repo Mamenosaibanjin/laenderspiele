@@ -4,11 +4,13 @@
 /** @var string $content */
 
 use app\assets\AppAsset;
+use app\components\Helper;
 use app\widgets\Alert;
 use yii\bootstrap5\Breadcrumbs;
 use yii\bootstrap5\Html;
 use yii\bootstrap5\Nav;
 use yii\bootstrap5\NavBar;
+use yii\helpers\Url;
 
 AppAsset::register($this);
 
@@ -60,18 +62,52 @@ JS;
         ) ?>
     </div>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <div class="container-fluid justify-content-center">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <!-- Navigationsmenü -->
             <?= Nav::widget([
                 'options' => ['class' => 'navbar-nav'], // Navigation zentriert
                 'items' => [
                     ['label' => 'Home', 'url' => ['/site/index']],
-                   // ['label' => 'About', 'url' => ['/site/about']],
-                    // Weitere Links...
+                    [
+                        'label' => 'Wettbewerbe Männer:', 
+                        'items' => array_merge(
+                            array_map(function($turnier) {
+                                return [
+                                    'label' => $turnier['name'] . ' ' . $turnier['jahr'], // Anzeige des Turniers
+                                    'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
+                                ];
+                            }, Helper::getTurniere('M'))
+                        ),
+                    ],
+                    [
+                        'label' => 'Wettbewerbe Frauen:',
+                        'items' => array_merge(
+                            array_map(function($turnier) {
+                                return [
+                                    'label' => $turnier['name'] . ' ' . $turnier['jahr'], // Anzeige des Turniers
+                                    'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
+                                ];
+                            }, Helper::getTurniere('W'))
+                        ),
+                    ],
                 ],
-            ]); ?>
+            ]) ?>
+
+            <!-- Suchformular am rechten Rand -->
+            <form class="d-flex ms-auto" action="<?= Url::to(['/search/index']) ?>" method="get">
+    <div class="input-group" style="width: 15%; position: absolute; top: 10px; right: 15px;" >
+        <input class="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" name="q" style="margin-right: 0 !important;">
+        <span class="input-group-text"><i class="fa fa-search"></i></span>
+    </div>
+    <button class="btn btn-outline-light" type="submit" style="display: none;"></button>
+</form>
+
         </div>
     </nav>
 </header>
+
+
+
 
 <main id="main" class="flex-shrink-0" role="main">
     <div class="container">

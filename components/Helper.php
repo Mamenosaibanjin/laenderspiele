@@ -563,5 +563,21 @@ class Helper
         return !empty($aktionen) ? $aktionen : null;
     }
     
+    // Diese Methode gibt ein Array von Turnieren zurück, gefiltert nach Geschlecht
+    public static function getTurniere($gender = 'M') {
+        // Beispielhafte Daten für Männer (M) und Frauen (W)
+        $turniere = [
+            'M' => [
+                ['name' => 'Freundschaft', 'jahr' => 2024, 'id' => 0, 'land' => NULL],
+            ],
+            'W' => [
+                ['name' => 'Frauenfreundschaft', 'jahr' => 2024, 'id' => 0, 'land' => NULL],
+            ]
+        ];
+        
+        // Gibt das passende Array basierend auf dem Geschlecht zurück
+        return $turniere[$gender] ?? [];
+    }
+    
 }
 ?>

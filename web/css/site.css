@@ -133,7 +133,7 @@ a.desc:after {
     padding: 10px;
     padding-bottom: 175px;
     transition: background-color 0.3s ease; /* Nur Farbwechsel animieren */
-    overflow: hidden; /* Kein Inhalt außerhalb anzeigen */
+    /*overflow: hidden; /* Kein Inhalt außerhalb anzeigen */
 }
 
 /* Logo-Einstellungen */
@@ -214,4 +214,22 @@ a.desc:after {
 .languages span {
     display: inline-block;
     white-space: nowrap;
+}
+
+/* Dropdown sichtbar machen */
+.navbar-nav .dropdown-menu {
+    display: none;
+}
+
+.navbar-nav .dropdown:hover .dropdown-menu {
+    display: block;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    z-index: 1;
+}
+
+.navbar-nav .dropdown-menu > li > a {
+    padding: 10px;
+    color: #333;
 }
