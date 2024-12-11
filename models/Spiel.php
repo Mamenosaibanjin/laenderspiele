@@ -221,5 +221,57 @@ class Spiel extends ActiveRecord
         // Wenn Gastspieler, Torhüter der Heimmannschaft abrufen
         return $this->aufstellung1 ? $this->aufstellung1->spieler1ID : null;
     }
+    
+    public static function getTodayMatches($played)
+    {
+        $query = Spiel::find()
+        ->alias('s') // Alias für Spiele-Tabelle
+        ->leftJoin('turnier t', 's.id = t.spielID') // Verknüpfung mit Turnier
+        ->where(['DATE(t.datum)' => new \yii\db\Expression('CURDATE()')]) // Nur heutiges Datum
+        ->select(['s.*', 't.*']) // Spalten auswählen
+        ->orderBy(['t.zeit' => SORT_ASC]); // Sortieren
+        
+        if ($played == 1) {
+            // Gespielte Spiele
+            $query->andWhere(['is not', 's.tore1', null])
+            ->andWhere(['is not', 's.tore2', null]);
+        } else {
+            // Noch nicht gespielte Spiele
+            $query->andWhere(['is', 's.tore1', null])
+            ->andWhere(['is', 's.tore2', null]);
+        }
+        
+        return $query->all();
+    }
+    
+    public static function getRecentMatch()
+    {
+        return Spiel::find()
+        ->alias('s') // Alias für Spiele-Tabelle
+        ->leftJoin('turnier t', 's.id = t.spielID') // Verknüpfung mit Turnier
+        ->where(['<', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
+        ->andWhere(['is not', 's.tore1', null])
+        ->andWhere(['is not', 's.tore2', null])
+        ->select(['s.*', 't.*']) // Spalten auswählen
+        ->orderBy(['t.datum' => SORT_DESC, 't.zeit' => SORT_DESC])
+        ->limit(1)
+        ->all();
+    }
+    
+    public static function getUpcomingMatch()
+    {
+        return Spiel::find()
+        ->alias('s') // Alias für Spiele-Tabelle
+        ->leftJoin('turnier t', 's.id = t.spielID') // Verknüpfung mit Turnier
+        ->where(['>', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
+        ->andWhere(['is', 's.tore1', null])
+        ->andWhere(['is', 's.tore2', null])
+        ->select(['s.*', 't.*']) // Spalten auswählen
+        ->orderBy(['t.datum' => SORT_ASC, 't.zeit' => SORT_ASC])
+        ->limit(1)
+        ->all();
+    }
+    
+    
 }
 ?>

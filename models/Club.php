@@ -72,6 +72,26 @@ class Club extends ActiveRecord
         return $query[0]['id'];
     }
     
+    public static function getFehlendeLogos()
+    {
+        // Alle Clubs abrufen
+        $clubs = Club::find()
+        ->orderBy(['name' =>SORT_ASC])
+        ->limit(10)
+        ->all();
+        $fehlendeLogos = [];
+        
+        // Überprüfen, ob das Logo existiert
+        foreach ($clubs as $club) {
+            $logoPath = \Yii::getAlias("@webroot/assets/img/vereine/{$club->id}.gif");
+            if (!file_exists($logoPath)) {
+                $fehlendeLogos[] = $club;
+            }
+        }
+        
+        return $fehlendeLogos;
+    }
+    
     public function getRecentMatches()
     {
         return Spiel::find()

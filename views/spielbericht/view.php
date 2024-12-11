@@ -136,7 +136,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
             <div class="highlights-content heimname" style="width: 100% !important; text-align: left;">
 				<div class="spiel-info" style="text-align: left;">
 
-                <!-- Datum und Zeit -->
+                <!-- Turniername -->
                 <?php if ($spiel->turnier->wettbewerb): ?>
                     <div class="info-row">
                     	<i class="material-icons">emoji_events</i>

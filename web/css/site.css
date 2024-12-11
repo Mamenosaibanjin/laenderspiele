@@ -200,3 +200,18 @@ a.desc:after {
     flex: 0 0 20%;
     max-width: 20%;
 }
+
+.languages {
+    position: relative;
+    height: 72px; /* Höhe des Bereichs */
+    width: 530px;
+    overflow: hidden;
+    margin-top: 6px;
+    border: 1px solid lightgray;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+.languages span {
+    display: inline-block;
+    white-space: nowrap;
+}

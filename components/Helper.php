@@ -562,5 +562,6 @@ class Helper
         
         return !empty($aktionen) ? $aktionen : null;
     }
+    
 }
 ?>
