@@ -39,6 +39,41 @@ class Turnier extends ActiveRecord
         return $query->all();
     }
     
+    public static function findTeilnehmer($wettbewerbID, $jahr)
+    {
+        $subQuery1 = (new \yii\db\Query())
+        ->select(['c.id', 'c.name', 'c.land'])
+        ->from('turnier t')
+        ->innerJoin('spiele s', 't.spielID = s.ID')
+        ->innerJoin('clubs c', 's.club1ID = c.ID')
+        ->where(['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]);
+        
+        $subQuery2 = (new \yii\db\Query())
+        ->select(['c.id', 'c.name', 'c.land'])
+        ->from('turnier t')
+        ->innerJoin('spiele s', 't.spielID = s.ID')
+        ->innerJoin('clubs c', 's.club2ID = c.ID')
+        ->where(['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]);
+        
+        $query = (new \yii\db\Query())
+        ->from(['unionQuery' => $subQuery1->union($subQuery2)])
+        ->orderBy(['name' => SORT_ASC]);
+        
+        return $query->all();
+    }
+    
+    public static function countSpieler($wettbewerbID, $jahr, $clubID)
+    {
+        return (new \yii\db\Query())
+        ->from('spieler_land_wettbewerb slw')
+        ->where([
+            'slw.wettbewerbID' => $wettbewerbID,
+            'slw.jahr' => $jahr,
+            'slw.landID' => $clubID,
+        ])
+        ->count();
+    }
+    
     public function getErgebnis()
     {
         if ($this->spiel) {

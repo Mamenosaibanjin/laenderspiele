@@ -9,7 +9,6 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
-use app\services\MenuService;
 
 class SiteController extends Controller
 {
@@ -62,10 +61,7 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $menuData = MenuService::getMenuData();
-        return $this->render('index', [
-            'menuData' => $menuData,
-        ]);
+        return $this->render('index');
     }
 
     /**

@@ -58,6 +58,8 @@ $config = [
                 'spiele/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'spiele/view',
                 'spiele/<wettbewerbID:\d+>/<jahr:\d+>' => 'spiele/view', // Fallback für minimale Parameter
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
+                'turnier/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'turnier/view',
+                'turnier/<wettbewerbID:\d+>/<jahr:\d+>' => 'turnier/view', // Fallback für minimale Parameter
                 
             ],
         ],
