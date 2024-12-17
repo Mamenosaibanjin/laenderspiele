@@ -31,6 +31,17 @@ class Helper
                 $dateTimestamp = strtotime(substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-01');
             }
         }
+
+        // Sonderfälle für nicht verfügbare Flaggen
+        $specialFlags = [
+            'BSK' => "https://upload.wikimedia.org/wikipedia/commons/2/2d/Flag_of_the_Basque_Country.svg",
+            'GAL' => "https://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Galicia.svg",
+            'CAT' => "https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg",
+        ];
+        
+        if (array_key_exists($iocCode, $specialFlags)) {
+            return $specialFlags[$iocCode];
+        }
         
         // Historische Flaggen-Logik
         $historicalFlags = [
