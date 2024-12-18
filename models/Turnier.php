@@ -98,6 +98,57 @@ class Turnier extends ActiveRecord
             </div>";
     }
     
+    public static function countTore($wettbewerbID, $jahr)
+    {
+        return (new \yii\db\Query())
+        ->from('games g')
+        ->innerJoin('turnier t', 'g.spielID = t.spielID')
+        ->where([
+            't.wettbewerbID' => $wettbewerbID,
+            't.jahr' => $jahr,
+        ])
+        ->andWhere(['g.aktion' => ['ET', 'TOR', '11m']])
+        ->count();
+    }
+    
+    public static function countPlatzverweise($wettbewerbID, $jahr)
+    {
+        return (new \yii\db\Query())
+        ->from('games g')
+        ->innerJoin('turnier t', 'g.spielID = t.spielID')
+        ->where([
+            't.wettbewerbID' => $wettbewerbID,
+            't.jahr' => $jahr,
+        ])
+        ->andWhere(['g.aktion' => ['GRK', 'RK']])
+        ->count();
+    }
+    
+    public function getTopScorers($wettbewerbID, $jahr, $limit = 20)
+    {
+        return Spieler::find()
+        ->select([
+            'spieler.nati1',
+            'spieler.id',
+            'spieler.vorname', 
+            'spieler.name',
+            'COUNT(CASE WHEN games.aktion LIKE "TOR" OR games.aktion LIKE "11m" THEN 1 END) AS tor'
+        ])
+        ->joinWith(['games', 'games.spiel.turnier'])
+        ->where([
+            'turnier.wettbewerbID' => $wettbewerbID,
+            'turnier.jahr' => $jahr
+        ])
+        ->andWhere(['or', ['like', 'games.aktion', 'TOR'], ['like', 'games.aktion', '11m']])
+        ->groupBy('spieler.id')
+        ->orderBy(['tor' => SORT_DESC, 'spieler.name' => SORT_ASC])
+        ->limit($limit)
+        ->asArray()
+        ->all();
+    }
+    
+    
+    
     public function getFormattedDate()
     {
         return \Yii::$app->formatter->asDate($this->datum, 'php:d.m.Y');

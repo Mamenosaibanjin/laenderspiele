@@ -39,7 +39,10 @@ $config = [
             'targets' => [
                 [
                     'class' => 'yii\log\FileTarget',
-                    'levels' => ['error', 'warning'],
+                    'levels' => ['error', 'warning', 'info'],
+                    'categories' => ['yii\db\Command::execute'],
+                    'logFile' => '@runtime/logs/db.log',
+                    
                 ],
             ],
         ],
@@ -51,8 +54,8 @@ $config = [
             'rules' => [
                 'spieler/<id:\d+>' => 'spieler/view',
                 'club/<id:\d+>' => 'club/view',
-                'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
                 'kader/<id:\d+>/<year:\d+>' => 'kader/view',
+                'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
                 'index' => 'index/view',
                 'spiele/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'spiele/view',

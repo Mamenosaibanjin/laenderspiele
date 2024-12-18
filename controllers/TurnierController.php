@@ -17,11 +17,18 @@ class TurnierController extends Controller
         // Teilnehmer abrufen
         $clubs = Turnier::findTeilnehmer($wettbewerbID, $jahr);
         
+        // Anzahl der Tore sowie Platzverweise für die Turnierübersicht        
+        $anzahlTore = Turnier::countTore($wettbewerbID, $jahr);
+        $anzahlPlatzverweise = Turnier::countPlatzverweise($wettbewerbID, $jahr);
+        
         // Spieleranzahl ergänzen
         foreach ($clubs as &$club) {
             $club['spieleranzahl'] = Turnier::countSpieler($wettbewerbID, $jahr, $club['id']) ?: '-----';
         }
         unset($club);
+        
+        $model = Turnier::findOne(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr]);
+        $topScorers = $model->getTopScorers($wettbewerbID, $jahr);
         
         return $this->render('view', [
             'spiele' => $spiele,
@@ -29,6 +36,10 @@ class TurnierController extends Controller
             'jahr' => $jahr,
             'wettbewerbID' => $wettbewerbID,
             'clubs' => $clubs, // Teilnehmer und Spieleranzahl an das View übergeben
+            'anzahlTore' => $anzahlTore,
+            'anzahlPlatzverweise' => $anzahlPlatzverweise,
+            'topScorers' => $topScorers,
+            
         ]);
     }
 }

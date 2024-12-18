@@ -37,5 +37,11 @@ class Games extends ActiveRecord
         return $this->hasOne(Spiel::class, ['id' => 'spielID']);
     }
     
+    public function getTurnier()
+    {
+        return $this->hasOne(Turnier::class, ['spielID' => 'spielID']);
+    }
+    
+    
 }
 ?>

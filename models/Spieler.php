@@ -95,6 +95,16 @@ class Spieler extends ActiveRecord
         ];
     }
     
+    public function getGames()
+    {
+        return $this->hasMany(Games::class, ['spielerID' => 'id']);
+    }
+    
+    public function getSpiele()
+    {
+        return $this->hasOne(Spiel::class, ['ID' => 'spielID']);
+    }
+    
     public static function getZufallsId()
     {
         $query = Spieler::find()
