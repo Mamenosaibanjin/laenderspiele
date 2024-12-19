@@ -105,14 +105,20 @@ $this->title = "Turnier - $turniername $jahr";
                                  <?= Helper::getFlagUrl($scorer['nati1']) ? Html::img(Helper::getFlagUrl($scorer['nati1']), ['alt' => $scorer['nati1'] , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                             </td>
                             <td class="truncate-cell">
-                                <?= htmlspecialchars($scorer['name']); ?>
+								<?php $spielername = htmlspecialchars($scorer['name']); ?>
                                 <?php if (!empty($scorer['vorname'])): ?>
-                                   <?= ', ' . htmlspecialchars(mb_substr($scorer['vorname'], 0, 1)) . '.'; ?>
+                                   <?php $spielername = $spielername . ', ' . htmlspecialchars(mb_substr($scorer['vorname'], 0, 1)) . '.'; ?>
                                 <?php endif; ?>
+                            	<?= Html::a($spielername, ['/spieler/view', 'id' => $scorer['id']], ['class' => 'text-decoration-none']) ?>
                             </td>
                             <td><?= (int)$scorer['tor']; ?></td>
                         </tr>
                         <?php endforeach; ?>
+                        <tr>
+                        	<td colspan="3" style="padding-top: 25px; border: 0; text-align: right;">
+								<?= Html::a('Zur kompletten Liste', ['/torjaeger/view', 'wettbewerb' => $wettbewerbID, 'jahr' => $jahr], ['class' => 'text-decoration-none']) ?>
+							</td>
+                       	</tr>
                     </tbody>
                 </table>
             </div>
