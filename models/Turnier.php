@@ -16,12 +16,12 @@ class Turnier extends ActiveRecord
     public function rules()
     {
         return [
-            [['wettbewerbID', 'spielID', 'spieltag', 'runde'], 'integer'], // Zahlenwerte
-            [['jahr', 'datum'], 'date', 'format' => 'php:Y-m-d'], // Datumswerte
+            [['jahr', 'wettbewerbID', 'spielID', 'spieltag', 'runde'], 'integer'], // Zahlenwerte
+            [['datum'], 'date', 'format' => 'php:Y-m-d'], // Datumswerte
             [['zeit'], 'time', 'format' => 'php:H:i:s'], // Zeit
             [['gruppe'], 'string', 'max' => 15], // Kürzere Texte
             [['beschriftung'], 'string', 'max' => 255], // Beschriftung
-            [['aktiv', 'tore'], 'boolean'], // Booleans
+            [['aktiv', 'tore'], 'boolean', 'trueValue' => 1, 'falseValue' => 0], // Booleans
             [['wettbewerbID'], 'exist', 'targetClass' => Wettbewerb::class, 'targetAttribute' => 'id'], // Prüfung auf Wettbewerb
             [['spielID'], 'exist', 'targetClass' => Spiel::class, 'targetAttribute' => 'id'], // Prüfung auf Spiel
         ];
@@ -98,7 +98,7 @@ class Turnier extends ActiveRecord
             </div>";
     }
     
-    public static function countTore($wettbewerbID, $jahr)
+    public static function countTore($wettbewerbID, $jahr): int
     {
         return (new \yii\db\Query())
         ->from('games g')
@@ -111,7 +111,7 @@ class Turnier extends ActiveRecord
         ->count();
     }
     
-    public static function countPlatzverweise($wettbewerbID, $jahr)
+    public static function countPlatzverweise($wettbewerbID, $jahr): int
     {
         return (new \yii\db\Query())
         ->from('games g')

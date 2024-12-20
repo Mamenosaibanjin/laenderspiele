@@ -4,7 +4,9 @@ namespace app\controllers;
 use yii\web\Controller;
 use Yii; // Für den Zugriff auf Yii::$app->request
 use app\models\Turnier;
+use app\models\Wettbewerb;
 use app\components\Helper; // Falls Helper für getTurniername() genutzt wird
+use yii\web\Response;
 
 class TurnierController extends Controller
 {
@@ -41,5 +43,19 @@ class TurnierController extends Controller
             'topScorers' => $topScorers,
             
         ]);
+    }
+    
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $term = Yii::$app->request->get('term'); // Das Suchfeld "term" wird von jQuery UI Autocomplete verwendet
+        $clubs = Wettbewerb::find()
+        ->select(['id', 'name as value']) // 'value' ist erforderlich für jQuery UI
+        ->where(['like', 'name', $term])
+        ->asArray()
+        ->all();
+        
+        return $clubs;
     }
 }

@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use yii\web\Controller;
 use app\models\Club;
+use Yii;
+use yii\web\Response;
 
 class ClubController extends Controller
 {
@@ -40,6 +42,20 @@ class ClubController extends Controller
             'squad' => $squad,
             'nationalSquad' => $nationalSquad, // Übergebe nationalSquad an die View
         ]);
+    }
+    
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $term = Yii::$app->request->get('term'); // Das Suchfeld "term" wird von jQuery UI Autocomplete verwendet
+        $clubs = Club::find()
+        ->select(['id', 'name as value']) // 'value' ist erforderlich für jQuery UI
+        ->where(['like', 'name', $term])
+        ->asArray()
+        ->all();
+                
+        return $clubs;
     }
 }
 ?>

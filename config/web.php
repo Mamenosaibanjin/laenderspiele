@@ -52,8 +52,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'spiele/create' => 'spiele/create',
                 'spieler/<id:\d+>' => 'spieler/view',
                 'club/<id:\d+>' => 'club/view',
+                'club/search' => 'club/search', // Neue Regel für die Club-Suche
                 'kader/<id:\d+>/<year:\d+>' => 'kader/view',
                 'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
@@ -63,6 +65,7 @@ $config = [
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
                 'turnier/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'turnier/view',
                 'turnier/<wettbewerbID:\d+>/<jahr:\d+>' => 'turnier/view', // Fallback für minimale Parameter
+                'turnier/search' => 'turnier/search',
                 
             ],
         ],

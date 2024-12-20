@@ -19,7 +19,7 @@ class Spiel extends ActiveRecord
     public function rules()
     {
         return [
-            [['club1ID', 'club2ID', 'tore1', 'tore2', 'extratime', 'penalty', 'turnierID', 'aufstellung1ID', 'aufstellung2ID', 'stadiumID', 'zuschauer', 'referee1ID', 'referee2ID', 'referee3ID', 'referee4ID'], 'integer'], // Zahlenwerte
+            [['club1ID', 'club2ID', 'tore1', 'tore2', 'extratime', 'penalty', 'aufstellung1ID', 'aufstellung2ID', 'stadiumID', 'zuschauer', 'referee1ID', 'referee2ID', 'referee3ID', 'referee4ID'], 'integer'], // Zahlenwerte
             [['club1ID', 'club2ID'], 'exist', 'targetClass' => Club::class, 'targetAttribute' => 'id'], // Prüfung auf Existenz in der Club-Tabelle
             [['aufstellung1ID', 'aufstellung2ID'], 'exist', 'targetClass' => Aufstellung::class, 'targetAttribute' => 'id'], // Prüfung auf Existenz in der Aufstellung-Tabelle
             [['stadiumID'], 'exist', 'targetClass' => Stadiums::class, 'targetAttribute' => 'id'], // Prüfung auf Existenz in der Stadium-Tabelle

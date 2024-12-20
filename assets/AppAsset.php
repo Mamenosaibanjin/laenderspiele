@@ -31,10 +31,12 @@ class AppAsset extends AssetBundle
         'css/spielbericht.css',
         'css/site.css',
         'https://fonts.googleapis.com/css2?family=Material+Icons&display=swap',
+        'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.css',
         
     ];
     public $js = [
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js',
+        'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',
