@@ -52,6 +52,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'spiele/update-datetime' => 'spiele/update-datetime',
                 'spiele/create' => 'spiele/create',
                 'spieler/<id:\d+>' => 'spieler/view',
                 'club/<id:\d+>' => 'club/view',

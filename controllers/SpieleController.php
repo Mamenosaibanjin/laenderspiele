@@ -102,9 +102,56 @@ class SpieleController extends Controller
             }
             
             // Falls kein POST-Request oder Fehler: Zurück zur Hauptseite
-            return $this->redirect(['spiele/0/2024']);
+            return $this->redirect(['spiele/view', 'wettbewerbID' => Yii::$app->request->post('wettbewerbID'), 'jahr' => Yii::$app->request->post('Turnier')['jahr']]);
         }
         
-        
+        public function actionUpdateDatetime()
+        {
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            
+            // JSON-Daten vom Client einlesen
+            $rawData = Yii::$app->request->getRawBody();
+            $data = json_decode($rawData, true); // JSON in ein Array konvertieren
+
+            $spielId = $data['spielId'] ?? null;
+            $datetime = $data['datetime'] ?? null;
+            
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+
+            //if (!$spielId || !$datetime) {
+            if (!$spielId) {
+                return ['success' => false, 'error' => 'Ungültiges Spiel'];
+            } 
+            if (!$datetime) {
+                return ['success' => false, 'error' => 'Ungültiges Dartum'];
+            }
+               // return ['success' => false, 'error' => 'Ungültige Eingabe'];
+            //}
+            
+            $turnier = Turnier::findOne(['spielID' => $spielId]);
+            if (!$turnier) {
+                return ['success' => false, 'error' => 'Turnier nicht gefunden'];
+            }
+            // Datum und Zeit trennen
+            $dateTimeParts = explode('T', $datetime);
+            if (count($dateTimeParts) !== 2) {
+                return ['success' => false, 'error' => 'Ungültiges Datetime-Format'];
+            }
+            
+            $turnier->datum = $dateTimeParts[0];
+            $turnier->zeit = $dateTimeParts[1];
+            
+            if ($turnier->save()) {
+                return ['success' => true];
+            } else {
+                // Zusätzliche Debug-Informationen für den Fehler
+                return [
+                    'success' => false,
+                    'error' => 'Fehler beim Speichern des Turniers',
+                    'details' => $turnier->getErrors(),
+                    'attributes' => $turnier->attributes
+                ];
+            }
+        }
 }
 ?>

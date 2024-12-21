@@ -18,7 +18,7 @@ class Turnier extends ActiveRecord
         return [
             [['jahr', 'wettbewerbID', 'spielID', 'spieltag', 'runde'], 'integer'], // Zahlenwerte
             [['datum'], 'date', 'format' => 'php:Y-m-d'], // Datumswerte
-            [['zeit'], 'time', 'format' => 'php:H:i:s'], // Zeit
+            [['zeit'], 'time', 'format' => 'php:H:i'], // Zeit
             [['gruppe'], 'string', 'max' => 15], // Kürzere Texte
             [['beschriftung'], 'string', 'max' => 255], // Beschriftung
             [['aktiv', 'tore'], 'boolean', 'trueValue' => 1, 'falseValue' => 0], // Booleans
