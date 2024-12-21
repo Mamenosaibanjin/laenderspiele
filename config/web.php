@@ -54,6 +54,7 @@ $config = [
             'rules' => [
                 'spiele/update-datetime' => 'spiele/update-datetime',
                 'spiele/create' => 'spiele/create',
+                'spiele/delete' => 'spiele/delete',
                 'spieler/<id:\d+>' => 'spieler/view',
                 'club/<id:\d+>' => 'club/view',
                 'club/search' => 'club/search', // Neue Regel für die Club-Suche

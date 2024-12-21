@@ -153,5 +153,44 @@ class SpieleController extends Controller
                 ];
             }
         }
+        
+        public function actionDelete()
+        {
+            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            
+            $rawData = Yii::$app->request->getRawBody();
+            $data = json_decode($rawData, true); // JSON in ein Array konvertieren
+            
+            if (!empty($data['spielId'])) {
+                $transaction = \Yii::$app->db->beginTransaction(); // Transaktion starten
+                try {
+                    // Datensatz aus 'spiele' löschen
+                    $spiel = Spiel::findOne($data['spielId']);
+                    if ($spiel === null) {
+                        throw new \Exception('Spiel-Datensatz nicht gefunden.');
+                    }
+                    
+                    // Datensatz aus 'turnier' löschen (angenommen, es gibt eine spielID-Spalte)
+                    $turnier = Turnier::find()->where(['spielID' => $spiel->id])->one();
+                    if ($turnier !== null && !$turnier->delete()) {
+                        throw new \Exception('Turnier-Datensatz konnte nicht gelöscht werden.');
+                    }
+                    
+                    // Spiel-Datensatz löschen
+                    if (!$spiel->delete()) {
+                        throw new \Exception('Spiel-Datensatz konnte nicht gelöscht werden.');
+                    }
+                    
+                    $transaction->commit(); // Transaktion erfolgreich
+                    return ['success' => true];
+                } catch (\Exception $e) {
+                    $transaction->rollBack(); // Transaktion rückgängig machen
+                    return ['success' => false, 'error' => $e->getMessage()];
+                }
+            }
+            
+            return ['success' => false, 'error' => 'Ungültige Daten.'];
+        }
+        
 }
 ?>
