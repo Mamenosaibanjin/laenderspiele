@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 document.addEventListener('DOMContentLoaded', function () {
     // Öffnet das Eingabefeld bei Klick auf die Zeit
-    document.querySelectorAll('.view-time').forEach(span => {
+    document.querySelectorAll('.view-time-editable').forEach(span => {
         span.addEventListener('click', function () {
             const spielId = this.dataset.spielId;
 
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <tr>
                         <td style="position: relative;">
                             <!-- Standardanzeige der Zeit -->
-                            <span class="view-time" data-spiel-id="<?= $spiel->spielID ?>" style="cursor: pointer;">
+                            <span class="<?= Yii::$app->user->isGuest ? 'view-time' : 'view-time-editable' ?>" data-spiel-id="<?= $spiel->spielID ?>" <?= Yii::$app->user->isGuest ? '' : 'style="cursor: pointer;"' ?>>
                                 <?= Html::encode($spiel->zeit ? Yii::$app->formatter->asTime($spiel->zeit, 'php:H:i') : '-') ?>
                             </span>
                     
@@ -298,12 +298,14 @@ document.addEventListener('DOMContentLoaded', function () {
                         </td>
                         <td style="width: 50%;"><?= Html::img(Helper::getFlagUrl(Helper::getClubNation($spiel->club2->id)), ['alt' => $spiel->club2->name , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
                         <td>
-                            <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
-                                'class' => 'btn btn-danger btn-sm delete-game',
-                                'data-spiel-id' => $spiel->spielID,
-                                'data-bs-toggle' => 'modal',
-                                'data-bs-target' => '#deleteModal'
-                            ]) ?>
+                            <?php if (!Yii::$app->user->isGuest): ?>
+                                <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
+                                    'class' => 'btn btn-danger btn-sm delete-game',
+                                    'data-spiel-id' => $spiel->spielID,
+                                    'data-bs-toggle' => 'modal',
+                                    'data-bs-target' => '#deleteModal'
+                                ]) ?>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
