@@ -233,3 +233,9 @@ a.desc:after {
     padding: 10px;
     color: #333;
 }
+
+.custom-dropdown {
+    right: 0; /* Falls rechtsbündige Ausrichtung nötig ist */
+    background-color: #f8f9fa; /* Beispielhintergrundfarbe */
+    border: 1px solid #ddd;
+}

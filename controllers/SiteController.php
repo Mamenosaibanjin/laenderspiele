@@ -61,7 +61,14 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        return $this->render('index');
+        Yii::info('Test: ActionIndex aufgerufen', __METHOD__);
+        
+        $model = new LoginForm();
+        $this->view->params['loginModel'] = $model; // $model übergeben
+        
+        return $this->render('index', [
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -77,13 +84,42 @@ class SiteController extends Controller
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-            return $this->goBack();
+
+            // Überprüfen, ob eine Redirect-URL übergeben wurde, andernfalls zur Startseite weiterleiten
+            $redirectUrl = Yii::$app->request->post('LoginForm')['redirectUrl'] ?? Yii::$app->homeUrl;
+            
+            // Umwandlung der absoluten URL in eine relative URL, falls nötig
+            if (strpos($redirectUrl, Yii::$app->getHomeUrl()) === 0) {
+                // Entferne den Basis-URL-Teil, um die relative URL zu erhalten
+                $redirectUrl = substr($redirectUrl, strlen(Yii::$app->getHomeUrl()));
+            }
+            
+            // Falls kein Redirect-URL gesetzt ist, zur Startseite weiterleiten
+            if (empty($redirectUrl)) {
+                $redirectUrl = Yii::$app->homeUrl;
+            }
+
+            // Weiterleiten auf die angegebene URL (oder zur Startseite, wenn keine URL angegeben ist)
+            return $this->redirect($redirectUrl);
         }
 
         $model->password = '';
         return $this->render('login', [
             'model' => $model,
         ]);
+    }
+    
+    public function actionAjaxLogin()
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $model = new LoginForm();
+        
+        if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            return ['success' => true, 'reload' => true]; // Erfolg und Reload-Anweisung
+        }
+        
+        return ['success' => false, 'errors' => $model->getErrors()]; // Login fehlgeschlagen
     }
 
     /**
@@ -95,7 +131,7 @@ class SiteController extends Controller
     {
         Yii::$app->user->logout();
 
-        return $this->goHome();
+        return $this->redirect(Yii::$app->request->url);
     }
 
     /**
@@ -125,4 +161,29 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+    
+    public function actionGeneratePassword()
+    {
+        $plainPassword = '#Leana20!!20'; // Ersetze dies durch das gewünschte Passwort
+        $hashedPassword = Yii::$app->security->generatePasswordHash($plainPassword);
+        echo $hashedPassword . "<br>";
+        $authKey = Yii::$app->security->generateRandomString();
+        echo $authKey;
+        die;
+    }
+    
+    public function actionRegister()
+    {
+        $model = new \app\models\RegisterForm();
+        
+        if ($model->load(Yii::$app->request->post()) && $model->register()) {
+            Yii::$app->session->setFlash('success', 'Registrierung erfolgreich! Sie können sich jetzt einloggen.');
+            return $this->redirect(['login']);
+        }
+        
+        return $this->render('register', [
+            'model' => $model,
+        ]);
+    }
+    
 }

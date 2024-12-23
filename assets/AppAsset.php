@@ -32,6 +32,7 @@ class AppAsset extends AssetBundle
         'css/site.css',
         'https://fonts.googleapis.com/css2?family=Material+Icons&display=swap',
         'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.css',
+        'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css',
         
     ];
     public $js = [

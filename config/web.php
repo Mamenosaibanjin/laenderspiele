@@ -40,8 +40,7 @@ $config = [
                 [
                     'class' => 'yii\log\FileTarget',
                     'levels' => ['error', 'warning', 'info'],
-                    'categories' => ['yii\db\Command::execute'],
-                    'logFile' => '@runtime/logs/db.log',
+                    'logFile' => '@runtime/logs/app.log',
                     
                 ],
             ],
@@ -75,6 +74,7 @@ $config = [
     ],
     'params' => $params,
 ];
+
 
 if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
