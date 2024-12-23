@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use Yii;
+use yii\helpers\Url;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -81,33 +82,29 @@ class SiteController extends Controller
         if (!Yii::$app->user->isGuest) {
             return $this->goHome();
         }
-
+        
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
-
-            // Überprüfen, ob eine Redirect-URL übergeben wurde, andernfalls zur Startseite weiterleiten
+            // Überprüfen, ob eine Redirect-URL übergeben wurde
             $redirectUrl = Yii::$app->request->post('LoginForm')['redirectUrl'] ?? Yii::$app->homeUrl;
             
             // Umwandlung der absoluten URL in eine relative URL, falls nötig
-            if (strpos($redirectUrl, Yii::$app->getHomeUrl()) === 0) {
-                // Entferne den Basis-URL-Teil, um die relative URL zu erhalten
+            /*if (strpos($redirectUrl, Yii::$app->getHomeUrl()) === 0) {
                 $redirectUrl = substr($redirectUrl, strlen(Yii::$app->getHomeUrl()));
-            }
+            }*/
             
-            // Falls kein Redirect-URL gesetzt ist, zur Startseite weiterleiten
-            if (empty($redirectUrl)) {
-                $redirectUrl = Yii::$app->homeUrl;
-            }
-
-            // Weiterleiten auf die angegebene URL (oder zur Startseite, wenn keine URL angegeben ist)
+            // Sicherstellen, dass die URL korrekt interpretiert wird
+            $redirectUrl = Url::to($redirectUrl, true); // Absolute URL generieren
+            // Weiterleiten
             return $this->redirect($redirectUrl);
         }
-
+        
         $model->password = '';
         return $this->render('login', [
             'model' => $model,
         ]);
     }
+    
     
     public function actionAjaxLogin()
     {
@@ -130,8 +127,14 @@ class SiteController extends Controller
     public function actionLogout()
     {
         Yii::$app->user->logout();
-
-        return $this->redirect(Yii::$app->request->url);
+        
+        // Redirect auf die ursprüngliche Seite oder Home, falls kein Referrer vorhanden ist
+        $redirectUrl = Yii::$app->request->referrer ?? Yii::$app->homeUrl;
+        
+        // Sicherstellen, dass die URL korrekt interpretiert wird
+        $redirectUrl = Url::to($redirectUrl, true); // Absolute URL generieren
+        
+        return $this->redirect($redirectUrl);
     }
 
     /**

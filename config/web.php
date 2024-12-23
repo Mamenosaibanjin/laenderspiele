@@ -67,6 +67,12 @@ $config = [
                 'turnier/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'turnier/view',
                 'turnier/<wettbewerbID:\d+>/<jahr:\d+>' => 'turnier/view', // Fallback für minimale Parameter
                 'turnier/search' => 'turnier/search',
+                'site/login' => 'site/login',
+                'site/logout' => 'site/logout',
+                
+                // Regel zur Entfernung von "site"
+                'site/<action:\w+>/<id:\d*>' => '<action>',
+                'site/<action:\w+>' => '<action>',
                 
             ],
         ],
