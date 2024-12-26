@@ -239,3 +239,7 @@ a.desc:after {
     background-color: #f8f9fa; /* Beispielhintergrundfarbe */
     border: 1px solid #ddd;
 }
+
+.btn-primary {
+	background: #1C75AC !important;
+}

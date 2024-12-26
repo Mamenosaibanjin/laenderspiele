@@ -12,6 +12,104 @@ use app\models\Spielbericht;
 $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' . Html::encode($spiel->auswaertsClub->name);
 ?>
 
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+    function initializeAwesomplete(inputId, hiddenInputId, url) {
+        const input = document.getElementById(inputId);
+        const hiddenInput = document.getElementById(hiddenInputId);
+    
+        if (input && hiddenInput && !input.awesomplete) {
+            const awesomplete = new Awesomplete(input, {
+                minChars: 2,
+                autoFirst: true,
+            });
+    
+            input.awesomplete = awesomplete; // Speichere die Instanz für zukünftige Referenzen
+    
+            input.addEventListener('input', function () {
+                const term = input.value.trim();
+				const fullUrl = url + '?term=' + encodeURIComponent(term);
+				console.log(fullUrl);
+				fetch(fullUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                    
+                        if (Array.isArray(data)) {
+                            awesomplete.list = data.map(item => ({
+                                label: item.value,
+                                value: item.id,
+                            }));
+                        } else {
+                            console.error('Die Antwort ist kein Array:', data);
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            });
+    
+            input.addEventListener('awesomplete-selectcomplete', function (event) {
+                hiddenInput.value = event.text.value;
+                input.value = event.text.label;
+            });
+        }
+    }
+    // Dynamische Initialisierung basierend auf dem Modal
+    const modalElement = document.getElementById('modal-aufstellung');
+
+    modalElement.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const spielID = button.getAttribute('data-spiel-id');
+        const type = button.getAttribute('data-type');
+
+        for (let i = 1; i <= 11; i++) {
+            initializeAwesomplete(
+                'Spieler' + i + 'Text',
+                'Spieler' + i + 'ID',
+                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/${type}`
+            );
+        }
+
+        initializeAwesomplete(
+            'CoachText',
+            'CoachID',
+            `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/${type}`
+        );
+    });
+});
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const modal = document.getElementById('modal-aufstellung');
+	const closeModal = modal.querySelector('.btn-close');
+    const btnOpenModal = document.getElementById('btn-open-modal');
+
+    // Öffnet das Modal
+    function openModal() {
+        modal.style.display = 'block';
+    }
+
+    // Schließt das Modal
+    function closeModalHandler() {
+        modal.style.display = 'none';
+    }
+
+    // Event Listener für das Öffnen
+    btnOpenModal.addEventListener('click', openModal);
+
+    // Event Listener für das Schließen
+    closeModal.addEventListener('click', closeModalHandler);
+
+    // Schließt das Modal, wenn der Benutzer außerhalb klickt
+    window.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            closeModalHandler();
+        }
+    });
+});
+
+</script>
+
 <div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
@@ -219,7 +317,7 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
     </div>
     
     <!-- Widget Aufstellungen -->
-    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2) : ?>
+    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2 || !Yii::$app->user->isGuest) : ?>
     <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div style="max-width: 640px; margin: auto;">
             <div style="float: left; width: 45%;">
@@ -229,6 +327,24 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                         Heim
                     </span>
                 </div>
+                
+				<?php 
+				
+				// Hole die aktuelle spielID aus den Parametern
+				$spielID = Yii::$app->request->get('id'); // 'id' muss im Controller definiert sein
+				
+				if (!Yii::$app->user->isGuest && isset($spielID)) : ?>
+				<button id="btn-open-modal"
+                    		type="button" class="btn btn-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modal-aufstellung" 
+                            data-spiel-id="<?= htmlspecialchars($spielID, ENT_QUOTES, 'UTF-8') ?>" 
+                            data-type="H">
+                        Aufstellung bearbeiten (Heim)
+                    </button>
+				<?php endif; ?>
+                                
+                <?php if ($spiel->aufstellung1) : ?>
                 <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
                 
             		<?php foreach (range(1, 11) as $i): ?>
@@ -254,10 +370,12 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
                             <br>
                         <?php endif; ?>
                     <?php endforeach; ?>
-
-                    
                 </div>
+                <?php endif;?>
+                
             </div>
+            
+            
             <?php if ($wechselHeim) : ?>
                 <div class="highlights-box" style="margin-left: 0px; padding: 10p; border-radius: 0px; border-top-style: dashed;">
     				<div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
@@ -495,4 +613,45 @@ $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' 
         </div>
     </div>
     <?php endif; ?>
+</div>
+
+<!-- Modal für Aufstellung -->
+<div class="modal fade" id="modal-aufstellung" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAufstellungLabel">Aufstellung bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="aufstellung-form" action="<?= Yii::$app->urlManager->createUrl(['aufstellung/update', 'id' => $spiel->id]) ?>" method="post">
+                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+
+                    <?php for ($i = 1; $i <= 11; $i++): ?>
+                        <div class="mb-6">
+                            <?= Html::textInput('spieler[' . $i . ']', $aufstellung1->{'spieler' . $i}->fullname ?? '', [
+                                'class' => 'form-control player-search',
+                                'id' => 'Spieler' . $i . 'Text', 
+                                'placeholder' => 'Spieler ' . $i,
+                                'data-player-id' => $aufstellung1->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
+                            ]) ?>
+                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung1->{'spieler' . $i}->id ?? '', ['id' => 'Spieler' . $i . 'ID']) ?>
+                        </div>
+                    <?php endfor; ?>
+
+                    <div class="mb-6">
+                        <?= Html::textInput('coach', $aufstellung1->{'coach'}->fullname ?? '', [
+                            'class' => 'form-control player-search', 
+                            'id' => 'CoachText', 
+                            'placeholder' => 'Trainer',
+                            'data-player-id' => $aufstellung1->{'coach'}->id ?? '' ,
+                        ]) ?>
+                        <?= Html::hiddenInput('CoachID', $aufstellung1->{'coach'}->id ?? '', ['id' => 'CoachID']) ?>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Speichern</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
