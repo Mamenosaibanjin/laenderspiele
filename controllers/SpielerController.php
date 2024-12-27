@@ -44,7 +44,6 @@ class SpielerController extends Controller
     
     public function actionSearch()
     {
-        return "start2";
         Yii::$app->response->format = Response::FORMAT_JSON;
         
         $term = Yii::$app->request->get('term');
@@ -79,7 +78,12 @@ class SpielerController extends Controller
         ->select(['s.id', 's.fullname as value']) // Wähle die ID und den Namen des Spielers aus
         ->innerJoin('spieler_land_wettbewerb slw', 'slw.spielerID = s.id') // Verknüpfe 'spieler_land_wettbewerb'
         ->innerJoin('turnier t', 't.wettbewerbID = slw.wettbewerbID AND t.jahr = slw.jahr') // Verknüpfe 'turnier'
-        ->where(['like', 's.name', $term]) // Bedingung für den Namen
+        ->where([
+            'or',
+            ['like', 's.name', $term],      // Suche nach Name
+            ['like', 's.vorname', $term],  // Suche nach Vorname
+            ['like', 's.fullname', $term]  // Suche nach Vollname
+        ])// Bedingung für den Namen
         ->andWhere(['t.spielID' => $spielID]) // Bedingung für turnier.spielID
         ->andWhere(['slw.landID' => $clubID]) // Bedingung für spieler_land_wettbewerb.landID
         ->asArray()

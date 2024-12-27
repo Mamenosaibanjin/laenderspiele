@@ -243,3 +243,20 @@ a.desc:after {
 .btn-primary {
 	background: #1C75AC !important;
 }
+
+.btn-secondary {
+	background: #8DBD43 !important;
+}
+
+.modal-backdrop {
+    z-index: 1040;
+}
+
+.modal-overlay {
+    opacity: 0.5; /* Reduziert die Sichtbarkeit des überlappenden Modals */
+    pointer-events: none; /* Verhindert Interaktion */
+}
+
+#modal-aufstellung {
+    z-index: 1055; /* Modal dahinter */
+}
