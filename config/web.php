@@ -17,6 +17,8 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'qasay_quRjCoJpgEtuXg5rQcWAxhWjMQ',
+            'enableCsrfValidation' => false,
+            
         ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
@@ -51,6 +53,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                'spielbericht/update-lineup' => 'spielbericht/update-lineup',
                 'spieler/search-for-lineup/<spielID:\d+>/<type:H|A>' => 'spieler/search-for-lineup',
                 'spiele/update-datetime' => 'spiele/update-datetime',
                 'spiele/create' => 'spiele/create',

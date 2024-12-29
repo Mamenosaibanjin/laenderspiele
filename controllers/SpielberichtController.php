@@ -8,6 +8,7 @@ use app\models\Spiel;
 use app\models\Spieler;
 use app\models\SpielerVereinSaison;
 use app\models\SpielerLandWettbewerb;
+use Yii;
 
 class SpielberichtController extends Controller
 {
@@ -81,4 +82,87 @@ class SpielberichtController extends Controller
             'wechselAuswaerts' => $wechselAuswaerts,
         ]);
     }
+    
+    public function actionUpdateLineup()
+    {
+        Yii::error('Start');
+        $request = Yii::$app->request;
+        $rawBody = $request->getRawBody();
+        
+        // Debug: Logge den rohen JSON-Body
+        Yii::error('RAW BODY: ' . $rawBody, 'update-lineup');
+        
+        // JSON in Log schreiben
+        Yii::info($rawBody, 'update-lineup-rawbody'); // Kategorie 'update-lineup-rawbody'
+        if ($request->isPost) {
+            $data = json_decode($request->getRawBody(), true);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Yii::error('JSON-Fehler: ' . json_last_error_msg(), __METHOD__);
+                
+                return $this->asJson(['success' => false, 'message' => 'Ungültiges JSON']);
+            }
+            
+            Yii::error('Empfangene Daten: ' . print_r($data, true), __METHOD__);
+            
+            
+            $spielID = $data['spielID'] ?? null;
+            $type = $data['type'] ?? null;
+            
+            if (!$spielID || !$type) {
+                return $this->asJson(['success' => false, 'message' => 'Fehlende Parameter']);
+            }
+            
+            // Aufstellungs-ID anhand von spielID und type ermitteln
+            $spiel = Spiel::findOne($spielID);
+            if (!$spiel) {
+                return $this->asJson(['success' => false, 'message' => 'Ungültige Spiel-ID']);
+            }
+            
+            $aufstellungsID = $type === 'H' ? $spiel->aufstellung1ID : $spiel->aufstellung2ID;
+            
+            if (!$aufstellungsID) {
+                return $this->asJson(['success' => false, 'message' => 'Ungültige Aufstellungs-ID']);
+            }
+            
+            // Spieler und Coach aktualisieren
+            try {
+                foreach ($data['spieler'] as $spieler) {
+                    // Spieler-ID extrahieren
+                    $column = key($spieler); // Schlüsselname, z. B. "spieler1ID"
+                    $value = reset($spieler); // Erster Wert, z. B. "48982"
+                    
+                    $command = Yii::$app->db->createCommand()
+                    ->update(
+                        'aufstellung',
+                        [$column => $value],
+                        ['ID' => $aufstellungsID]
+                        );
+                    
+                    $executedSql[] = $command->rawSql; // SQL sammeln
+                    $command->execute();
+                }
+                
+                $coachCommand = Yii::$app->db->createCommand()
+                ->update(
+                    'aufstellung',
+                    ['coachID' => $data['coachID']],
+                    ['ID' => $aufstellungsID]
+                    );
+                
+                $executedSql[] = $coachCommand->rawSql; // SQL sammeln
+                $coachCommand->execute();
+                
+                return $this->asJson([
+                    'success' => true,
+                    'executedSql' => $executedSql, // Alle SQL-Befehle zurückgeben
+                ]);
+            } catch (\Exception $e) {
+                Yii::error('Fehler bei der SQL-Ausführung: ' . $e->getMessage(), __METHOD__);
+                Yii::error('Daten: ' . print_r($data, true), __METHOD__);return $this->asJson(['success' => false, 'message' => 'Fehler beim Aktualisieren der Daten']);
+            }
+        }
+        
+        return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
+    }
+    
 }

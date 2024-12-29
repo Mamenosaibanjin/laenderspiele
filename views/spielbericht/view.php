@@ -55,87 +55,119 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Initialisierung für das Modal zur Aufstellung
-    const modalElement = document.getElementById('modal-aufstellung');
-    modalElement.addEventListener('show.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        const spielID = button.getAttribute('data-spiel-id');
-        const type = button.getAttribute('data-type');
+    // Initialisierung für die Heim-Mannschaft
+    const modalHeim = document.getElementById('modal-aufstellung-heim');
+    if (modalHeim) {
+        modalHeim.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const spielID = button.getAttribute('data-spiel-id');
 
-        for (let i = 1; i <= 11; i++) {
-            initializeAwesomplete(
-                'Spieler' + i + 'Text',
-                'Spieler' + i + 'ID',
-                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/${type}`
-            );
-        }
+            // Hidden Fields für Heim setzen
+            document.getElementById('hiddenSpielIDHeim').value = spielID;
 
-        initializeAwesomplete(
-            'CoachText',
-            'CoachID',
-            `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/${type}`
-        );
-    });
-
-    // Spieler-Suche für das neue Spieler-Suchfeld
-    const searchInput = document.getElementById('spielerSearch');
-    const bearbeitenButton = document.getElementById('btn-spieler-bearbeiten');
-    let selectedSpielerID = null;
-
-    if (searchInput) {
-        // Initialisiere Awesomplete
-        const awesomplete = new Awesomplete(searchInput, {
-            minChars: 2,
-            autoFirst: true,
-        });
-
-        searchInput.addEventListener('input', function () {
-            const term = searchInput.value.trim();
-            if (term.length < 2) {
-                bearbeitenButton.disabled = true; // Button deaktivieren
-                bearbeitenButton.onclick = function () {
-                    window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank');
-                };
-                return;
+            for (let i = 1; i <= 11; i++) {
+                initializeAwesomplete(
+                    'SpielerHeim' + i + 'Text',
+                    'SpielerHeim' + i + 'ID',
+                    `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/H`
+                );
             }
 
-            // Anfrage an den Controller für die Suche
-            fetch(`<?= \yii\helpers\Url::to(['spieler/search']) ?>?term=${encodeURIComponent(term)}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (Array.isArray(data) && data.length > 0) {
-                        // Übergib die Vorschläge an Awesomplete
-                        awesomplete.list = data.map(item => ({
-                            label: item.value, // Spielername
-                            value: item.id,    // Spieler-ID
-                        }));
-                    } else {
-                        awesomplete.list = []; // Leere Liste bei keinem Treffer
-                    }
-                })
-                .catch(error => console.error('Fehler bei der Suche:', error));
+            initializeAwesomplete(
+                'CoachHeimText',
+                'CoachHeimID',
+                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/H`
+            );
         });
+    }
 
-        // Event für die Auswahl eines Spielers
-        searchInput.addEventListener('awesomplete-selectcomplete', function (event) {
-            // Zeige den Spielername im Eingabefeld
-            searchInput.value = event.text.label;
+    // Initialisierung für die Auswärts-Mannschaft
+    const modalAuswaerts = document.getElementById('modal-aufstellung-auswaerts');
+    if (modalAuswaerts) {
+        modalAuswaerts.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const spielID = button.getAttribute('data-spiel-id');
 
-            // Speichere die Spieler-ID im Hintergrund
-            selectedSpielerID = event.text.value;
+            // Hidden Fields für Auswärts setzen
+            document.getElementById('hiddenSpielIDAuswaerts').value = spielID;
 
-            // Aktiviere den Bearbeiten-Button und setze die Bearbeiten-Logik
-            bearbeitenButton.disabled = false;
-            bearbeitenButton.textContent = "Spieler bearbeiten"; // Text des Buttons ändern
-            bearbeitenButton.onclick = function () {
-                window.open(
-                    `http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/${selectedSpielerID}`,
-                    '_blank'
+            for (let i = 1; i <= 11; i++) {
+                initializeAwesomplete(
+                    'SpielerAuswaerts' + i + 'Text',
+                    'SpielerAuswaerts' + i + 'ID',
+                    `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/A`
                 );
-            };
+            }
+
+            initializeAwesomplete(
+                'CoachAuswaertsText',
+                'CoachAuswaertsID',
+                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/A`
+            );
         });
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const speichernButton = document.getElementById('btn-speichern');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); 
+    
+    speichernButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Standardaktion des Buttons verhindern
+
+        // Spiel-ID und Typ aus den Hidden Fields holen
+        const spielID = document.getElementById('hiddenSpielID').value;
+        const type = document.getElementById('hiddenType').value;
+        
+        if (!spielID || !type) {
+            alert('Fehlende Parameter für das Update.');
+            return;
+        }
+
+        // Daten für das Update sammeln
+        const data = {
+            spielID: spielID,
+            type: type,
+            spieler: [],
+        };
+
+        for (let i = 1; i <= 11; i++) {
+            const spielerID = document.getElementById(`Spieler${i}ID`).value;
+            data.spieler.push({ [`spieler${i}ID`]: spielerID });
+        }
+
+        const coachID = document.getElementById('CoachID').value;
+        data.coachID = coachID;
+
+        // POST-Anfrage für das Update
+        console.log(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`);
+        
+        console.log(JSON.stringify(data));
+        fetch(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': csrfToken, // CSRF-Token mitsenden
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Weiterleitung nach dem erfolgreichen Update
+                    window.location.href = `http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spielbericht/${spielID}`;
+                } else {
+                    alert('Fehler beim Speichern der Aufstellung.');
+                }
+            })
+            .catch(error => {
+                console.error('Fehler beim Update:', error);
+                alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+            });
+    });
+});
+
 </script>
 
 <div class="card" style="padding-bottom: 25px;">
@@ -365,10 +397,10 @@ document.addEventListener('DOMContentLoaded', function () {
 				<button id="btn-open-modal"
                     		type="button" class="btn btn-primary" 
                             data-bs-toggle="modal" 
-                            data-bs-target="#modal-aufstellung" 
+                            data-bs-target="#modal-aufstellung-heim" 
                             data-spiel-id="<?= htmlspecialchars($spielID, ENT_QUOTES, 'UTF-8') ?>" 
                             data-type="H">
-                        Aufstellung bearbeiten (Heim)
+                        Aufstellung bearbeiten
                     </button>
 				<?php endif; ?>
                                 
@@ -449,6 +481,19 @@ document.addEventListener('DOMContentLoaded', function () {
                         Auswärts
                     </span>
                 </div>
+                
+                <?php
+                if (!Yii::$app->user->isGuest && isset($spielID)) : ?>
+				<button id="btn-open-modal"
+                    		type="button" class="btn btn-primary" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#modal-aufstellung-auswaerts" 
+                            data-spiel-id="<?= htmlspecialchars($spielID, ENT_QUOTES, 'UTF-8') ?>" 
+                            data-type="A">
+                        Aufstellung bearbeiten
+                    </button>
+				<?php endif; ?>
+                
                 
 				<div class="highlights-content auswaertsname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
             
@@ -643,8 +688,8 @@ document.addEventListener('DOMContentLoaded', function () {
     <?php endif; ?>
 </div>
 
-<!-- Modal für Aufstellung -->
-<div class="modal fade" id="modal-aufstellung" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
+<!-- Modal für Aufstellung - Heim -->
+<div class="modal fade" id="modal-aufstellung-heim" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -652,8 +697,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="aufstellung-form" action="<?= Yii::$app->urlManager->createUrl(['aufstellung/update', 'id' => $spiel->id]) ?>" method="post">
                     <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+                    <?= Html::hiddenInput('spielID', '', ['id' => 'hiddenSpielID']) ?>
+    				<?= Html::hiddenInput('type', '', ['id' => 'hiddenType']) ?>
 
                     <?php for ($i = 1; $i <= 11; $i++): ?>
                         <div class="mb-3">
@@ -687,9 +733,60 @@ document.addEventListener('DOMContentLoaded', function () {
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-primary">Speichern</button>
-                    
-                </form>
+                <button type="button" class="btn btn-primary" id="btn-speichern">Speichern</button>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal für Aufstellung - Auswärts -->
+<div class="modal fade" id="modal-aufstellung-auswaerts" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAufstellungLabel">Aufstellung bearbeiten</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
+                    <?= Html::hiddenInput('spielID', '', ['id' => 'hiddenSpielID']) ?>
+    				<?= Html::hiddenInput('type', '', ['id' => 'hiddenType']) ?>
+
+                    <?php for ($i = 1; $i <= 11; $i++): ?>
+                        <div class="mb-3">
+                            <?= Html::textInput('spieler[' . $i . ']', $aufstellung2->{'spieler' . $i}->fullname ?? '', [
+                                'class' => 'form-control player-search',
+                                'id' => 'Spieler' . $i . 'Text', 
+                                'placeholder' => 'Spieler ' . $i,
+                                'data-player-id' => $aufstellung2->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
+                            ]) ?>
+                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung2->{'spieler' . $i}->id ?? '', ['id' => 'Spieler' . $i . 'ID']) ?>
+                        </div>
+                    <?php endfor; ?>
+
+                    <div class="mb-3">
+                        <?= Html::textInput('coach', $aufstellung2->{'coach'}->fullname ?? '', [
+                            'class' => 'form-control player-search', 
+                            'id' => 'CoachText', 
+                            'placeholder' => 'Trainer',
+                            'data-player-id' => $aufstellung2->{'coach'}->id ?? '' ,
+                        ]) ?>
+                        <?= Html::hiddenInput('CoachID', $aufstellung2->{'coach'}->id ?? '', ['id' => 'CoachID']) ?>
+                    </div>
+
+                    <!-- Button für Spielerzuordnung Modal -->
+                    <div id="spieler-zuordnung-container">
+                        <!-- Spieler zuordnen Suchzeile -->
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="spielerSearch" placeholder="Spieler suchen...">
+                            <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
+                                neuer Spieler
+                            </button>
+                        </div>
+                    </div>
+                <button type="button" class="btn btn-primary" id="btn-speichern">Speichern</button>
+                
             </div>
         </div>
     </div>
