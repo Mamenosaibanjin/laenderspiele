@@ -17,9 +17,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // Funktion zur Initialisierung von Awesomplete
     function initializeAwesomplete(inputId, hiddenInputId, url) {
         const input = document.getElementById(inputId);
-        const hiddenInput = document.getElementById(hiddenInputId);
+        const hiddenInput = hiddenInputId ? document.getElementById(hiddenInputId) : null;
 
-        if (input && hiddenInput && !input.awesomplete) {
+        if (input && !input.awesomplete) {
+        
             const awesomplete = new Awesomplete(input, {
                 minChars: 2,
                 autoFirst: true,
@@ -30,6 +31,8 @@ document.addEventListener('DOMContentLoaded', function () {
             input.addEventListener('input', function () {
                 const term = input.value.trim();
                 const fullUrl = url + '?term=' + encodeURIComponent(term);
+
+                console.log("FullURL: " + fullUrl);
 
                 fetch(fullUrl)
                     .then(response => response.json())
@@ -50,12 +53,28 @@ document.addEventListener('DOMContentLoaded', function () {
             // Spielername und ID korrekt setzen
             input.addEventListener('awesomplete-selectcomplete', function (event) {
                 input.value = event.text.label; // Spielername anzeigen
-                hiddenInput.value = event.text.value; // Spieler-ID speichern
-            });
+ 				if (hiddenInput) {
+ 					hiddenInput.value = event.text.value; // Spieler-ID speichern
+ 					}
+           });
         }
     }
 
-    // Initialisierung für die Heim-Mannschaft
+    // Initialisierung für das Spieler-Suchfeld Heim
+    initializeAwesomplete(
+        'spielerHeimSearch', // ID des Suchfelds
+        null, // Kein Hidden Input erforderlich
+        `<?= \yii\helpers\Url::to(['spieler/search']) ?>`
+    );
+
+    // Initialisierung für das Spieler-Suchfeld Auswärts
+    initializeAwesomplete(
+        'spielerAuswaertsSearch', // ID des Suchfelds
+        null, // Kein Hidden Input erforderlich
+        `<?= \yii\helpers\Url::to(['spieler/search']) ?>`
+    );
+
+    // Initialisierung für die Heim-Mannschaft im Modal
     const modalHeim = document.getElementById('modal-aufstellung-heim');
     if (modalHeim) {
         modalHeim.addEventListener('show.bs.modal', function (event) {
@@ -63,7 +82,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const spielID = button.getAttribute('data-spiel-id');
 
             // Hidden Fields für Heim setzen
-            document.getElementById('hiddenSpielIDHeim').value = spielID;
+            document.getElementById('hiddenSpielID').value = spielID;
+            document.getElementById('hiddenType').value = 'H';
 
             for (let i = 1; i <= 11; i++) {
                 initializeAwesomplete(
@@ -81,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Initialisierung für die Auswärts-Mannschaft
+    // Initialisierung für die Auswärts-Mannschaft im Modal
     const modalAuswaerts = document.getElementById('modal-aufstellung-auswaerts');
     if (modalAuswaerts) {
         modalAuswaerts.addEventListener('show.bs.modal', function (event) {
@@ -89,7 +109,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const spielID = button.getAttribute('data-spiel-id');
 
             // Hidden Fields für Auswärts setzen
-            document.getElementById('hiddenSpielIDAuswaerts').value = spielID;
+            document.getElementById('hiddenSpielID').value = spielID;
+            document.getElementById('hiddenType').value = 'A';
 
             for (let i = 1; i <= 11; i++) {
                 initializeAwesomplete(
@@ -106,68 +127,164 @@ document.addEventListener('DOMContentLoaded', function () {
             );
         });
     }
+
+    // Speichern-Button-Logik für Heim- und Auswärtsteams
+    ['heim', 'auswaerts'].forEach((team) => {
+        const speichernButton = document.getElementById(`btn-speichern-${team}`);
+        if (speichernButton) {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+            speichernButton.addEventListener('click', function (event) {
+                event.preventDefault(); // Standardaktion des Buttons verhindern
+    
+                // Spiel-ID und Typ aus den Hidden Fields holen
+                const spielID = document.getElementById('hiddenSpielID').value;
+                const type = document.getElementById('hiddenType').value;
+    
+                if (!spielID || !type) {
+                    alert('Fehlende Parameter für das Update.');
+                    return;
+                }
+    
+                // Daten für das Update sammeln
+                const data = {
+                    spielID: spielID,
+                    type: type,
+                    team: team, // Heim oder Auswärts
+                    spieler: [],
+                };
+    
+                for (let i = 1; i <= 11; i++) {
+                    const id = `Spieler${team.charAt(0).toUpperCase() + team.slice(1)}${i}ID`; // Keine führenden Nullen
+                    console.log(`Überprüfe ID: ${id}`); // Debugging
+                    const spielerIDElement = document.getElementById(id);
+                    if (spielerIDElement) {
+                        console.log(`Gefunden: ${id}, Wert: ${spielerIDElement.value}`);
+                        const spielerID = spielerIDElement.value.padStart(2, '0'); // Führende Nullen bei Bedarf für die Datenbank
+                        data.spieler.push({ [`spieler${i}ID`]: spielerID });
+                    } else {
+                        console.warn(`Element mit ID ${id} nicht gefunden`);
+                    }
+                }
+    
+                const coachIDElement = document.getElementById(`Coach${team.charAt(0).toUpperCase() + team.slice(1)}ID`);
+                if (coachIDElement) {
+                    console.log(`Coach-ID gefunden: ${coachIDElement.id}, Wert: ${coachIDElement.value}`);
+                    data.coachID = coachIDElement.value;
+                } else {
+                    console.warn(`Coach-ID für ${team} nicht gefunden`);
+                }
+    
+                // POST-Anfrage für das Update
+                fetch(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': csrfToken, // CSRF-Token mitsenden
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Weiterleitung nach dem erfolgreichen Update
+                            window.location.href = `http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spielbericht/${spielID}`;
+                        } else {
+                            alert(`Fehler beim Speichern der Aufstellung für ${team}.`);
+                        }
+                    })
+                    .catch(error => {
+                        console.error(`Fehler beim Update für ${team}:`, error);
+                        alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+                    });
+            });
+        }
+    });
+
+
 });
 
-
 document.addEventListener('DOMContentLoaded', function () {
-    const speichernButton = document.getElementById('btn-speichern');
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content'); 
-    
-    speichernButton.addEventListener('click', function (event) {
-        event.preventDefault(); // Standardaktion des Buttons verhindern
+    const searchInput = document.getElementById('spielerHeimSearch'); // ID des Suchfelds
+    const bearbeitenButton = document.getElementById('btn-spieler-bearbeiten');
+    let selectedSpielerID = null;
 
-        // Spiel-ID und Typ aus den Hidden Fields holen
-        const spielID = document.getElementById('hiddenSpielID').value;
-        const type = document.getElementById('hiddenType').value;
-        
-        if (!spielID || !type) {
-            alert('Fehlende Parameter für das Update.');
+    if (searchInput) {
+    // Awesomplete initialisieren, falls noch nicht vorhanden
+    if (!searchInput.awesomplete) {
+        const awesomplete = new Awesomplete(searchInput, {
+            minChars: 2,
+            autoFirst: false, // Benutzer muss explizit auswählen
+            replace: function (suggestion) {
+                // Spielername ins Feld schreiben
+                this.input.value = suggestion.label;
+            },
+        });
+        searchInput.awesomplete = awesomplete;
+    }
+
+    // Event-Listener für Eingaben
+    searchInput.addEventListener('input', function () {
+        const term = searchInput.value.trim();
+        if (term.length < 2) {
+            bearbeitenButton.textContent = "Neuer Spieler"; // Standardtext
+            bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+            bearbeitenButton.disabled = false;
+            selectedSpielerID = null;
             return;
         }
 
-        // Daten für das Update sammeln
-        const data = {
-            spielID: spielID,
-            type: type,
-            spieler: [],
-        };
-
-        for (let i = 1; i <= 11; i++) {
-            const spielerID = document.getElementById(`Spieler${i}ID`).value;
-            data.spieler.push({ [`spieler${i}ID`]: spielerID });
-        }
-
-        const coachID = document.getElementById('CoachID').value;
-        data.coachID = coachID;
-
-        // POST-Anfrage für das Update
-        console.log(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`);
-        
-        console.log(JSON.stringify(data));
-        fetch(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-Token': csrfToken, // CSRF-Token mitsenden
-            },
-            body: JSON.stringify(data),
-        })
+        // Anfrage an den Server für die Suche
+        fetch(`<?= \yii\helpers\Url::to(['spieler/search']) ?>?term=${encodeURIComponent(term)}`)
             .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    // Weiterleitung nach dem erfolgreichen Update
-                    window.location.href = `http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spielbericht/${spielID}`;
+            .then(data => {
+                if (Array.isArray(data) && data.length > 0) {
+                    // Liste der Optionen an Awesomplete übergeben
+                    searchInput.awesomplete.list = data.map(item => ({
+                        label: item.value, // Spielername
+                        value: item.id,    // Spieler-ID
+                    }));
                 } else {
-                    alert('Fehler beim Speichern der Aufstellung.');
+                    // Keine Ergebnisse gefunden
+                    searchInput.awesomplete.list = []; // Leere Liste
+                    bearbeitenButton.textContent = "Neuer Spieler";
+                    bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+                    bearbeitenButton.disabled = false;
+                    selectedSpielerID = null;
                 }
             })
             .catch(error => {
-                console.error('Fehler beim Update:', error);
-                alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
+                console.error('Fehler bei der Suche:', error);
+                searchInput.awesomplete.list = []; // Keine Liste anzeigen
+                bearbeitenButton.textContent = "Neuer Spieler";
+                bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+                bearbeitenButton.disabled = false;
+                selectedSpielerID = null;
             });
     });
-});
 
+    // Event-Listener für Awesomplete-Auswahl
+    searchInput.addEventListener('awesomplete-selectcomplete', function (event) {
+        // Spieler-ID des ausgewählten Eintrags speichern
+        selectedSpielerID = event.text.value;
+        searchInput.value = event.text.label; // Spielername ins Textfeld schreiben
+
+        // Button für Bearbeiten aktivieren
+        bearbeitenButton.textContent = "Spieler bearbeiten";
+        bearbeitenButton.setAttribute('onclick', `window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/${selectedSpielerID}', '_blank')`);
+        bearbeitenButton.disabled = false;
+    });
+}
+
+
+    // Spieler bearbeiten oder erstellen (Fallback für den Button)
+    bearbeitenButton.addEventListener('click', function () {
+        if (!selectedSpielerID) {
+            // Neuen Spieler erstellen
+            window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank');
+        }
+    });
+});
 </script>
 
 <div class="card" style="padding-bottom: 25px;">
@@ -705,35 +822,35 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="mb-3">
                             <?= Html::textInput('spieler[' . $i . ']', $aufstellung1->{'spieler' . $i}->fullname ?? '', [
                                 'class' => 'form-control player-search',
-                                'id' => 'Spieler' . $i . 'Text', 
+                                'id' => 'SpielerHeim' . $i . 'Text', 
                                 'placeholder' => 'Spieler ' . $i,
                                 'data-player-id' => $aufstellung1->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
                             ]) ?>
-                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung1->{'spieler' . $i}->id ?? '', ['id' => 'Spieler' . $i . 'ID']) ?>
+                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung1->{'spieler' . $i}->id ?? '', ['id' => 'SpielerHeim' . $i . 'ID']) ?>
                         </div>
                     <?php endfor; ?>
 
                     <div class="mb-3">
                         <?= Html::textInput('coach', $aufstellung1->{'coach'}->fullname ?? '', [
                             'class' => 'form-control player-search', 
-                            'id' => 'CoachText', 
+                            'id' => 'CoachHeimText', 
                             'placeholder' => 'Trainer',
                             'data-player-id' => $aufstellung1->{'coach'}->id ?? '' ,
                         ]) ?>
-                        <?= Html::hiddenInput('CoachID', $aufstellung1->{'coach'}->id ?? '', ['id' => 'CoachID']) ?>
+                        <?= Html::hiddenInput('CoachID', $aufstellung1->{'coach'}->id ?? '', ['id' => 'CoachHeimID']) ?> <b>Trainer</b>
                     </div>
 
                     <!-- Button für Spielerzuordnung Modal -->
                     <div id="spieler-zuordnung-container">
                         <!-- Spieler zuordnen Suchzeile -->
                         <div class="mb-3">
-                            <input type="text" class="form-control" id="spielerSearch" placeholder="Spieler suchen...">
+                            <input type="text" class="form-control" id="spielerHeimSearch" placeholder="Spieler suchen...">
                             <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
                                 neuer Spieler
                             </button>
                         </div>
                     </div>
-                <button type="button" class="btn btn-primary" id="btn-speichern">Speichern</button>
+                <button type="button" class="btn btn-primary" id="btn-speichern-heim">Speichern</button>
                 
             </div>
         </div>
@@ -757,35 +874,35 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="mb-3">
                             <?= Html::textInput('spieler[' . $i . ']', $aufstellung2->{'spieler' . $i}->fullname ?? '', [
                                 'class' => 'form-control player-search',
-                                'id' => 'Spieler' . $i . 'Text', 
+                                'id' => 'SpielerAuswaerts' . $i . 'Text', 
                                 'placeholder' => 'Spieler ' . $i,
                                 'data-player-id' => $aufstellung2->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
                             ]) ?>
-                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung2->{'spieler' . $i}->id ?? '', ['id' => 'Spieler' . $i . 'ID']) ?>
+                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung2->{'spieler' . $i}->id ?? '', ['id' => 'SpielerAuswaerts' . $i . 'ID']) ?>
                         </div>
                     <?php endfor; ?>
 
                     <div class="mb-3">
                         <?= Html::textInput('coach', $aufstellung2->{'coach'}->fullname ?? '', [
                             'class' => 'form-control player-search', 
-                            'id' => 'CoachText', 
+                            'id' => 'CoachAuswaertsText', 
                             'placeholder' => 'Trainer',
                             'data-player-id' => $aufstellung2->{'coach'}->id ?? '' ,
                         ]) ?>
-                        <?= Html::hiddenInput('CoachID', $aufstellung2->{'coach'}->id ?? '', ['id' => 'CoachID']) ?>
+                        <?= Html::hiddenInput('CoachID', $aufstellung2->{'coach'}->id ?? '', ['id' => 'CoachAuswaertsID']) ?> <b>Trainer</b>
                     </div>
 
                     <!-- Button für Spielerzuordnung Modal -->
                     <div id="spieler-zuordnung-container">
                         <!-- Spieler zuordnen Suchzeile -->
                         <div class="mb-3">
-                            <input type="text" class="form-control" id="spielerSearch" placeholder="Spieler suchen...">
+                            <input type="text" class="form-control" id="spielerAuswaertsSearch" placeholder="Spieler suchen...">
                             <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
                                 neuer Spieler
                             </button>
                         </div>
                     </div>
-                <button type="button" class="btn btn-primary" id="btn-speichern">Speichern</button>
+                <button type="button" class="btn btn-primary" id="btn-speichern-auswaerts">Speichern</button>
                 
             </div>
         </div>
