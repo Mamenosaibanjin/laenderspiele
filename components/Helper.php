@@ -65,6 +65,31 @@ class Helper
         // Aktuelle Flagge zurückgeben, wenn keine historische Flagge zutrifft
         return $baseUrl . $currentFlag;
     }
+    
+    /**
+     * Gibt eine Liste aller verfügbaren Flaggen aus der Datenbank zurück.
+     *
+     * @return array Assoziatives Array [kuerzel => land_de]
+     */
+    public static function getAllFlags(): array
+    {
+        // Nationen mit gültigem ISO3166-Code abrufen
+        $flags = (new \yii\db\Query())
+        ->select(['kuerzel', 'land_de'])
+        ->from('nation')
+        ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
+        ->orderBy(['land_de' => SORT_ASC])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        // Ergebnis formatieren
+        $result = [];
+        foreach ($flags as $flag) {
+            $result[$flag['kuerzel']] = $flag['land_de'];
+        }
+        return $result;
+    }
+    
+    
     /**
      * Gibt die URL eines Vereinswappens zurück.
      * @param int|string $clubId Die ID des Vereins.

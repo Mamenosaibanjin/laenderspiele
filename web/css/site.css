@@ -188,7 +188,7 @@ a.desc:after {
 	font-weight: bold;
 }
 
-.fas {
+.fas, .fa-brands {
 	color: #1C75AC;	
 }
 

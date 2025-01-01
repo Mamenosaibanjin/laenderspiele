@@ -92,5 +92,51 @@ class SpielerController extends Controller
         return $spieler;
     }
     
+
+    public function actionSave()
+    {
+        $request = Yii::$app->request;
+        $data = json_decode($request->getRawBody(), true);
+        
+        \Yii::info("SPieler-ID:", 'debug'); // Für die Debug-Ausgabe in den Logs
+        if ($request->isPost && $data) {
+            try {
+                $playerID = $data['playerID'];
+                $player = Spieler::findOne($playerID);
+                if (!$player) {
+                    return $this->asJson(['success' => false, 'message' => 'Spieler nicht gefunden']);
+                }
+                
+                // Spieler-Daten aktualisieren
+                $player->name = $data['name'];
+                $player->vorname = $data['vorname'];
+                $player->fullname = $data['fullname'];
+                $player->geburtstag = $data['geburtstag'];
+                $player->geburtsort = $data['geburtsort'];
+                $player->geburtsland = $data['geburtsland'];
+                $player->nati1 = $data['nati1'];
+                $player->nati2 = $data['nati2'];
+                $player->nati3 = $data['nati3'];
+                $player->weight = $data['weight'];
+                $player->height = $data['height'];
+                $player->spielfuss = $data['spielfuss'];
+                $player->homepage = $data['homepage'];
+                $player->facebook = $data['facebook'];
+                $player->instagram = $data['instagram'];
+
+                if ($player->save()) {
+                    return $this->asJson(['success' => true]);
+                } else {
+                    return $this->asJson(['success' => false, 'message' => 'Speichern fehlgeschlagen']);
+                }
+            } catch (\Exception $e) {
+                Yii::error('Fehler beim Speichern des Spielers: ' . $e->getMessage());
+                return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+            }
+        }
+        
+        return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
+    }
 }
+
 ?>
