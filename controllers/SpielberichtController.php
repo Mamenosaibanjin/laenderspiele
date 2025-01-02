@@ -85,25 +85,15 @@ class SpielberichtController extends Controller
     
     public function actionUpdateLineup()
     {
-        Yii::error('Start');
         $request = Yii::$app->request;
         $rawBody = $request->getRawBody();
         
-        // Debug: Logge den rohen JSON-Body
-        Yii::error('RAW BODY: ' . $rawBody, 'update-lineup');
-        
-        // JSON in Log schreiben
-        Yii::info($rawBody, 'update-lineup-rawbody'); // Kategorie 'update-lineup-rawbody'
         if ($request->isPost) {
             $data = json_decode($request->getRawBody(), true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Yii::error('JSON-Fehler: ' . json_last_error_msg(), __METHOD__);
                 
                 return $this->asJson(['success' => false, 'message' => 'Ungültiges JSON']);
             }
-            
-            Yii::error('Empfangene Daten: ' . print_r($data, true), __METHOD__);
-            
             
             $spielID = $data['spielID'] ?? null;
             $type = $data['type'] ?? null;

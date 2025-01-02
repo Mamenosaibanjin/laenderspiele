@@ -51,6 +51,9 @@ class Helper
             'ba' => [
                 ['start' => '01.03.1992', 'end' => '04.02.1998', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg/1920px-Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg.png'],
             ],
+            'rs' => [
+                ['start' => '27.04.1992', 'end' => '03.02.2003', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
+            ],
         ];
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
             foreach ($historicalFlags[$isoCode] as $flag) {

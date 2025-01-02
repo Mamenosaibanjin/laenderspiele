@@ -58,6 +58,7 @@ $config = [
                 'spiele/update-datetime' => 'spiele/update-datetime',
                 'spiele/create' => 'spiele/create',
                 'spiele/delete' => 'spiele/delete',
+                'spieler/new' => 'spieler/view',
                 'spieler/save' => 'spieler/save',
                 'spieler/<id:\d+>' => 'spieler/view',
                 'spieler/search' => 'spieler/search',

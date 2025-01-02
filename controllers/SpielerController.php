@@ -11,7 +11,7 @@ use Yii;
 
 class SpielerController extends Controller
 {
-    public function actionView($id)
+    public function actionView($id = 0)
     {
         // Spieler-Daten
         $spieler = Spieler::findOne($id);
@@ -98,13 +98,12 @@ class SpielerController extends Controller
         $request = Yii::$app->request;
         $data = json_decode($request->getRawBody(), true);
         
-        \Yii::info("SPieler-ID:", 'debug'); // Für die Debug-Ausgabe in den Logs
         if ($request->isPost && $data) {
             try {
                 $playerID = $data['playerID'];
                 $player = Spieler::findOne($playerID);
                 if (!$player) {
-                    return $this->asJson(['success' => false, 'message' => 'Spieler nicht gefunden']);
+                    $player = new Spieler();
                 }
                 
                 // Spieler-Daten aktualisieren
@@ -125,7 +124,11 @@ class SpielerController extends Controller
                 $player->instagram = $data['instagram'];
 
                 if ($player->save()) {
-                    return $this->asJson(['success' => true]);
+                    // Weiterleitung zur Detailansicht des Spielers nach erfolgreicher Speicherung
+                    return $this->asJson([
+                        'success' => true,
+                        'redirectUrl' => Url::to(['spieler/view', 'id' => $player->id])
+                    ]);
                 } else {
                     return $this->asJson(['success' => false, 'message' => 'Speichern fehlgeschlagen']);
                 }
