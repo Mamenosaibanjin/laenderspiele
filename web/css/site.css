@@ -260,3 +260,19 @@ a.desc:after {
 #modal-aufstellung {
     z-index: 1055; /* Modal dahinter */
 }
+
+.display-mode {
+    display: inline !important; /* Standardmäßig sichtbar */
+}
+
+.edit-mode {
+    display: none !important; /* Standardmäßig verborgen */
+}
+
+.show-edit {
+    display: inline !important;
+}
+
+.hide-display {
+    display: none !important;
+}

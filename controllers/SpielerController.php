@@ -3,16 +3,38 @@ namespace app\controllers;
 
 use yii\web\Controller;
 use yii\web\Response;
+use app\models\Club;
+use app\models\Position;
 use app\models\Spiel;
 use app\models\Spieler;
 use app\models\SpielerVereinSaison;
 use app\models\SpielerLandWettbewerb;
 use Yii;
+use http\Url;
+use app\models\Wettbewerb;
 
 class SpielerController extends Controller
 {
     public function actionView($id = 0)
     {
+        $vereine = Club::find()
+        ->andWhere(['typID' => [3, 4, 5, 6, 7, 8, 9, 10, 13]])
+        ->orderBy('name')
+        ->all(); // Vereine alphabetisch sortieren
+        
+        $nationen = Club::find()
+        ->andWhere(['typID' => [1, 2, 11, 12]])
+        ->orderBy('name')
+        ->all(); // Vereine alphabetisch sortieren
+        
+        $positionen = Position::find()
+        ->orderBy('positionKurz')
+        ->all(); // Positionen alphabetisch sortieren
+        
+        $wettbewerbe = Wettbewerb::find()
+        ->orderBy('name')
+        ->all(); // Positionen alphabetisch sortieren
+        
         // Spieler-Daten
         $spieler = Spieler::findOne($id);
         
@@ -39,6 +61,10 @@ class SpielerController extends Controller
             'vereinsKarriere' => $vereinsKarriere,
             'jugendvereine' => $jugendvereine,
             'laenderspiele' => $laenderspiele,
+            'vereine' => $vereine,
+            'nationen' => $nationen,
+            'positionen' => $positionen,
+            'wettbewerbe' => $wettbewerbe,
         ]);
     }
     
@@ -122,12 +148,12 @@ class SpielerController extends Controller
                 $player->homepage = $data['homepage'];
                 $player->facebook = $data['facebook'];
                 $player->instagram = $data['instagram'];
-
+                
                 if ($player->save()) {
                     // Weiterleitung zur Detailansicht des Spielers nach erfolgreicher Speicherung
                     return $this->asJson([
                         'success' => true,
-                        'redirectUrl' => Url::to(['spieler/view', 'id' => $player->id])
+                        'message' => 'Speichern erfolgreich'
                     ]);
                 } else {
                     return $this->asJson(['success' => false, 'message' => 'Speichern fehlgeschlagen']);
@@ -140,6 +166,42 @@ class SpielerController extends Controller
         
         return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
     }
+    
+    public function actionSaveNation()
+    {
+        $request = Yii::$app->request;
+        $data = json_decode($request->getRawBody(), true);
+        Yii::info($data, 'debug'); // Debugging: Log-Daten ausgeben
+        
+        if ($request->isPost && $data) {
+            try {
+                // Validierung der Eingabedaten
+                if (empty($data['spielerID']) || empty($data['wettbewerbID']) || empty($data['landID']) || empty($data['positionID']) || empty($data['jahr'])) {
+                    return $this->asJson(['success' => false, 'message' => 'Fehlende Daten']);
+                }
+                
+                $spielerNation = new SpielerLandWettbewerb(); // Erstellen eines neuen Eintrags
+                $spielerNation->spielerID = $data['spielerID'];
+                $spielerNation->wettbewerbID = $data['wettbewerbID'];
+                $spielerNation->landID = $data['landID'];
+                $spielerNation->positionID = $data['positionID'];
+                $spielerNation->jahr = $data['jahr'];
+                
+                if ($spielerNation->save()) {
+                    return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich gespeichert']);
+                } else {
+                    Yii::error($spielerNation->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
+                    return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+                }
+            } catch (\Exception $e) {
+                Yii::error('Fehler beim Speichern: ' . $e->getMessage());
+                return $this->asJson(['success' => false, 'message' => 'Ein interner Fehler ist aufgetreten']);
+            }
+        }
+        
+        return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
+    }
+    
 }
 
 ?>
