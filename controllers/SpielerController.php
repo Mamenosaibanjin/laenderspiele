@@ -180,18 +180,47 @@ class SpielerController extends Controller
                     return $this->asJson(['success' => false, 'message' => 'Fehlende Daten']);
                 }
                 
-                $spielerNation = new SpielerLandWettbewerb(); // Erstellen eines neuen Eintrags
-                $spielerNation->spielerID = $data['spielerID'];
-                $spielerNation->wettbewerbID = $data['wettbewerbID'];
-                $spielerNation->landID = $data['landID'];
-                $spielerNation->positionID = $data['positionID'];
-                $spielerNation->jahr = $data['jahr'];
+                // Zerlegen der data-id in die ursprünglichen Werte
+                list($spielerID, $landID, $wettbewerbID, $land, $jahr) = explode('-', $data['dataId']);
                 
-                if ($spielerNation->save()) {
-                    return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich gespeichert']);
+                // Prüfen, ob ein Datensatz existiert (Vergleich aller Felder außer ID)
+                $existingEntry = SpielerLandWettbewerb::findOne([
+                    'spielerID' => $spielerID,
+                    'wettbewerbID' => $wettbewerbID,
+                    'landID' => $landID,
+                    'jahr' => $jahr,
+                    'land' => $land
+                ]);
+                \Yii::info($data, 'debug');
+                if ($existingEntry) {
+                    // Update des bestehenden Eintrags
+                    $existingEntry->spielerID = $data['spielerID'];
+                    $existingEntry->wettbewerbID = $data['wettbewerbID'];
+                    $existingEntry->landID = $data['landID'];
+                    $existingEntry->positionID = $data['positionID'];
+                    $existingEntry->jahr = $data['jahr'];
+                    $existingEntry->land = $data['land'];
+                    
+                    if ($existingEntry->save()) {
+                        return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich aktualisiert']);
+                    } else {
+                        Yii::error($existingEntry->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
+                        return $this->asJson(['success' => false, 'message' => 'Fehler beim Aktualisieren']);
+                    }
                 } else {
-                    Yii::error($spielerNation->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
-                    return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+                    $spielerNation = new SpielerLandWettbewerb(); // Erstellen eines neuen Eintrags
+                    $spielerNation->spielerID = $data['spielerID'];
+                    $spielerNation->wettbewerbID = $data['wettbewerbID'];
+                    $spielerNation->landID = $data['landID'];
+                    $spielerNation->positionID = $data['positionID'];
+                    $spielerNation->jahr = $data['jahr'];
+                    
+                    if ($spielerNation->save()) {
+                        return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich gespeichert']);
+                    } else {
+                        Yii::error($spielerNation->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
+                        return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+                    }
                 }
             } catch (\Exception $e) {
                 Yii::error('Fehler beim Speichern: ' . $e->getMessage());

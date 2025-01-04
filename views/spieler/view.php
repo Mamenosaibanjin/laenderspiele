@@ -51,11 +51,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-document.body.addEventListener('click', function (event) {
-    if (event.target && event.target.id === 'btn-save-nations') {
-        savePlayerNations(false);
-    }
-});
+    document.body.addEventListener('click', function (event) {
+        // Prüfen, ob auf einen Button mit der Klasse "save-button" geklickt wurde
+        if (event.target && event.target.classList.contains('save-button')) {
+            // Die nächste zugehörige Tabellenzeile ermitteln
+            const row = event.target.closest('tr');
+
+            if (row && row.dataset.id) {
+                const rowId = row.dataset.id; // data-id der Zeile
+                savePlayerNations(rowId); // Funktion mit der Zeilen-ID aufrufen
+            } else {
+                console.error('Keine gültige Zeile oder data-id gefunden.');
+            }
+        }
+    });
 
 
     if (saveEndButton) {
@@ -183,18 +192,27 @@ function savePlayerAssociation(type) {
     });
 }
 
-function savePlayerNations() {
+function savePlayerNations(rowId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                console.log("rowId");
+                console.log(rowId);
 
-    const playerID = getPlayerIDFromURL(); // Extrahiert die playerID aus der URL
+    // Die Zeile anhand der rowId selektieren
+    const row = document.querySelector(`[data-id="${rowId}"]`);
+    if (!row) {
+        alert("Zeile nicht gefunden!");
+        return;
+    }
 
-
+    // Daten aus der Zeile extrahieren
     const nationData = {
-        spielerID: playerID,
-        wettbewerbID: document.getElementById('wettbewerbID').value,
-        landID: document.getElementById('landID').value,
-        positionID: document.getElementById('positionID').value,
-        jahr: document.getElementById('jahr').value
+        dataId: row.dataset.id,
+        spielerID: row.dataset.id.split('-')[0], // SpielerID aus data-id extrahieren
+        wettbewerbID: row.querySelector('[name="wettbewerbID"]').value,
+        landID: row.querySelector('[name="landID"]').value,
+        positionID: row.querySelector('[name="positionID"]').value,
+        jahr: row.querySelector('[name="jahr"]').value,
+        land: row.querySelector('[name="land"]').value,
     };
     
     // Debug-Ausgabe der Daten
@@ -290,35 +308,80 @@ document.addEventListener('DOMContentLoaded', () => {
         const addButton = document.getElementById(`add-${tableId.replace('-table', '')}-entry`);
         if (addButton) {
             addButton.addEventListener('click', () => {
-                const newRow = `
-                    <tr>
-                        <td>
-                            <input type="month" class="form-control show-edit w-auto" name="von">
-                            <input type="month" class="form-control show-edit w-auto" name="bis">
-                        </td>
-                        <td></td>
-                        <td>
-                            <input type="text" class="form-control show-edit" list="${tableId}-list" style="width: 175px;">
-                            <input type="hidden" name="vereinID" value="">
-                            <datalist id="${tableId}-list">
-                                <?php foreach ($vereine as $verein): ?>
-                                    <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
-                                <?php endforeach; ?>
-                            </datalist>
-                        </td>
-                        <td></td>
-                        <td>
-                            <select class="form-control show-edit" name="positionID">
-                                <?php foreach ($positionen as $position): ?>
-                                    <option value="<?= $position->id ?>"><?= Html::encode($position->positionLang_de) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary btn-sm save-button show-edit">Speichern</button>
-                            <button class="btn btn-secondary btn-sm cancel-button show-edit">Abbrechen</button>
-                        </td>
-                    </tr>`;
+ let newRow = '';
+
+                if (tableId === 'national-team-table') {
+                    // Spezifische Struktur für die Nationalmannschaft
+                    newRow = `
+                        <tr>
+                            <td>
+                                <select class="form-control show-edit" name="wettbewerbID" id="wettbewerbID" style="width: 150px;">
+                                    <?php foreach ($wettbewerbe as $wettbewerb): ?>
+                                        <option value="<?= $wettbewerb->id ?>">
+                                            <?= Html::encode($wettbewerb->name) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input type="number" class="form-control show-edit w-auto" name="jahr" id="jahr" value="" style="width: 150px !important;" />
+                            </td>
+                            <td style="width: 35px; text-align: right;">
+                                <!-- Placeholder für Nation-Logo -->
+                            </td>
+                            <td style="text-align: left;">
+                                <input type="text" class="form-control show-edit nation-input" id="nation-input" list="nationen-list" autocomplete="off" />
+                                <input type="hidden" name="landID" id="landID" value="" />
+                                <datalist id="nationen-list">
+                                    <?php foreach ($nationen as $nation): ?>
+                                        <option value="<?= Html::encode($nation->name) ?>" data-id="<?= $nation->id ?>"></option>
+                                    <?php endforeach; ?>
+                                </datalist>
+                            </td>
+                            <td>
+                                <select class="form-control show-edit" name="positionID" id="positionID">
+                                    <?php foreach ($positionen as $position): ?>
+                                        <option value="<?= $position->id ?>">
+                                            <?= Html::encode($position->positionLang_de) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm save-button show-edit">Speichern</button>
+                                <button class="btn btn-secondary btn-sm cancel-button show-edit">Abbrechen</button>
+                            </td>
+                        </tr>`;
+                } else {
+                    // Generische Struktur für andere Tabellen
+                    newRow = `
+                        <tr>
+                            <td>
+                                <input type="month" class="form-control show-edit w-auto" name="von">
+                                <input type="month" class="form-control show-edit w-auto" name="bis">
+                            </td>
+                            <td></td>
+                            <td>
+                                <input type="text" class="form-control show-edit" list="${tableId}-list" style="width: 175px;">
+                                <input type="hidden" name="vereinID" value="">
+                                <datalist id="${tableId}-list">
+                                    <?php foreach ($vereine as $verein): ?>
+                                        <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
+                                    <?php endforeach; ?>
+                                </datalist>
+                            </td>
+                            <td></td>
+                            <td>
+                                <select class="form-control show-edit" name="positionID">
+                                    <?php foreach ($positionen as $position): ?>
+                                        <option value="<?= $position->id ?>"><?= Html::encode($position->positionLang_de) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm save-button show-edit">Speichern</button>
+                                <button class="btn btn-secondary btn-sm cancel-button show-edit">Abbrechen</button>
+                            </td>
+                        </tr>`;
+                }
                 tableBody.insertAdjacentHTML('afterbegin', newRow);
 
                 // Initialisieren der Event-Listener für die neue Zeile
@@ -331,6 +394,23 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+    
+    document.querySelectorAll('.nation-input').forEach(input => {
+        input.addEventListener('input', function () {
+        console.log("Start");
+            const datalist = document.getElementById('nationen-list');
+            const hiddenField = this.closest('tr').querySelector('input[name="landID"]');
+            const selectedOption = Array.from(datalist.options).find(option => option.value === this.value);
+    
+            if (selectedOption) {
+                // Aktualisiere das Hidden-Feld mit dem data-id-Wert der Option
+                hiddenField.value = selectedOption.dataset.id;
+            } else {
+                // Falls der Wert nicht in der Datalist ist, setze das Hidden-Feld zurück
+                hiddenField.value = '';
+            }
+        });
+	});
 });
 
 
@@ -405,6 +485,8 @@ function toggleEditMode(row, isEditing) {
         row.querySelector('.cancel-button').style.display = 'none';
     }
 }
+
+
 </script>
 
 <!-- Spieler-Seite: Header -->
@@ -622,10 +704,11 @@ function toggleEditMode(row, isEditing) {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Vereinskarriere</h3> 
-                    	<?php if ($isEditing) : ?>
-                    		<button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
-                    	<?php endif; ?>
+                        <h3>Vereinskarriere 
+                        	<?php if ($isEditing) : ?>
+                        		<button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
+                        	<?php endif; ?>
+                        </h3>
                     </div>
                     <div class="card-body">
                         <table class="table" id="career-table">
@@ -840,10 +923,11 @@ function toggleEditMode(row, isEditing) {
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Nationalmannschaftskarriere</h3>
-                        <?php if ($isEditing) : ?>
-                            <button class="btn btn-secondary btn-sm" id="add-national-team-entry">+</button>
-                        <?php endif; ?>
+                        <h3>Nationalmannschaftskarriere
+                            <?php if ($isEditing) : ?>
+                                <button class="btn btn-secondary btn-sm" id="add-national-team-entry">+</button>
+                            <?php endif; ?>
+                        </h3>
                     </div>
                     <div class="card-body">
                         <table class="table" id="national-team-table">
@@ -859,7 +943,8 @@ function toggleEditMode(row, isEditing) {
                             </thead>
                             <tbody>
                                 <?php foreach ($laenderspiele as $spiel): ?>
-                                    <tr>
+                                	<?php $dataid = $spieler->id . '-' . $spiel->landID . '-' . $spiel->wettbewerbID . '-' . $spiel->land . '-' . $spiel->jahr;?>
+                                    <tr data-id='<?= $dataid ?>'> 
                                         <td>
                                             <span class="display-mode">
                                                 <?= Html::encode($spiel->wettbewerb->name) ?> <?= Html::encode($spiel->jahr) ?>
@@ -873,6 +958,7 @@ function toggleEditMode(row, isEditing) {
                                                     <?php endforeach; ?>
                                                 </select>
                                                 <input type="number" class="form-control edit-mode w-auto" name="jahr" id="jahr" value="<?= Html::encode($spiel->jahr) ?>" style="width: 150px !important;"/>
+                                                <?= Html::hiddenInput('land', $spiel->land) ?>
                                             <?php endif; ?>
                                         </td>
                                         <td style="width: 35px; text-align: right;">
@@ -885,7 +971,7 @@ function toggleEditMode(row, isEditing) {
                                                 <?= Html::a(Html::encode(Helper::getClubName($spiel->landID)), ['/club/view', 'id' => $spiel->landID], ['class' => 'text-decoration-none']) ?>
                                             </span>
                                             <?php if ($isEditing): ?>
-                                                <input type="text" class="form-control edit-mode" id="nation-input" list="nationen-list" value="<?= Html::encode(Helper::getClubName($spiel->landID)) ?>" autocomplete="off" />
+                                                <input type="text" class="form-control edit-mode nation-input" id="nation-input" list="nationen-list" value="<?= Html::encode(Helper::getClubName($spiel->landID)) ?>" autocomplete="off" />
                                                 <input type="hidden" name="landID" id="landID" value="<?= Html::encode($spiel->landID) ?>" />
                                                 
                                                 <datalist id="nationen-list">

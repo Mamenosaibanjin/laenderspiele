@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="info-row">
                     	<i class="material-icons">emoji_events</i>
                         <span>
-                            <?= Helper::getTurniernameFullname($spiel->turnier->wettbewerb->ID, $spiel->turnier->jahr) ?>
+                            <?= Helper::getTurniernameFullname($spiel->turnier->wettbewerb->id, $spiel->turnier->jahr) ?>
                         </span>
                     </div>
                 <?php endif; ?>
