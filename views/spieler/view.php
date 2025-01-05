@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveButtonClubs = document.getElementById('btn-save-clubs');
     const saveButtonYouth = document.getElementById('btn-save-youth');
     const saveButtonNations = document.getElementById('btn-save-nations');
-    
 	const saveEndButton = document.getElementById('btn-save-details-end');
     
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -38,13 +37,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (saveButtonClubs) {
-        saveButtonClubs.addEventListener('click', function () {
-        alert("Club");
-            savePlayerAssociation('club'); // Speichern ohne Schließen
-        });
-    }
-
     if (saveButtonYouth) {
         saveButtonYouth.addEventListener('click', function () {
             savePlayerAssociation('youth'); // Speichern ohne Schließen
@@ -52,18 +44,34 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     document.body.addEventListener('click', function (event) {
+    	console.log("Click");
+        
         // Prüfen, ob auf einen Button mit der Klasse "save-button" geklickt wurde
         if (event.target && event.target.classList.contains('save-button')) {
+        	console.log("save-button");
+        	
             // Die nächste zugehörige Tabellenzeile ermitteln
             const row = event.target.closest('tr');
 
             if (row && row.dataset.id) {
+        		
+        		console.log("dataset");
                 const rowId = row.dataset.id; // data-id der Zeile
-                savePlayerNations(rowId); // Funktion mit der Zeilen-ID aufrufen
+                console.log(rowId);
+                
+                // Unterscheidung basierend auf Button-ID
+                if (event.target && event.target.id === 'btn-save-clubs') {
+                	console.log("btn-save-clubs");
+                    savePlayerAssociation(rowId, 'club') // Spezifische Funktion für die Speicherung der Vereinskarriere aufrufen
+                } else if (event.target && event.target.id === 'btn-save-nations') {
+                	console.log("btn-save-nations");
+                    savePlayerNations(rowId); // Funktion mit der Zeilen-ID aufrufen
+                }
             } else {
                 console.error('Keine gültige Zeile oder data-id gefunden.');
             }
         }
+        
     });
 
 
@@ -136,25 +144,30 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 }
 
-function savePlayerAssociation(type) {
+function savePlayerAssociation(rowId, type) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const playerID = getPlayerIDFromURL(); // Extrahiert die playerID aus der URL
-
+    
+     // Die Zeile anhand der rowId selektieren
+    const row = document.querySelector(`[data-id="${rowId}"]`);
+    if (!row) {
+        alert("Zeile nicht gefunden!");
+        return;
+    }
+    
     // Bestimme die relevanten HTML-Felder basierend auf dem Typ
     const isYouth = type === 'youth'; // Unterscheidung zwischen Jugend und Verein
-    const vereinIDField = isYouth ? 'youthVereinID' : 'vereinID';
-    const vonField = isYouth ? 'youthVon' : 'von';
-    const bisField = isYouth ? 'youthBis' : 'bis';
-    const positionIDField = isYouth ? 'youthPositionID' : 'positionID';
-
+    // Daten aus der Zeile extrahieren
     const associationData = {
-        spielerID: playerID,
-        vereinID: document.getElementById(vereinIDField).value,
-        von: document.getElementById(vonField).value || null, // YYYYMM
-        bis: document.getElementById(bisField).value || null, // YYYYMM
-        positionID: document.getElementById(positionIDField).value,
+        dataId: rowId, // Die ID der Zeile zur Referenzierung
+        spielerID: getPlayerIDFromURL(), // SpielerID aus URL extrahieren
+        vereinID: row.querySelector(isYouth ? '[name="youthVereinID"]' : '[name="vereinID"]').value,
+        von: row.querySelector(isYouth ? '[name="youthVon"]' : '[name="von"]').value || null, // YYYYMM
+        bis: row.querySelector(isYouth ? '[name="youthBis"]' : '[name="bis"]').value || null, // YYYYMM
+        positionID: row.querySelector(isYouth ? '[name="youthPositionID"]' : '[name="positionID"]').value,
         jugend: isYouth ? 1 : 0 // Steuerung des Wertes für `jugend`
     };
+
+    console.log("AssociationData", associationData);
 
     // Prüfen, ob die erforderlichen Felder ausgefüllt sind
     const requiredFields = ['vereinID', 'positionID'];
@@ -181,7 +194,16 @@ function savePlayerAssociation(type) {
     .then(response => response.json())
     .then(result => {
         if (result.success) {
-            alert(`${isYouth ? 'Jugendvereinsdaten' : 'Vereinsdaten'} erfolgreich gespeichert!`);
+            // Tabelle aktualisieren
+            const spielerId = associationData.spielerID;
+            const tableType = isYouth ? 'youth' : 'career';
+            fetch(`http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/reload-${tableType}-table?spielerId=${spielerId}`)
+                .then(response => response.text())
+                .then(html => {
+                    const tableSelector = isYouth ? '#youth-table tbody' : '#career-table tbody';
+                    document.querySelector(tableSelector).innerHTML = html;
+                })
+                .catch(error => console.error('Fehler beim Laden der Tabelle:', error));
         } else {
             alert(`Fehler beim Speichern der ${isYouth ? 'Jugendvereinsdaten' : 'Vereinsdaten'}.`);
         }
@@ -194,8 +216,6 @@ function savePlayerAssociation(type) {
 
 function savePlayerNations(rowId) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                console.log("rowId");
-                console.log(rowId);
 
     // Die Zeile anhand der rowId selektieren
     const row = document.querySelector(`[data-id="${rowId}"]`);
@@ -255,7 +275,7 @@ function savePlayerNations(rowId) {
 
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('verein-input');
-    const hiddenInput = document.getElementById('verein-id');
+    const hiddenInput = document.getElementById('vereinID');
     const options = [...document.querySelectorAll('#vereine-list option')];
 
     // Awesomplete initialisieren
@@ -355,8 +375,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     newRow = `
                         <tr>
                             <td>
-                                <input type="month" class="form-control show-edit w-auto" name="von">
-                                <input type="month" class="form-control show-edit w-auto" name="bis">
+                                <input type="month" class="form-control show-edit w-auto" name="von" style="width: 140px !important;">
+                                <input type="month" class="form-control show-edit w-auto" name="bis" style="width: 140px !important;">
                             </td>
                             <td></td>
                             <td>
@@ -377,6 +397,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </select>
                             </td>
                             <td>
+                            	<div class="btn-group-toggle show-edit" data-toggle="buttons">
+                                    <label class="btn btn-outline-primary btn-sm">
+                                        <input type="checkbox" name="jugend" id="jugend-switch" autocomplete="off"> Jugend
+                                    </label>
+                                </div>
                                 <button class="btn btn-primary btn-sm save-button show-edit">Speichern</button>
                                 <button class="btn btn-secondary btn-sm cancel-button show-edit">Abbrechen</button>
                             </td>
@@ -400,6 +425,23 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Start");
             const datalist = document.getElementById('nationen-list');
             const hiddenField = this.closest('tr').querySelector('input[name="landID"]');
+            const selectedOption = Array.from(datalist.options).find(option => option.value === this.value);
+    
+            if (selectedOption) {
+                // Aktualisiere das Hidden-Feld mit dem data-id-Wert der Option
+                hiddenField.value = selectedOption.dataset.id;
+            } else {
+                // Falls der Wert nicht in der Datalist ist, setze das Hidden-Feld zurück
+                hiddenField.value = '';
+            }
+        });
+	});
+
+    document.querySelectorAll('.verein-input').forEach(input => {
+        input.addEventListener('input', function () {
+        console.log("Start");
+            const datalist = document.getElementById('vereine-list');
+            const hiddenField = this.closest('tr').querySelector('input[name="vereinID"]');
             const selectedOption = Array.from(datalist.options).find(option => option.value === this.value);
     
             if (selectedOption) {
@@ -721,83 +763,13 @@ function toggleEditMode(row, isEditing) {
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($vereinsKarriere as $karriere): ?>
-                                    <tr>
-                                        <td style="<?= $karriere->von <= $currentMonth && ($karriere->bis >= $currentMonth || $karriere->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>">
-	                                       	<span class="display-mode">
-	                                       		<?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->von)->format('Y-m-d'), 'MM/yyyy')) ?> - <?= Html::encode($karriere->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $karriere->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
-	                                       	</span>
-                                        	<?php if ($isEditing): ?>
-                                        		<input type="month" class="form-control edit-mode w-auto" name="von" value="<?= substr($karriere->von, 0, 4) . '-' . substr($karriere->von, 4, 2) ?>">
-                                    			<input type="month" class="form-control edit-mode w-auto" name="bis" value="<?= substr($karriere->bis, 0, 4) . '-' . substr($karriere->bis, 4, 2) ?>">
-                                           	<?php endif; ?>
-                                        </td>
-                                        
-		                                <?php if ($karriere->verein): ?>
-                                            <td style="<?= $karriere->von <= $currentMonth && ($karriere->bis >= $currentMonth || $karriere->bis === null) ? 'background-color: #79C01D !important; font-weight: bold;' : '' ?>width: 35px; text-align: right;">
-                                                <span class="display-mode">
-                                                    <?= Html::img(Helper::getClubLogoUrl($karriere->verein->id), ['alt' => $karriere->verein->name, 'style' => 'height: 30px;']) ?>
-                                                </span>
-                                            </td>
-                                            <td style="<?= $karriere->von <= $currentMonth && ($karriere->bis >= $currentMonth || $karriere->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>text-align: left;">
-                                                <span class="display-mode">
-                                                    <?= Html::a(Html::encode($karriere->verein->name), ['/club/view', 'id' => $karriere->verein->id], ['class' => 'text-decoration-none']) ?>
-                                                </span>
-                                                <?php if ($isEditing): ?>
-                                                    <input type="text" class="form-control edit-mode" id="verein-input" list="vereine-list" value="<?= Html::encode($karriere->verein->name ?? '') ?>" autocomplete="off" style="width: 175px;">
-                                                    <input type="hidden" name="vereinID" id="verein-id" value="<?= Html::encode($karriere->vereinID) ?>">
-                                                    
-                                                    <datalist id="vereine-list">
-                                                        <?php foreach ($vereine as $verein): ?>
-                                                            <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
-                                                        <?php endforeach; ?>
-                                                    </datalist>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td style="<?= $karriere->von <= $currentMonth && ($karriere->bis >= $currentMonth || $karriere->bis === null) ? 'background-color: #79C01D !important; font-weight: bold;' : '' ?>">
-                                                <span class="display-mode">
-                                                    <?= Html::img(Helper::getFlagUrl($karriere->verein->land), ['alt' => $karriere->verein->land, 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?>
-                                                </span>
-                                            </td>
-                                        <?php else: ?>
-                                            <td colspan="3">
-                                                <span class="display-mode"></span>
-                                                <?php if ($isEditing): ?>
-                                                    <div class="edit-mode" style="display: block;">
-                                                        <input type="text" class="form-control" id="verein-input" list="vereine-list" value="" autocomplete="off" style="width: 175px;">
-                                                        <input type="hidden" name="vereinID" id="verein-id" value="">
-                                                        
-                                                        <datalist id="vereine-list">
-                                                            <?php foreach ($vereine as $verein): ?>
-                                                                <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
-                                                            <?php endforeach; ?>
-                                                        </datalist>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </td>
-                                        <?php endif; ?>
-
-                                        <td style="<?= $karriere->von <= $currentMonth && ($karriere->bis >= $currentMonth || $karriere->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>">
-                                        	<span class="display-mode">
-                                        		<?= Html::encode($karriere->position->positionKurz) ?>
-                                        	</span>
-                                        	<?php if ($isEditing): ?>
-	                                        	<select class="form-control edit-mode" name="positionID">
-                                                    <?php foreach ($positionen as $position): ?>
-                                                        <option value="<?= $position->id ?>" <?= $karriere->positionID == $position->id ? 'selected' : '' ?>><?= Html::encode($position->positionLang_de) ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            <?php endif; ?>
-                                        </td>
-                                        <?php if ($isEditing): ?>
-    										<td>
-                                                <button class="btn btn-primary btn-sm edit-button display-mode">Bearbeiten</button>
-                                                <button class="btn btn-primary btn-sm save-button edit-mode" style="display: none;" id="btn-save-clubs">Speichern</button>
-                                                <button class="btn btn-secondary btn-sm cancel-button edit-mode" style="display: none;">Abbrechen</button>
-                                            </td>
-                                        <?php endif; ?>                                    
-                                	</tr>
-                                <?php endforeach; ?>
+                                <?= $this->render('_career_table', [
+                                    'vereinsKarriere' => $vereinsKarriere,
+                                    'isEditing' => $isEditing,
+                                    'currentMonth' => $currentMonth,
+                                    'vereine' => $vereine,
+                                    'positionen' => $positionen
+                                ]) ?>
                             </tbody>
                         </table>
                         
@@ -833,81 +805,89 @@ function toggleEditMode(row, isEditing) {
                             </thead>
                             <tbody>
                                 <?php foreach ($jugendvereine as $jugend): ?>
-                                    <tr>
-                                        <td>
-	                                       	<span class="display-mode">
-	                                       		<?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $jugend->von)->format('Y-m-d'), 'MM/yyyy')) ?> - <?= Html::encode($jugend->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $jugend->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
-	                                       	</span>
-                                        	<?php if ($isEditing): ?>
-                                        		<input type="month" class="form-control edit-mode w-auto" name="von" value="<?= substr($jugend->von, 0, 4) . '-' . substr($jugend->von, 4, 2) ?>">
-                                    			<input type="month" class="form-control edit-mode w-auto" name="bis" value="<?= substr($jugend->bis, 0, 4) . '-' . substr($jugend->bis, 4, 2) ?>">
-                                           	<?php endif; ?>
-                                        </td>
+                                	<?php $dataid = $spieler->id . '-' . $jugend->vereinID . '-' . $jugend->von . '-' . $jugend->bis . '-' . $jugend->positionID . '-0';?>
+                                    	<tr data-id='<?= $dataid ?>'>	                                        
+                                    		<td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>">
+    	                                       	<span class="display-mode">
+    	                                       		<?= Html::encode(Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $jugend->von)->format('Y-m-d'), 'MM/yyyy')) ?> - <?= Html::encode($jugend->bis ? Yii::$app->formatter->asDate(DateTime::createFromFormat('Ym', $jugend->bis)->format('Y-m-d'), 'MM/yyyy') : 'heute') ?>
+    	                                       	</span>
+                                            	<?php if ($isEditing): ?>
+                                            		<input type="month" class="form-control edit-mode w-auto" name="von" id="von" value="<?= substr($jugend->von, 0, 4) . '-' . substr($jugend->von, 4, 2) ?>" style="width: 140px !important;">
+                                        			<input type="month" class="form-control edit-mode w-auto" name="bis" id="bis" value="<?= substr($jugend->bis, 0, 4) . '-' . substr($jugend->bis, 4, 2) ?>" style="width: 140px !important;">
+                                               	<?php endif; ?>
+                                        	</td>
                                         
-                                        <?php if ($jugend->verein): ?>
-                                            <td style="width: 35px; text-align: right;">
-                                                <span class="display-mode">
-                                                    <?= Html::img(Helper::getClubLogoUrl($jugend->verein->id), ['alt' => $jugend->verein->name, 'style' => 'height: 30px;']) ?>
-                                                </span>
-                                            </td>
-                                            <td style="text-align: left;">
-                                                <span class="display-mode">
-                                                    <?= Html::encode($jugend->verein->name) ?>
-                                                </span>
-                                                <?php if ($isEditing): ?>
-                                                    <input type="text" class="form-control edit-mode" id="youth-club-input" list="youth-club-list" value="<?= Html::encode($jugend->verein->name) ?>" autocomplete="off" style="width: 175px;">
-                                                    <input type="hidden" name="vereinID" id="verein-id" value="<?= $jugend->vereinID ?>">
-                                                    <datalist id="youth-club-list">
-                                                        <?php foreach ($vereine as $verein): ?>
-                                                            <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
-                                                        <?php endforeach; ?>
-                                                    </datalist>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td>
-                                                <span class="display-mode">
-                                                    <?= Html::img(Helper::getFlagUrl($jugend->verein->land), ['alt' => $jugend->verein->land, 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?>
-                                                </span>
-                                            </td>
-                                        <?php else: ?>
-                                            <td colspan="3">
-                                                <span class="display-mode"></span>
-                                                <?php if ($isEditing): ?>
-                                                    <div class="edit-mode" style="display: block;">
-                                                        <input type="text" class="form-control" id="youth-club-input" list="youth-club-list" value="" autocomplete="off" style="width: 175px;">
-                                                        <input type="hidden" name="vereinID" id="verein-id" value="">
-                                                        <datalist id="youth-club-list">
+    		                                <?php if ($jugend->verein): ?>
+                                                <td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'background-color: #79C01D !important; font-weight: bold;' : '' ?>width: 35px; text-align: right;">
+                                                    <span class="display-mode">
+                                                        <?= Html::img(Helper::getClubLogoUrl($jugend->verein->id), ['alt' => $jugend->verein->name, 'style' => 'height: 30px;']) ?>
+                                                    </span>
+                                                </td>
+                                                <td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>text-align: left;">
+                                                    <span class="display-mode">
+                                                        <?= Html::a(Html::encode($jugend->verein->name), ['/club/view', 'id' => $jugend->verein->id], ['class' => 'text-decoration-none']) ?>
+                                                    </span>
+                                                    <?php if ($isEditing): ?>
+                                                        <input type="text" class="form-control edit-mode" id="verein-input" list="vereine-list" value="<?= Html::encode($jugend->verein->name ?? '') ?>" autocomplete="off" style="width: 175px;">
+                                                        <input type="hidden" name="vereinID" id="vereinID" value="<?= Html::encode($jugend->vereinID) ?>">
+                                                        
+                                                        <datalist id="vereine-list">
                                                             <?php foreach ($vereine as $verein): ?>
                                                                 <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
                                                             <?php endforeach; ?>
                                                         </datalist>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </td>
-                                        <?php endif; ?>
-    
-                                        <td>
-                                            <span class="display-mode">
-                                                <?= Html::encode($jugend->position->positionKurz) ?>
-                                            </span>
-                                            <?php if ($isEditing): ?>
-                                                <select class="form-control edit-mode" name="positionID">
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'background-color: #79C01D !important; font-weight: bold;' : '' ?>">
+                                                    <span class="display-mode">
+                                                        <?= Html::img(Helper::getFlagUrl($jugend->verein->land), ['alt' => $jugend->verein->land, 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?>
+                                                    </span>
+                                                </td>
+                                            <?php else: ?>
+                                                <td colspan="3">
+                                                    <span class="display-mode"></span>
+                                                    <?php if ($isEditing): ?>
+                                                        <div class="edit-mode" style="display: block;">
+                                                            <input type="text" class="form-control" id="verein-input" list="vereine-list" value="" autocomplete="off" style="width: 175px;">
+                                                            <input type="hidden" name="vereinID" id="vereinID" value="">
+                                                            
+                                                            <datalist id="vereine-list">
+                                                                <?php foreach ($vereine as $verein): ?>
+                                                                    <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
+                                                                <?php endforeach; ?>
+                                                            </datalist>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </td>
+                                            <?php endif; ?>
+
+                                        <td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'color: #1C75AC; background-color: #79C01D !important; font-weight: bold;' : '' ?>">
+                                        	<span class="display-mode">
+                                        		<?= Html::encode($jugend->position->positionKurz) ?>
+                                        	</span>
+                                        	<?php if ($isEditing): ?>
+	                                        	<select class="form-control edit-mode" name="positionID" id="positionID">
                                                     <?php foreach ($positionen as $position): ?>
-                                                        <option value="<?= $position->id ?>" <?= $jugend->positionID == $position->id ? 'selected' : '' ?>>
-                                                            <?= Html::encode($position->positionLang_de) ?>
-                                                        </option>
+                                                        <option value="<?= $position->id ?>" <?= $jugend->positionID == $position->id ? 'selected' : '' ?>><?= Html::encode($position->positionLang_de) ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             <?php endif; ?>
                                         </td>
                                         <?php if ($isEditing): ?>
-                                            <td>
+                                            <!-- Bootstrap Switch -->
+											<td>
+                                            	<div class="btn-group-toggle edit-mode" data-toggle="buttons">
+                                                    <label class="btn btn-outline-primary btn-sm">
+                                                        <input type="checkbox" name="jugend" id="jugend-switch" autocomplete="off" checked="checked"> Jugend
+                                                    </label>
+                                                </div>
+												<!-- Buttons -->
                                                 <button class="btn btn-primary btn-sm edit-button display-mode">Bearbeiten</button>
-                                                <button class="btn btn-primary btn-sm save-button edit-mode" style="display: none;" id="btn-save-youth">Speichern</button>
-                                                <button class="btn btn-secondary btn-sm cancel-button edit-mode" style="display: none;">Abbrechen</button>
+                                                <button class="btn btn-primary btn-sm save-button edit-mode" id="btn-save-youth">Speichern</button>
+                                                <button class="btn btn-secondary btn-sm cancel-button edit-mode">Abbrechen</button>
                                             </td>
-                                        <?php endif; ?>
-                                    </tr>
+                                        <?php endif; ?>                                    
+                                	</tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
@@ -999,7 +979,7 @@ function toggleEditMode(row, isEditing) {
                                             <td>
                                                 <button class="btn btn-primary btn-sm edit-button display-mode">Bearbeiten</button>
                                                 <button class="btn btn-primary btn-sm save-button edit-mode" id="btn-save-nations">Speichern</button>
-                                                <button class="btn btn-secondary btn-sm cancel-button edit-mode" style="display: none;">Abbrechen</button>
+                                                <button class="btn btn-secondary btn-sm cancel-button edit-mode">Abbrechen</button>
                                             </td>
                                         <?php endif; ?>
                                     </tr>

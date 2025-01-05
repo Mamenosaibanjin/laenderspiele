@@ -231,6 +231,87 @@ class SpielerController extends Controller
         return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
     }
     
+
+    public function actionSaveClub()
+    {
+        $request = Yii::$app->request;
+        $data = json_decode($request->getRawBody(), true);
+        Yii::info($data, 'debug'); // Debugging: Log-Daten ausgeben
+        
+        if ($request->isPost && $data) {
+            try {
+                // Validierung der Eingabedaten
+                if (empty($data['spielerID']) || empty($data['vereinID']) || empty($data['positionID'])) {
+                    return $this->asJson(['success' => false, 'message' => 'Fehlende Daten']);
+                }
+                
+                $existingEntry = SpielerVereinSaison::findOne(['id' => $data['dataId']]);
+                
+                \Yii::info($data, 'debug');
+                if ($existingEntry) {
+                    // Update des bestehenden Eintrags
+                    $existingEntry->spielerID = $data['spielerID'];
+                    $existingEntry->vereinID = $data['vereinID'];
+                    $existingEntry->von = (int) str_replace('-', '', $data['von']);;
+                    $existingEntry->bis = (int) str_replace('-', '', $data['bis']);;
+                    $existingEntry->positionID = $data['positionID'];
+                    $existingEntry->jugend = 0;
+                    
+                    if ($existingEntry->save()) {
+                        return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich aktualisiert']);
+                    } else {
+                        Yii::error($existingEntry->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
+                        return $this->asJson(['success' => false, 'message' => 'Fehler beim Aktualisieren']);
+                    }
+                } else {
+                    $spielerNation = new SpielerLandWettbewerb(); // Erstellen eines neuen Eintrags
+                    $spielerNation->spielerID = $data['spielerID'];
+                    $spielerNation->vereinID = $data['vereinID'];
+                    $spielerNation->von = (int) str_replace('-', '', $data['von']);;
+                    $spielerNation->bis = (int) str_replace('-', '', $data['bis']);;
+                    $spielerNation->positionID = $data['positionID'];
+                    $spielerNation->jugend = 0;
+                    
+                    if ($spielerNation->save()) {
+                        return $this->asJson(['success' => true, 'message' => 'Daten erfolgreich gespeichert']);
+                    } else {
+                        Yii::error($spielerNation->errors, 'debug'); // Debugging: Validierungsfehler ausgeben
+                        return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+                    }
+                }
+            } catch (\Exception $e) {
+                Yii::error('Fehler beim Speichern: ' . $e->getMessage());
+                return $this->asJson(['success' => false, 'message' => 'Ein interner Fehler ist aufgetreten']);
+            }
+        }
+        
+        return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
+    }
+    
+    public function actionReloadCareerTable($spielerId)
+    {
+        $vereinsKarriere = SpielerVereinSaison::find()
+        ->where(['spielerID' => $spielerId, 'jugend' => 0])
+        ->orderBy(['von' => SORT_DESC])
+        ->all(); // Daten aus der Datenbank
+        
+        // Zusätzliche Daten, die von der Partial-View benötigt werden
+        $vereine = Club::find()->all(); // Passe dies an deine Logik an
+        $positionen = Position::find()->all(); // Passe dies an deine Logik an
+        $currentMonth = date('Ym'); // Aktueller Monat im benötigten Format
+        $isEditing = false; // Standardmäßig nicht im Bearbeitungsmodus
+        
+        // Partial-View zurückgeben
+        return $this->renderPartial('_career_table', [
+            'vereinsKarriere' => $vereinsKarriere,
+            'isEditing' => $isEditing,
+            'currentMonth' => $currentMonth,
+            'vereine' => $vereine,
+            'positionen' => $positionen,
+        ]);
+    }
+    
+
 }
 
 ?>

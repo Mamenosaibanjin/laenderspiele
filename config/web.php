@@ -58,6 +58,7 @@ $config = [
                 'spiele/update-datetime' => 'spiele/update-datetime',
                 'spiele/create' => 'spiele/create',
                 'spiele/delete' => 'spiele/delete',
+                'spieler/reload-career-table' => 'spieler/reload-career-table',
                 'spieler/new' => 'spieler/view',
                 'spieler/save-details' => 'spieler/save-details',
                 'spieler/save-club' => 'spieler/save-club', // Neue Route für das Speichern von Clubs
