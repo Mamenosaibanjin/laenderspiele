@@ -53,5 +53,14 @@ class Stadiums extends ActiveRecord
         return $query[0]['id'];
     }
     
+    public static function getStadiums()
+    {
+        $query = Stadiums::find()
+        ->orderBy(['name' => SORT_ASC]) // Sortieren
+        ->all();
+        
+        return $query;
+    }
+    
 }
 ?>

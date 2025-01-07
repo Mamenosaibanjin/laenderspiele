@@ -1,7 +1,8 @@
 <?php
-use yii\helpers\Html;
 use app\components\Helper;
 use app\models\Club;
+use yii\bootstrap5\ActiveForm;
+use yii\helpers\Html;
 
 /* @var $this yii\web\View */
 /* @var $club app\models\Club */
@@ -11,7 +12,9 @@ use app\models\Club;
 /* @var $upcomingMatches app\models\Spiel[] */
 /* @var $squad app\models\Spieler[] */
 
-$this->title = $club->namevoll;
+$this->title = $isEditing
+? ($club->isNewRecord ? 'Neuen Club erstellen' : 'Club bearbeiten: ' . $club->name)
+: $club->namevoll;
 $currentYear = date('Y');
 ?>
 
@@ -20,90 +23,195 @@ $currentYear = date('Y');
     <!-- Erste Widgetreihe -->
     <div class="row mb-3">
         <!-- Widget 1: Vereinsdaten -->
-        <div class="col-md-6">
+         <div class="col-md-6">
             <div class="card">
                 <div class="card-header"><h3>Vereinsdaten</h3></div>
                 <div class="card-body">
-                    <table class="table">
-                        <tr>
-                            <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
-                            <td><?= Html::encode($club->name) ?></td>
-                        </tr>
-                        <tr>
-                            <th><i class="fas fa-address-card"></i></th>
-                            <td><?= Html::encode($club->namevoll) ?></td>
-                        </tr>
-                        <tr>
-                            <th><i class="fas fa-earth-europe"></i></th>
-                            <td>
-                                <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
-                                <?= Html::encode($nation->land_de) ?>
-                            </td>
-                        </tr>
-                        <?php if ($club->founded) :?>
-                        <tr>
-                            <th><i class="fas fa-calendar-alt"></i></th>
-                            <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                        <?php if ($club->farben) : ?>
-                        <tr>
-                            <th><i class="fas fa-palette"></i></th>
-                            <td>
-                            <?php 
-                            $colors = explode('-', $club->farben);
-                            $lastIndex = count($colors) - 1; // Index der letzten Farbe
-                            ?>
-                            
-                            <?php foreach ($colors as $index => $color): ?>
-                                <span 
-                                    style="
-                                        display:inline-block; 
-                                        width:20px; 
-                                        height:20px; 
-                                        background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; 
-                                        border:1px solid #000; 
-                                        <?= $index === 0 ? 'border-radius: 10px 0 0 10px;' : '' ?> 
-                                        <?= $index === $lastIndex ? 'border-radius: 0 10px 10px 0;' : '' ?> 
-                                        <?= $index !== $lastIndex ? 'margin-right: -5px;' : '' ?>
-                                    ">
-                                </span>
-                            <?php endforeach; ?>
-                            </td>
-                        </tr>
-						<?php endif; ?>
-						<?php if (!is_null($stadium)): ?>
-                        <tr>
-                            <th><i class="fas fa-location-dot"></i></th>
-                            <td>
-                                <?= Html::encode($stadium->name) ?><br>
-                                <?= Html::encode($stadium->kapazitaet) ?> Plätze
-                            </td>
-                        <?php endif; ?>
-                        </tr>
-                        <tr>
-                            <th><i class="fas fa-envelope"></i></th>
-                            <td>
-                                <?= Html::encode($club->name) ?><br>
-                                <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
-                                <?= $club->strasse ? nl2br(Html::encode($club->strasse)) . '<br>' : '' ?>
-                                <?= $club->ort ? Html::encode($club->ort) . '<br>' : '' ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th><i class="fas fa-phone"></i></th>
-                            <td><?= Html::encode($club->telefon) ?></td>
-                        </tr>
-                        <?php if ($club->homepage) : ?>
-                        <tr>
-                            <th><i class="fas fa-laptop-code"></i></th>
-                            <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
-                        </tr>
-                        <?php endif; ?>
-                    </table>
+                    <?php if ($isEditing): ?>
+                        <?php $form = ActiveForm::begin(); ?>
+                        <table class="table">
+                            <tr>
+                                <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
+                                <td><?= $form->field($club, 'name')->textInput(['maxlength' => true])->label(false) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-address-card"></i></th>
+                                <td><?= $form->field($club, 'namevoll')->textInput(['maxlength' => true])->label(false) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-earth-europe"></i></th>
+                                <td>
+                                    <?= $form->field($club, 'land')->dropDownList(
+                                        \yii\helpers\ArrayHelper::map($nationen, 'kuerzel', 'land_de'),
+                                        ['prompt' => 'Wähle ein Land']
+                                    )->label(false) ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar-alt"></i></th>
+                                <td><?= $form->field($club, 'founded')->input('date')->label(false) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-palette"></i></th>
+                                <td><?= $form->field($club, 'farben')->textInput(['maxlength' => true])->label(false) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-location-dot"></i></th>
+                                <td>
+                                    <?= $form->field($club, 'stadionID')->hiddenInput(['id' => 'hidden-stadion-id'])->label(false); ?>
+                                
+                                    <?php
+                                    // Stadionname anhand der ID vorfüllen
+                                    $stadionName = '';
+                                    if (!empty($club->stadionID)) {
+                                        foreach ($stadien as $stadion) {
+                                            if ($stadion['id'] == $club->stadionID) {
+                                                $stadionName = $stadion['name'];
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    ?>
+                                
+                                    <?= $form->field($club, 'stadionID')->textInput([
+                                        'id' => 'autocomplete-stadion',
+                                        'value' => $stadionName, // Vorbelegung mit dem Namen
+                                    ])->label(false); ?>
+                                
+                                    <?php
+                                    $stadienData = array_map(function ($stadion) {
+                                        return [
+                                            'label' => $stadion['name'] . ', ' . $stadion['stadt'],
+                                            'value' => $stadion['id'],
+                                            'klarname' => $stadion['name']
+                                        ];
+                                    }, $stadien);
+                                
+                                    $stadienDataJson = json_encode($stadienData);
+                                    $this->registerJs("
+                                        var availableStadien = $stadienDataJson;
+                                        $('#autocomplete-stadion').autocomplete({
+                                            source: availableStadien,
+                                            select: function(event, ui) {
+                                                // Setze die Klarname im Textfeld und die ID im Hidden-Feld
+                                                $('#autocomplete-stadion').val(ui.item.klarname);
+                                                $('#hidden-stadion-id').val(ui.item.value);
+                                                return false; // Verhindere Standardverhalten
+                                            },
+                                        });
+                                    ");
+                                    ?>
+                                
+                                    <?= Html::submitButton('neues Stadion anlegen', [
+                                        'class' => 'btn btn-secondary',
+                                        'onClick' => 'window.open("http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/stadium/new", "_blank")'
+                                    ]) ?>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i></th>
+                                <td>
+                                    <?= $form->field($club, 'postfach')->textInput(['maxlength' => true])->label('Postfach') ?>
+                                    <?= $form->field($club, 'strasse')->textInput(['maxlength' => true])->label('Straße') ?>
+                                    <?= $form->field($club, 'ort')->textInput(['maxlength' => true])->label('Ort') ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-phone"></i></th>
+                                <td><?= $form->field($club, 'telefon')->textInput(['maxlength' => true])->label(false) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-laptop-code"></i></th>
+                                <td><?= $form->field($club, 'homepage')->textInput(['maxlength' => true])->label(false) ?></td>
+                            </tr>
+                        </table>
+                        <div class="form-group">
+                            <?= Html::submitButton('Speichern', ['class' => 'btn btn-primary']) ?>
+                        </div>
+                        <?php ActiveForm::end(); ?>
+                    <?php else: ?>
+                        <table class="table">
+                            <tr>
+                                <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
+                                <td><?= Html::encode($club->name) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-address-card"></i></th>
+                                <td><?= Html::encode($club->namevoll) ?></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-earth-europe"></i></th>
+                                <td>
+                                    <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
+                                    <?= Html::encode($nation->land_de) ?>
+                                </td>
+                            </tr>
+                            <?php if ($club->founded): ?>
+                                <tr>
+                                    <th><i class="fas fa-calendar-alt"></i></th>
+                                    <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                            <?php if ($club->farben): ?>
+                                <tr>
+                                    <th><i class="fas fa-palette"></i></th>
+                                    <td>
+                                        <?php 
+                                        $colors = explode('-', $club->farben);
+                                        $lastIndex = count($colors) - 1; // Index der letzten Farbe
+                                        ?>
+                                        <?php foreach ($colors as $index => $color): ?>
+                                            <span 
+                                                style="
+                                                    display:inline-block; 
+                                                    width:20px; 
+                                                    height:20px; 
+                                                    background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; 
+                                                    border:1px solid #000; 
+                                                    <?= $index === 0 ? 'border-radius: 10px 0 0 10px;' : '' ?> 
+                                                    <?= $index === $lastIndex ? 'border-radius: 0 10px 10px 0;' : '' ?> 
+                                                    <?= $index !== $lastIndex ? 'margin-right: -5px;' : '' ?>
+                                                ">
+                                            </span>
+                                        <?php endforeach; ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <?php if (!is_null($stadium)): ?>
+                                <tr>
+                                    <th><i class="fas fa-location-dot"></i></th>
+                                    <td>
+                                        <?= Html::encode($stadium->name) ?><br>
+                                        <?= Html::encode($stadium->kapazitaet) ?> Plätze
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i></th>
+                                <td>
+                                    <?= Html::encode($club->name) ?><br>
+                                    <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
+                                    <?= $club->strasse ? nl2br(Html::encode($club->strasse)) . '<br>' : '' ?>
+                                    <?= $club->ort ? Html::encode($club->ort) . '<br>' : '' ?>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-phone"></i></th>
+                                <td><?= Html::encode($club->telefon) ?></td>
+                            </tr>
+                            <?php if ($club->homepage): ?>
+                                <tr>
+                                    <th><i class="fas fa-laptop-code"></i></th>
+                                    <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
+                                </tr>
+                            <?php endif; ?>
+                        </table>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+
 
 		<div class="col-md-2">
 		&nbsp;</div>
@@ -349,3 +457,9 @@ $currentYear = date('Y');
     <?php endif; ?>
 
 </div>
+<script>
+<?php
+$this->registerJs("
+    $('.selectpicker').selectpicker();
+");
+?></script>

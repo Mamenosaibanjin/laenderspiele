@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use yii\web\Controller;
 use app\models\Club;
+use app\models\Nation;
+use app\models\Stadiums;
 use Yii;
 use yii\web\Response;
 
@@ -11,12 +13,15 @@ class ClubController extends Controller
 {
     public function actionView($id)
     {
-        // Club-Datensatz laden
-        $club = Club::findOne($id);
-        if (!$club) {
+        $isEditing = !(Yii::$app->user->isGuest); // Bearbeitungsmodus für eingeloggte Benutzer
+        
+        // Wenn eine ID vorhanden ist, bestehenden Club laden, sonst neues Modell erstellen
+        $club = $id ? Club::findOne($id) : new Club();
+        
+        if (!$club && $id) {
             throw new \yii\web\NotFoundHttpException('Der angeforderte Club wurde nicht gefunden.');
         }
-
+        
         // Weitere benötigte Daten laden (z. B. Nation, Stadion, Spiele, Kader)
         $nation = $club->nation; // Annahme: Relation "nation" existiert
         $stadium = $club->stadion; // Annahme: Relation "stadium" existiert
@@ -25,12 +30,28 @@ class ClubController extends Controller
         // Spiele und Kader nur laden, wenn die TypID zutrifft
         $recentMatches = in_array($club->typID, [1, 2]) ? $club->getRecentMatches() : null;
         $upcomingMatches = in_array($club->typID, [1, 2]) ? $club->getUpcomingMatches() : null;
-
+        
         // Kader nur laden, wenn TypID 3 oder 5
         $squad = in_array($club->typID, [3, 5]) ? $club->getSquad($id) : null;
         
         // National-Kader laden (Prüfe, ob diese Logik zutrifft)
         $nationalSquad = in_array($club->typID, [1, 2]) ? $club->getNationalSquad($id) : null;
+        
+        // Speichern der Daten, wenn es sich um einen Bearbeitungsmodus handelt
+        if ($isEditing && $club->load(Yii::$app->request->post()) && $club->save()) {
+            Yii::$app->session->setFlash('success', 'Die Clubdaten wurden erfolgreich gespeichert.');
+            return $this->redirect(['club/view', 'id' => $club->id]);
+        }
+        
+        // Zusätzliche Daten für die Ansicht
+        $nationen = Nation::find()
+        ->select(['kuerzel', 'land_de'])
+        ->from('nation')
+        ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
+        ->orderBy(['land_de' => SORT_ASC])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        $stadien = Stadiums::getStadiums();
         
         // View rendern
         return $this->render('view', [
@@ -41,6 +62,9 @@ class ClubController extends Controller
             'upcomingMatches' => $upcomingMatches,
             'squad' => $squad,
             'nationalSquad' => $nationalSquad, // Übergebe nationalSquad an die View
+            'isEditing' => $isEditing,
+            'nationen' => $nationen,
+            'stadien' => $stadien,
         ]);
     }
     
@@ -54,7 +78,7 @@ class ClubController extends Controller
         ->where(['like', 'name', $term])
         ->asArray()
         ->all();
-                
+        
         return $clubs;
     }
 }
