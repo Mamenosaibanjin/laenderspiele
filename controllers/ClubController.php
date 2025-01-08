@@ -39,6 +39,8 @@ class ClubController extends Controller
         
         // Speichern der Daten, wenn es sich um einen Bearbeitungsmodus handelt
         if ($isEditing && $club->load(Yii::$app->request->post()) && $club->save()) {
+            Yii::debug($club->attributes, __METHOD__);
+            
             Yii::$app->session->setFlash('success', 'Die Clubdaten wurden erfolgreich gespeichert.');
             return $this->redirect(['club/view', 'id' => $club->id]);
         }

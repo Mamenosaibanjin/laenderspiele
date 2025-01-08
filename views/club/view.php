@@ -51,64 +51,119 @@ $currentYear = date('Y');
                                 <th><i class="fas fa-calendar-alt"></i></th>
                                 <td><?= $form->field($club, 'founded')->input('date')->label(false) ?></td>
                             </tr>
+
                             <tr>
                                 <th><i class="fas fa-palette"></i></th>
-                                <td><?= $form->field($club, 'farben')->textInput(['maxlength' => true])->label(false) ?></td>
-                            </tr>
-                            <tr>
-                                <th><i class="fas fa-location-dot"></i></th>
                                 <td>
-                                    <?= $form->field($club, 'stadionID')->hiddenInput(['id' => 'hidden-stadion-id'])->label(false); ?>
-                                
-                                    <?php
-                                    // Stadionname anhand der ID vorfüllen
-                                    $stadionName = '';
-                                    if (!empty($club->stadionID)) {
-                                        foreach ($stadien as $stadion) {
-                                            if ($stadion['id'] == $club->stadionID) {
-                                                $stadionName = $stadion['name'];
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    ?>
-                                
-                                    <?= $form->field($club, 'stadionID')->textInput([
-                                        'id' => 'autocomplete-stadion',
-                                        'value' => $stadionName, // Vorbelegung mit dem Namen
-                                    ])->label(false); ?>
-                                
-                                    <?php
-                                    $stadienData = array_map(function ($stadion) {
-                                        return [
-                                            'label' => $stadion['name'] . ', ' . $stadion['stadt'],
-                                            'value' => $stadion['id'],
-                                            'klarname' => $stadion['name']
-                                        ];
-                                    }, $stadien);
-                                
-                                    $stadienDataJson = json_encode($stadienData);
-                                    $this->registerJs("
-                                        var availableStadien = $stadienDataJson;
-                                        $('#autocomplete-stadion').autocomplete({
-                                            source: availableStadien,
-                                            select: function(event, ui) {
-                                                // Setze die Klarname im Textfeld und die ID im Hidden-Feld
-                                                $('#autocomplete-stadion').val(ui.item.klarname);
-                                                $('#hidden-stadion-id').val(ui.item.value);
-                                                return false; // Verhindere Standardverhalten
-                                            },
-                                        });
-                                    ");
-                                    ?>
-                                
-                                    <?= Html::submitButton('neues Stadion anlegen', [
-                                        'class' => 'btn btn-secondary',
-                                        'onClick' => 'window.open("http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/stadium/new", "_blank")'
-                                    ]) ?>
+                                        <?= $form->field($club, 'farben')->hiddenInput(['id' => 'farben-input', 'class' => 'form-control', 'value' => Html::encode($club->farben)])->label(false) ?>
+                                    	<div id="color-picker-container"></div>
+                                        <button type="button" id="add-color" class="btn btn-secondary btn-sm mt-2">Farbe hinzufügen</button>
                                 </td>
-
                             </tr>
+                            
+                            <?php
+                            $this->registerJs("
+                                $(document).ready(function() {
+                                    let colors = '" . Html::encode($club->farben) . "'.split('-').filter(Boolean);
+                                                            
+                                    function renderColors() {
+                                        let html = '';
+                                        colors.forEach((color, index) => {
+                                            html += `
+                                                <div class='color-item' style='display: inline-block; margin-right: 5px;'>
+                                                    <input type='color' value='\${color.startsWith(\"#\") ? color : \"#000011\"}' class='color-picker'>
+                                                    <button type='button' class='btn btn-danger btn-sm remove-color' data-index='\${index}'>x</button>
+                                                </div>`;
+                                        });
+                                        $('#color-picker-container').html(html); // Ersetzt statt anzuhängen
+                                    }
+                                                            
+                                    renderColors();
+                                                            
+                                    $('#add-color').on('click', function() {
+                                        colors.push('#000011');
+                                        renderColors();
+                                    });
+                                                            
+                                    $(document).on('change', '.color-picker', function() {
+                                        const index = $(this).closest('.color-item').index();
+                                        colors[index] = $(this).val();
+                                        $('#farben-input').val(colors.join('-'));
+                                    });
+                                                            
+                                    $(document).on('click', '.remove-color', function() {
+                                        const index = $(this).data('index');
+                                        colors.splice(index, 1);
+                                        $('#farben-input').val(colors.join('-'));
+                                        renderColors();
+                                    });
+                                });
+                            ");
+                            ?>
+    <tr>
+        <th><i class="fas fa-location-dot"></i></th>
+    <td>
+        <?= $form->field($club, 'stadionID')->hiddenInput([
+            'id' => 'hidden-stadion-id', 
+            'value' => $club->stadionID,
+        ])->label(false); ?>
+    
+        <?php
+        // Stadionname anhand der ID vorfüllen
+        $stadionName = '';
+        if (!empty($club->stadionID)) {
+            foreach ($stadien as $stadion) {
+                if ($stadion['id'] == $club->stadionID) {
+                    $stadionName = $stadion['name'];
+                    break;
+                }
+            }
+        }
+        ?>
+    
+       <?= Html::textInput('stadionName', $stadionName, [
+            'id' => 'autocomplete-stadion',
+            'class' => 'form-control',
+        ]); ?><br>
+    
+        <?php
+        $stadienData = array_map(function ($stadion) {
+            return [
+                'label' => $stadion['name'] . ', ' . $stadion['stadt'],
+                'value' => $stadion['id'],
+                'klarname' => $stadion['name']
+            ];
+        }, $stadien);
+    
+        $stadienDataJson = json_encode($stadienData);
+        $this->registerJs("
+            var availableStadien = $stadienDataJson;
+            $('#autocomplete-stadion').autocomplete({
+        source: availableStadien,
+        select: function(event, ui) {
+            // Setze die Klarname im Textfeld und die ID im Hidden-Feld
+            $('#autocomplete-stadion').val(ui.item.klarname);
+            $('#hidden-stadion-id').val(ui.item.value); // ID setzen
+            return false; // Verhindere Standardverhalten
+        }
+    });
+    $('#autocomplete-stadion').blur(function() {
+        // Validierung: Wenn keine gültige ID gesetzt wurde, Textfeld leeren
+        if ($('#hidden-stadion-id').val() === '') {
+            $('#autocomplete-stadion').val('');
+        }
+    });
+        ");
+        ?>
+    
+        <?= Html::submitButton('neues Stadion anlegen', [
+            'class' => 'btn btn-secondary',
+            'onClick' => 'window.open("http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/stadium/new", "_blank")'
+        ]) ?>
+    </td>
+    
+    </tr>
+
                             <tr>
                                 <th><i class="fas fa-envelope"></i></th>
                                 <td>
@@ -167,7 +222,7 @@ $currentYear = date('Y');
                                                     display:inline-block; 
                                                     width:20px; 
                                                     height:20px; 
-                                                    background-color:<?= Html::encode(Helper::colorToHex($color)) ?>; 
+                                                    background-color:<?= strpos($color, '#') === 0 ? $color : (Html::encode(Helper::colorToHex($color))) ?>; 
                                                     border:1px solid #000; 
                                                     <?= $index === 0 ? 'border-radius: 10px 0 0 10px;' : '' ?> 
                                                     <?= $index === $lastIndex ? 'border-radius: 0 10px 10px 0;' : '' ?> 

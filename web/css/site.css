@@ -276,3 +276,12 @@ a.desc:after {
 .hide-display {
     display: none !important;
 }
+
+.remove-color {
+	margin-bottom: 14px !important;
+	font-weight: bold !important;
+	background-color: white !important;
+	border-color: white !important;
+	color: red !important;
+	font-size: 15px !important;
+}

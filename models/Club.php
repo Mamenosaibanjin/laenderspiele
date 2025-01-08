@@ -29,11 +29,12 @@ class Club extends ActiveRecord
     {
         return [
             [['name', 'namevoll', 'farben', 'strasse', 'postfach', 'ort', 'telefon', 'telefax', 'homepage', 'email'], 'string', 'max' => 255],
-            [['typID', 'nachfolgerID', 'stadiumID'], 'integer'], // IDs als Integer
+            [['typID', 'nachfolgerID', 'stadionID'], 'integer'], // IDs als Integer
             [['land'], 'string', 'max' => 3], // Dreistelliger IOC-Code
             [['founded'], 'string', 'max' => 255], // Unterstützt verschiedene Datumsformate
-            [['homepage'], 'url'], // URL-Validierung
+            [['homepage'], 'validateHomepageWithoutHttp'], // URL-Validierung
             [['email'], 'email'], // E-Mail-Validierung
+            [['stadionName'], 'safe'],
         ];
     }
     
@@ -202,6 +203,13 @@ class Club extends ActiveRecord
         ])
         ->all();
  
+    }
+    
+    public function validateHomepageWithoutHttp($attribute, $params)
+    {
+        if (strpos($this->$attribute, 'http://') === 0 || strpos($this->$attribute, 'https://') === 0) {
+            $this->addError($attribute, 'Die URL sollte nicht mit "http://" oder "https://" beginnen.');
+        }
     }
     
 }
