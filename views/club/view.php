@@ -12,6 +12,8 @@ use yii\helpers\Html;
 /* @var $upcomingMatches app\models\Spiel[] */
 /* @var $squad app\models\Spieler[] */
 
+$this->registerJsFile('@web/js/club.js',  ['depends' => [\yii\web\JqueryAsset::class]]);
+
 $this->title = $isEditing
 ? ($club->isNewRecord ? 'Neuen Club erstellen' : 'Club bearbeiten: ' . $club->name)
 : $club->namevoll;
@@ -60,109 +62,47 @@ $currentYear = date('Y');
                                         <button type="button" id="add-color" class="btn btn-secondary btn-sm mt-2">Farbe hinzufügen</button>
                                 </td>
                             </tr>
+                            <tr>
+                                <th><i class="fas fa-location-dot"></i></th>
+                            <td>
+                                <?= $form->field($club, 'stadionID')->hiddenInput([
+                                    'id' => 'hidden-stadion-id', 
+                                    'value' => $club->stadionID,
+                                ])->label(false); ?>
                             
-                            <?php
-                            $this->registerJs("
-                                $(document).ready(function() {
-                                    let colors = '" . Html::encode($club->farben) . "'.split('-').filter(Boolean);
-                                                            
-                                    function renderColors() {
-                                        let html = '';
-                                        colors.forEach((color, index) => {
-                                            html += `
-                                                <div class='color-item' style='display: inline-block; margin-right: 5px;'>
-                                                    <input type='color' value='\${color.startsWith(\"#\") ? color : \"#000011\"}' class='color-picker'>
-                                                    <button type='button' class='btn btn-danger btn-sm remove-color' data-index='\${index}'>x</button>
-                                                </div>`;
-                                        });
-                                        $('#color-picker-container').html(html); // Ersetzt statt anzuhängen
+                                <?php
+                                // Stadionname anhand der ID vorfüllen
+                                $stadionName = '';
+                                if (!empty($club->stadionID)) {
+                                    foreach ($stadien as $stadion) {
+                                        if ($stadion['id'] == $club->stadionID) {
+                                            $stadionName = $stadion['name'];
+                                            break;
+                                        }
                                     }
-                                                            
-                                    renderColors();
-                                                            
-                                    $('#add-color').on('click', function() {
-                                        colors.push('#000011');
-                                        renderColors();
-                                    });
-                                                            
-                                    $(document).on('change', '.color-picker', function() {
-                                        const index = $(this).closest('.color-item').index();
-                                        colors[index] = $(this).val();
-                                        $('#farben-input').val(colors.join('-'));
-                                    });
-                                                            
-                                    $(document).on('click', '.remove-color', function() {
-                                        const index = $(this).data('index');
-                                        colors.splice(index, 1);
-                                        $('#farben-input').val(colors.join('-'));
-                                        renderColors();
-                                    });
-                                });
-                            ");
-                            ?>
-    <tr>
-        <th><i class="fas fa-location-dot"></i></th>
-    <td>
-        <?= $form->field($club, 'stadionID')->hiddenInput([
-            'id' => 'hidden-stadion-id', 
-            'value' => $club->stadionID,
-        ])->label(false); ?>
-    
-        <?php
-        // Stadionname anhand der ID vorfüllen
-        $stadionName = '';
-        if (!empty($club->stadionID)) {
-            foreach ($stadien as $stadion) {
-                if ($stadion['id'] == $club->stadionID) {
-                    $stadionName = $stadion['name'];
-                    break;
-                }
-            }
-        }
-        ?>
-    
-       <?= Html::textInput('stadionName', $stadionName, [
-            'id' => 'autocomplete-stadion',
-            'class' => 'form-control',
-        ]); ?><br>
-    
-        <?php
-        $stadienData = array_map(function ($stadion) {
-            return [
-                'label' => $stadion['name'] . ', ' . $stadion['stadt'],
-                'value' => $stadion['id'],
-                'klarname' => $stadion['name']
-            ];
-        }, $stadien);
-    
-        $stadienDataJson = json_encode($stadienData);
-        $this->registerJs("
-            var availableStadien = $stadienDataJson;
-            $('#autocomplete-stadion').autocomplete({
-        source: availableStadien,
-        select: function(event, ui) {
-            // Setze die Klarname im Textfeld und die ID im Hidden-Feld
-            $('#autocomplete-stadion').val(ui.item.klarname);
-            $('#hidden-stadion-id').val(ui.item.value); // ID setzen
-            return false; // Verhindere Standardverhalten
-        }
-    });
-    $('#autocomplete-stadion').blur(function() {
-        // Validierung: Wenn keine gültige ID gesetzt wurde, Textfeld leeren
-        if ($('#hidden-stadion-id').val() === '') {
-            $('#autocomplete-stadion').val('');
-        }
-    });
-        ");
-        ?>
-    
-        <?= Html::submitButton('neues Stadion anlegen', [
-            'class' => 'btn btn-secondary',
-            'onClick' => 'window.open("http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/stadium/new", "_blank")'
-        ]) ?>
-    </td>
-    
-    </tr>
+                                }
+                                ?>
+                            
+                                <?php
+                                $stadienData = array_map(function ($stadion) {
+                                    return [
+                                        'label' => $stadion['name'] . ', ' . $stadion['stadt'],
+                                        'value' => $stadion['id'],
+                                        'klarname' => $stadion['name']
+                                    ];
+                                }, $stadien);
+                            
+                                $stadienDataJson = json_encode($stadienData);?>
+
+                               <?= Html::textInput('stadionName', $stadionName, [
+                                    'id' => 'autocomplete-stadion',
+                                   'class' => 'form-control',
+                                   'data-stadien' => $stadienDataJson // Daten über ein data-Attribut übergeben
+                               ]); ?><br>
+                            
+                            </td>
+                            
+                            </tr>
 
                             <tr>
                                 <th><i class="fas fa-envelope"></i></th>
@@ -332,16 +272,14 @@ $currentYear = date('Y');
                                     <?php 
                                         $isHome = $match->club1ID == $club->id; // Home/Away Check
                                         $opponent = $isHome ? $match->club2->name : $match->club1->name; // Gegnername
-                                        $isWin = ($isHome && $match->tore1 > $match->tore2) || (!$isHome && $match->tore2 > $match->tore1); // Sieg oder Niederlage
-                                        $isDraw = $match->tore1 === $match->tore2; // Unentschieden
-                                        $resultColor = $isWin ? 'text-success' : ($isDraw ? 'text-secondary' : 'text-danger'); // Farbe je nach Ergebnis
+                                        $resultColor = Helper::getResultColor($isHome, $match);
                                     ?>
                                     <tr>
-                                        <td style="background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;"><?= Html::encode(Yii::$app->formatter->asDate($match->turnier->datum, 'php:d.m.Y')) ?></td>
-                                        <td style="background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;"><?= Html::encode(Yii::$app->formatter->asTime($match->turnier->zeit, 'php:H:i')) ?></td>
-                                        <td style="background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;"><?= Html::encode($isHome ? 'H' : 'A') ?></td>
-                                        <td style="background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;"><?= Html::encode($opponent) ?></td>
-                                        <td style="background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;" class="<?= $resultColor ?>">
+                                        <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;"><?= Html::encode(Yii::$app->formatter->asDate($match->turnier->datum, 'php:d.m.Y')) ?></td>
+                                        <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;"><?= Html::encode(Yii::$app->formatter->asTime($match->turnier->zeit, 'php:H:i')) ?></td>
+                                        <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;"><?= Html::encode($isHome ? 'H' : 'A') ?></td>
+                                        <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;"><?= Html::encode($opponent) ?></td>
+                                        <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;" class="<?= $resultColor ?>">
 											<strong><?= $isHome ? Html::encode($match->tore1) . ':' . Html::encode($match->tore2) : Html::encode($match->tore2) . ':' . Html::encode($match->tore1) ?></strong>
                                             <?php if ($match->extratime): ?> n.V.<?php endif; ?>
                                             <?php if ($match->penalty): ?> i.E.<?php endif; ?>
@@ -512,9 +450,6 @@ $currentYear = date('Y');
     <?php endif; ?>
 
 </div>
-<script>
 <?php
-$this->registerJs("
-    $('.selectpicker').selectpicker();
-");
-?></script>
+$this->registerJs("$('.selectpicker').selectpicker();", \yii\web\View::POS_READY);
+?>

@@ -618,5 +618,11 @@ class Helper
         return $turniere[$gender] ?? [];
     }
     
+    public static function getResultColor($isHome, $match) {
+        $isWin = ($isHome && $match->tore1 > $match->tore2) || (!$isHome && $match->tore2 > $match->tore1);
+        $isDraw = $match->tore1 === $match->tore2;
+        return $isWin ? 'text-success' : ($isDraw ? 'text-secondary' : 'text-danger');
+    }
+    
 }
 ?>
