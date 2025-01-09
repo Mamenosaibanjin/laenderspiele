@@ -35,12 +35,14 @@ class AppAsset extends AssetBundle
         'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.css',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css',
         'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css',
+        'https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css',
     ];
     public $js = [
         'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js',
         'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.js',
         'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js',
+        'https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.js',
     ];
     public $depends = [
         'yii\web\YiiAsset',

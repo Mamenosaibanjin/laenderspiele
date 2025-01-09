@@ -3,6 +3,7 @@
 namespace app\components;
 
 use app\models\Nation;
+use yii\helpers\ArrayHelper;
 
 class Helper
 {
@@ -622,6 +623,17 @@ class Helper
         $isWin = ($isHome && $match->tore1 > $match->tore2) || (!$isHome && $match->tore2 > $match->tore1);
         $isDraw = $match->tore1 === $match->tore2;
         return $isWin ? 'text-success' : ($isDraw ? 'text-secondary' : 'text-danger');
+    }
+    
+    public static function getNationenOptions()
+    {
+        return ArrayHelper::map(
+            Nation::find()
+            ->select(['kuerzel', 'land_de'])
+            ->from('nation')
+            ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
+            ->orderBy(['land_de' => SORT_ASC])   // Optional: Alphabetische Sortierung
+            ->all(), 'kuerzel', 'land_de');
     }
     
 }

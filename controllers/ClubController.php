@@ -22,36 +22,35 @@ class ClubController extends Controller
             throw new \yii\web\NotFoundHttpException('Der angeforderte Club wurde nicht gefunden.');
         }
         
-        // Weitere benötigte Daten laden (z. B. Nation, Stadion, Spiele, Kader)
+        // Weitere benötigte Daten laden
         $nation = $club->nation; // Annahme: Relation "nation" existiert
         $stadium = $club->stadion; // Annahme: Relation "stadium" existiert
         
-        // Daten für Widgets basierend auf `typID`
-        // Spiele und Kader nur laden, wenn die TypID zutrifft
+        // Spiele und Kader je nach TypID laden
         $recentMatches = in_array($club->typID, [1, 2]) ? $club->getRecentMatches() : null;
         $upcomingMatches = in_array($club->typID, [1, 2]) ? $club->getUpcomingMatches() : null;
-        
-        // Kader nur laden, wenn TypID 3 oder 5
         $squad = in_array($club->typID, [3, 5]) ? $club->getSquad($id) : null;
-        
-        // National-Kader laden (Prüfe, ob diese Logik zutrifft)
         $nationalSquad = in_array($club->typID, [1, 2]) ? $club->getNationalSquad($id) : null;
         
-        // Speichern der Daten, wenn es sich um einen Bearbeitungsmodus handelt
-        if ($isEditing && $club->load(Yii::$app->request->post()) && $club->save()) {
-            Yii::debug($club->attributes, __METHOD__);
+        // Bearbeitungsmodus: Daten speichern
+        if ($isEditing && Yii::$app->request->isPost) {
+            $request = Yii::$app->request;
             
-            Yii::$app->session->setFlash('success', 'Die Clubdaten wurden erfolgreich gespeichert.');
-            return $this->redirect(['club/view', 'id' => $club->id]);
+            // Club-Daten laden
+            if ($club->load($request->post())) {
+                // Farben speichern
+                $farbenArray = $request->post('farben', []); // Array von Farbwerten
+                $club->farben = implode('-', $farbenArray); // Speicherung als String
+                
+                if ($club->save()) {
+                    Yii::debug($club->attributes, __METHOD__);
+                    Yii::$app->session->setFlash('success', 'Die Clubdaten wurden erfolgreich gespeichert.');
+                    return $this->redirect(['club/view', 'id' => $club->id]);
+                } else {
+                    Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Clubdaten.');
+                }
+            }
         }
-        
-        // Zusätzliche Daten für die Ansicht
-        $nationen = Nation::find()
-        ->select(['kuerzel', 'land_de'])
-        ->from('nation')
-        ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
-        ->orderBy(['land_de' => SORT_ASC])   // Optional: Alphabetische Sortierung
-        ->all();
         
         $stadien = Stadiums::getStadiums();
         
@@ -63,9 +62,8 @@ class ClubController extends Controller
             'recentMatches' => $recentMatches,
             'upcomingMatches' => $upcomingMatches,
             'squad' => $squad,
-            'nationalSquad' => $nationalSquad, // Übergebe nationalSquad an die View
+            'nationalSquad' => $nationalSquad,
             'isEditing' => $isEditing,
-            'nationen' => $nationen,
             'stadien' => $stadien,
         ]);
     }

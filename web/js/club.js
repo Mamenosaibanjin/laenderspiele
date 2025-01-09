@@ -1,39 +1,43 @@
-// Farben-Handling
 $(document).ready(function () {
-    const colors = $('#farben-input').val().split('-').filter(Boolean);
+    // Initialisiere vorhandene Farb-Inputs
+    $('.farbe-input').each(function () {
+        initializeColorPicker($(this));
+    });
 
-    function renderColors() {
-        let html = '';
-        colors.forEach((color, index) => {
-            html += `
-                <div class='color-item' style='display: inline-block; margin-right: 5px;'>
-                    <input type='color' value='${color.startsWith("#") ? color : "#000011"}' class='color-picker'>
-                    <button type='button' class='btn btn-danger btn-sm remove-color' data-index='${index}'>x</button>
-                </div>`;
+    // Funktion zur Initialisierung eines Colorpickers
+    function initializeColorPicker($input) {
+        $input.spectrum({
+            color: $input.val(),
+            showInput: true,
+            preferredFormat: "hex",
+            change: function (color) {
+                $input.val(color.toHexString()); // Speichert die gewählte Farbe im Input
+            }
         });
-        $('#color-picker-container').html(html); // Ersetzt statt anzuhängen
     }
 
-    renderColors();
-
+    // Hinzufügen eines neuen Farbfelds
     $('#add-color').on('click', function () {
-        colors.push('#000011');
-        renderColors();
+        let $newInput = $('<input>', {
+            type: 'text',
+            name: 'farben[]',
+            class: 'form-control farbe-input',
+            value: '#ffffff' // Standardwert
+        });
+
+        $('#farben-container').append($newInput);
+        initializeColorPicker($newInput);
     });
 
-    $(document).on('change', '.color-picker', function () {
-        const index = $(this).closest('.color-item').index();
-        colors[index] = $(this).val();
-        $('#farben-input').val(colors.join('-'));
-    });
-
-    $(document).on('click', '.remove-color', function () {
-        const index = $(this).data('index');
-        colors.splice(index, 1);
-        $('#farben-input').val(colors.join('-'));
-        renderColors();
+    // Entfernen eines Farbfelds
+    $('#farben-container').on('dblclick', '.farbe-input', function () {
+        if (confirm('Möchten Sie diese Farbe entfernen?')) {
+            $(this).spectrum('destroy'); // Zerstört den Colorpicker
+            $(this).remove();           // Entfernt das Input-Feld
+        }
     });
 });
+
 
 // Autocomplete für Stadionfeld
 $(document).ready(function () {

@@ -15,7 +15,7 @@ use yii\helpers\Html;
 $this->registerJsFile('@web/js/club.js',  ['depends' => [\yii\web\JqueryAsset::class]]);
 
 $this->title = $isEditing
-? ($club->isNewRecord ? 'Neuen Club erstellen' : 'Club bearbeiten: ' . $club->name)
+? ($club->isNewRecord ? Yii::t('app', 'Create New Club') : Yii::t('app', 'Edit Club: {name}', ['name' => $club->name]))
 : $club->namevoll;
 $currentYear = date('Y');
 ?>
@@ -27,7 +27,7 @@ $currentYear = date('Y');
         <!-- Widget 1: Vereinsdaten -->
          <div class="col-md-6">
             <div class="card">
-                <div class="card-header"><h3>Vereinsdaten</h3></div>
+                <div class="card-header"><h3><?= Yii::t('app', 'Club data') ?></h3></div>
                 <div class="card-body">
                     <?php if ($isEditing): ?>
                         <?php $form = ActiveForm::begin(); ?>
@@ -44,7 +44,7 @@ $currentYear = date('Y');
                                 <th><i class="fas fa-earth-europe"></i></th>
                                 <td>
                                     <?= $form->field($club, 'land')->dropDownList(
-                                        \yii\helpers\ArrayHelper::map($nationen, 'kuerzel', 'land_de'),
+                                        \app\components\Helper::getNationenOptions(),
                                         ['prompt' => 'Wähle ein Land']
                                     )->label(false) ?>
                                 </td>
@@ -57,9 +57,22 @@ $currentYear = date('Y');
                             <tr>
                                 <th><i class="fas fa-palette"></i></th>
                                 <td>
-                                        <?= $form->field($club, 'farben')->hiddenInput(['id' => 'farben-input', 'class' => 'form-control', 'value' => Html::encode($club->farben)])->label(false) ?>
-                                    	<div id="color-picker-container"></div>
-                                        <button type="button" id="add-color" class="btn btn-secondary btn-sm mt-2">Farbe hinzufügen</button>
+                                <div id="farben-container">
+                                    <?php
+                                    $farbenArray = explode('-', $club->farben); // Farben aus der Datenbank
+                                    foreach ($farbenArray as $index => $farbe) {
+                                        echo Html::textInput("farben[]", $farbe, [
+                                            'class' => 'form-control farbe-input',
+                                            'data-index' => $index,
+                                            'value' => $farbe
+                                        ]);
+                                    }
+                                    ?>
+                                </div>
+                                <br>
+								    <?= Html::button(Yii::t('app', 'Add color'), ['class' => 'btn btn-secondary', 'id' => 'add-color']) ?>
+								    <br>
+								    <p><em><?= Yii::t('app', 'Double-Click a color to remove it.') ?></em></p>
                                 </td>
                             </tr>
                             <tr>
@@ -107,9 +120,9 @@ $currentYear = date('Y');
                             <tr>
                                 <th><i class="fas fa-envelope"></i></th>
                                 <td>
-                                    <?= $form->field($club, 'postfach')->textInput(['maxlength' => true])->label('Postfach') ?>
-                                    <?= $form->field($club, 'strasse')->textInput(['maxlength' => true])->label('Straße') ?>
-                                    <?= $form->field($club, 'ort')->textInput(['maxlength' => true])->label('Ort') ?>
+                                    <?= $form->field($club, 'postfach')->textInput(['maxlength' => true])->label(Yii::t('app', 'PO Box')) ?>
+                                    <?= $form->field($club, 'strasse')->textInput(['maxlength' => true])->label(Yii::t('app', 'Street')) ?>
+                                    <?= $form->field($club, 'ort')->textInput(['maxlength' => true])->label(Yii::t('app', 'City')) ?>
                                 </td>
                             </tr>
                             <tr>
@@ -122,7 +135,7 @@ $currentYear = date('Y');
                             </tr>
                         </table>
                         <div class="form-group">
-                            <?= Html::submitButton('Speichern', ['class' => 'btn btn-primary']) ?>
+                            <?= Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-primary']) ?>
                         </div>
                         <?php ActiveForm::end(); ?>
                     <?php else: ?>
@@ -178,7 +191,7 @@ $currentYear = date('Y');
                                     <th><i class="fas fa-location-dot"></i></th>
                                     <td>
                                         <?= Html::encode($stadium->name) ?><br>
-                                        <?= Html::encode($stadium->kapazitaet) ?> Plätze
+                                        <?= Yii::t('app', 'Capacity') ?> <?= Html::encode($stadium->kapazitaet) ?>
                                     </td>
                                 </tr>
                             <?php endif; ?>
@@ -263,7 +276,7 @@ $currentYear = date('Y');
             <!-- Widget 3: Letzte 5 Spiele -->
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">Letzte 5 Spiele</div>
+                    <div class="card-header"><?= Yii::t('app', 'Last 5 Games') ?></div>
                     <div class="card-body">
                     <?php if ($recentMatches): ?>
                         <table class="table">
@@ -281,15 +294,15 @@ $currentYear = date('Y');
                                         <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;"><?= Html::encode($opponent) ?></td>
                                         <td style="background-color: <?= $index % 2 === 0 ? COLOR_ROW_EVEN : COLOR_ROW_ODD ?> !important;" class="<?= $resultColor ?>">
 											<strong><?= $isHome ? Html::encode($match->tore1) . ':' . Html::encode($match->tore2) : Html::encode($match->tore2) . ':' . Html::encode($match->tore1) ?></strong>
-                                            <?php if ($match->extratime): ?> n.V.<?php endif; ?>
-                                            <?php if ($match->penalty): ?> i.E.<?php endif; ?>
+                                            <?php if ($match->extratime): ?> <?= Yii::t('app', 'a.e.t.') ?><?php endif; ?>
+                                            <?php if ($match->penalty): ?> <?= Yii::t('app', 'p.s.o.') ?><?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
                     <?php else: ?>
-                        <p>Keine Spiele gefunden.</p>
+                        <p><?= Yii::t('app', 'No Games found') ?></p>
                     <?php endif; ?>
                     </div>
                 </div>
@@ -298,7 +311,7 @@ $currentYear = date('Y');
             <!-- Widget 4: Kommende 5 Spiele -->
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header">Kommende 5 Spiele</div>
+                    <div class="card-header"><?= Yii::t('app', 'Next 5 Games') ?></div>
                     <div class="card-body">
                         <?php if ($upcomingMatches): ?>
                             <ul class="list-group">
@@ -310,7 +323,7 @@ $currentYear = date('Y');
                                 <?php endforeach; ?>
                             </ul>
                         <?php else: ?>
-                            <p>Keine Spiele geplant.</p>
+                            <p><?= Yii::t('app', 'No Games planned') ?></p>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -323,23 +336,23 @@ $currentYear = date('Y');
        <?php 
        // Mapping-Array für Positionen
         $positionMapping = [
-            1 => 'Tor',
-            2 => 'Abwehr',
-            3 => 'Mittelfeld',
-            4 => 'Sturm',
-            5 => 'Trainer',
-        ];
+            1 => Yii::t('app', 'Goal'),
+            2 => Yii::t('app', 'Defender'),
+            3 => Yii::t('app', 'Midfielder'),
+            4 => Yii::t('app', 'Foward'),
+            5 => Yii::t('app', 'Coach'),
+            ];
         ?>
         <div class="card"> <!-- Gesamtrahmen für den Kader -->
             <div class="card-header">
-                <h3>Kader</h3> <!-- Überschrift für den gesamten Abschnitt -->
+                <h3><?= Yii::t('app', 'Squad') ?></h3> <!-- Überschrift für den gesamten Abschnitt -->
             </div>
             <div class="card-body">
                 <!-- Vereins-Kader anzeigen, falls vorhanden -->
                 <?php if ($squad): ?>
-                    <h4>Saison <?= $currentYear . '/' . ($currentYear+1); ?></h4><br>
+                    <h4><?= Yii::t('app', 'Season') ?> <?= $currentYear . '/' . ($currentYear+1); ?></h4><br>
                     <div class="row five-column-layout">
-                        <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
+                        <?php foreach ([Yii::t('app', 'Goal'), Yii::t('app', 'Defender'), Yii::t('app', 'Midfielder'), Yii::t('app', 'Foward'), Yii::t('app', 'Coach')] as $position): ?>
                             <?php 
                             // Spieler filtern und sortieren
                             $filteredPlayers = array_filter($squad, function ($player) use ($position, $positionMapping) {
@@ -380,7 +393,7 @@ $currentYear = date('Y');
                             </div>
                         <?php endforeach; ?>
                         <div style="text-align: right;">
-							<?= Html::a('Kompletter Kader', ['/kader/' . $club->id . '/' . $currentYear], ['class' => 'text-decoration-none']) ?>
+							<?= Html::a(Yii::t('app', 'Complete Squad'), ['/kader/' . $club->id . '/' . $currentYear], ['class' => 'text-decoration-none']) ?>
 						</div>
                     </div>
                 <?php endif; ?>
@@ -400,8 +413,8 @@ $currentYear = date('Y');
                 ?>
                     <h4><?= Helper::getTurniername($wettbewerbID) . ' ' . $jahr; ?></h4><br>
                     <div class="row five-column-layout">
-                        <?php foreach (['Tor', 'Abwehr', 'Mittelfeld', 'Sturm', 'Trainer'] as $position): ?>
-                            <?php 
+                         <?php foreach ([Yii::t('app', 'Goal'), Yii::t('app', 'Defender'), Yii::t('app', 'Midfielder'), Yii::t('app', 'Foward'), Yii::t('app', 'Coach')] as $position): ?>
+                         	<?php 
                             // Spieler filtern und sortieren
                             $filteredPlayers = array_filter($nationalSquad, function ($player) use ($position, $positionMapping) {
                                 $positionID = $player->landWettbewerb[0]->positionID ?? null;
@@ -441,7 +454,7 @@ $currentYear = date('Y');
                             </div>
                         <?php endforeach; ?>
                         <div style="text-align: right;">
-							<?= Html::a('Kompletter Kader', ['/kader/' . $club->id . '/' . $jahr . '/' . $wettbewerbID], ['class' => 'text-decoration-none']) ?>
+							<?= Html::a(Yii::t('app', 'Complete Squad'), ['/kader/' . $club->id . '/' . $jahr . '/' . $wettbewerbID], ['class' => 'text-decoration-none']) ?>
 						</div>
                     </div>
                 <?php endif; ?>
