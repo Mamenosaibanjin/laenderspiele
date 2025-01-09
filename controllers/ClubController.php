@@ -67,7 +67,7 @@ class ClubController extends Controller
             'stadien' => $stadien,
         ]);
     }
-    
+
     public function actionSearch()
     {
         Yii::$app->response->format = Response::FORMAT_JSON;

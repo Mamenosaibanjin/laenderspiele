@@ -33,29 +33,32 @@ $currentYear = date('Y');
                         <?php $form = ActiveForm::begin(); ?>
                         <table class="table">
                             <tr>
-                                <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
+                                <th style="width: 20px;"><?= Html::tag('i', '', ['class' => 'fas fa-shield-alt']) ?></th>
                                 <td><?= $form->field($club, 'name')->textInput(['maxlength' => true])->label(false) ?></td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-address-card"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-address-card']) ?></th>
                                 <td><?= $form->field($club, 'namevoll')->textInput(['maxlength' => true])->label(false) ?></td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-earth-europe"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></th>
                                 <td>
                                     <?= $form->field($club, 'land')->dropDownList(
-                                        \app\components\Helper::getNationenOptions(),
-                                        ['prompt' => 'Wähle ein Land']
+                                        Helper::getNationenOptions(),
+                                        [
+                                            'prompt' => Yii::t('app', 'Choose a country'),
+                                            'class' => 'form-control'
+                                        ]
                                     )->label(false) ?>
                                 </td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-calendar-alt"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></th>
                                 <td><?= $form->field($club, 'founded')->input('date')->label(false) ?></td>
                             </tr>
 
                             <tr>
-                                <th><i class="fas fa-palette"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-palette']) ?></th>
                                 <td>
                                 <div id="farben-container">
                                     <?php
@@ -63,8 +66,7 @@ $currentYear = date('Y');
                                     foreach ($farbenArray as $index => $farbe) {
                                         echo Html::textInput("farben[]", $farbe, [
                                             'class' => 'form-control farbe-input',
-                                            'data-index' => $index,
-                                            'value' => $farbe
+                                            'data-index' => $index
                                         ]);
                                     }
                                     ?>
@@ -76,25 +78,12 @@ $currentYear = date('Y');
                                 </td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-location-dot"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></th>
                             <td>
                                 <?= $form->field($club, 'stadionID')->hiddenInput([
                                     'id' => 'hidden-stadion-id', 
                                     'value' => $club->stadionID,
                                 ])->label(false); ?>
-                            
-                                <?php
-                                // Stadionname anhand der ID vorfüllen
-                                $stadionName = '';
-                                if (!empty($club->stadionID)) {
-                                    foreach ($stadien as $stadion) {
-                                        if ($stadion['id'] == $club->stadionID) {
-                                            $stadionName = $stadion['name'];
-                                            break;
-                                        }
-                                    }
-                                }
-                                ?>
                             
                                 <?php
                                 $stadienData = array_map(function ($stadion) {
@@ -107,18 +96,20 @@ $currentYear = date('Y');
                             
                                 $stadienDataJson = json_encode($stadienData);?>
 
-                               <?= Html::textInput('stadionName', $stadionName, [
+                               <?= Html::textInput('stadionName', $club->getStadionName(), [
                                     'id' => 'autocomplete-stadion',
                                    'class' => 'form-control',
                                    'data-stadien' => $stadienDataJson // Daten über ein data-Attribut übergeben
-                               ]); ?><br>
+                               ]); ?>
+                              <?= Html::button(Yii::t('app', 'Add new Stadium'), ['class' => 'btn btn-secondary mt-2', 'id' => 'btn-neues-stadion', 'onClick' => 'window.open("../stadion/new", "_blank")']) ?>
+                               
                             
                             </td>
                             
                             </tr>
 
                             <tr>
-                                <th><i class="fas fa-envelope"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-envelope']) ?></th>
                                 <td>
                                     <?= $form->field($club, 'postfach')->textInput(['maxlength' => true])->label(Yii::t('app', 'PO Box')) ?>
                                     <?= $form->field($club, 'strasse')->textInput(['maxlength' => true])->label(Yii::t('app', 'Street')) ?>
@@ -126,11 +117,11 @@ $currentYear = date('Y');
                                 </td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-phone"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-phone']) ?></th>
                                 <td><?= $form->field($club, 'telefon')->textInput(['maxlength' => true])->label(false) ?></td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-laptop-code"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></th>
                                 <td><?= $form->field($club, 'homepage')->textInput(['maxlength' => true])->label(false) ?></td>
                             </tr>
                         </table>
@@ -141,15 +132,15 @@ $currentYear = date('Y');
                     <?php else: ?>
                         <table class="table">
                             <tr>
-                                <th style="width: 20px;"><i class="fas fa-shield-alt"></i></th>
+                                <th style="width: 20px;"><?= Html::tag('i', '', ['class' => 'fas fa-shield-alt']) ?></th>
                                 <td><?= Html::encode($club->name) ?></td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-address-card"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-address-card']) ?></th>
                                 <td><?= Html::encode($club->namevoll) ?></td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-earth-europe"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></th>
                                 <td>
                                     <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                                     <?= Html::encode($nation->land_de) ?>
@@ -157,13 +148,13 @@ $currentYear = date('Y');
                             </tr>
                             <?php if ($club->founded): ?>
                                 <tr>
-                                    <th><i class="fas fa-calendar-alt"></i></th>
+                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></th>
                                     <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
                                 </tr>
                             <?php endif; ?>
                             <?php if ($club->farben): ?>
                                 <tr>
-                                    <th><i class="fas fa-palette"></i></th>
+                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-palette']) ?></th>
                                     <td>
                                         <?php 
                                         $colors = explode('-', $club->farben);
@@ -188,7 +179,7 @@ $currentYear = date('Y');
                             <?php endif; ?>
                             <?php if (!is_null($stadium)): ?>
                                 <tr>
-                                    <th><i class="fas fa-location-dot"></i></th>
+                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></th>
                                     <td>
                                         <?= Html::encode($stadium->name) ?><br>
                                         <?= Yii::t('app', 'Capacity') ?> <?= Html::encode($stadium->kapazitaet) ?>
@@ -196,7 +187,7 @@ $currentYear = date('Y');
                                 </tr>
                             <?php endif; ?>
                             <tr>
-                                <th><i class="fas fa-envelope"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-envelope']) ?></th>
                                 <td>
                                     <?= Html::encode($club->name) ?><br>
                                     <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
@@ -205,12 +196,12 @@ $currentYear = date('Y');
                                 </td>
                             </tr>
                             <tr>
-                                <th><i class="fas fa-phone"></i></th>
+                                <th><?= Html::tag('i', '', ['class' => 'fas fa-phone']) ?></th>
                                 <td><?= Html::encode($club->telefon) ?></td>
                             </tr>
                             <?php if ($club->homepage): ?>
                                 <tr>
-                                    <th><i class="fas fa-laptop-code"></i></th>
+                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></th>
                                     <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
                                 </tr>
                             <?php endif; ?>
@@ -242,23 +233,23 @@ $currentYear = date('Y');
                         <p class="text-center"><?= Html::encode($club->namevoll) ?></p>
                         <hr>
                         <div class="row">
-                            <div class="col-2" style="text-align: right;"><i class="fas fa-earth-europe"></i></div>
+                            <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></div>
                             <div class="col-10" style="text-align: left;">
                 				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
                                 <?= Html::encode($nation->land_de) ?></div>
 	
 	                        <?php if ($club->founded) :?>
-                            <div class="col-2" style="text-align: right;"><i class="fas fa-calendar-alt"></i></div>
+                            <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-calerndar-alt']) ?></div>
                             <div class="col-10" style="text-align: left;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
                             <?php endif; ?>
                             
 							<?php if (!is_null($stadium)): ?>
-                                <div class="col-2" style="text-align: right;"><i class="fas fa-location-dot"></i></div>
+                                <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></div>
                                 <div class="col-10" style="text-align: left;"><?= Html::encode($stadium->name) ?></div>
         					<?php endif; ?>
                                 
                             <?php if (!empty($stadium)): ?>
-                                <div class="col-2" style="text-align: right;"><i class="fas fa-laptop-code"></i></div>
+                                <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></div>
                                 <div class="col-10" style="text-align: left;">
                             <?php endif; ?>
                             <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>

@@ -24,5 +24,7 @@ return [
     'p.s.o.' => 'i.E.',
     'No Games found' => 'Keine Spiele gefunden',
     'No Games planned' => 'Keine Spiele geplant',
+    'Add new Stadium' => 'Neues Stadion hinzufügen',
+    'Choose a Country' => 'Wähle ein Land',
 ];
 ?>
