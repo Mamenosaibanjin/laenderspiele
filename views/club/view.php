@@ -1,4 +1,5 @@
 <?php
+use app\components\ButtonHelper;
 use app\components\Helper;
 use app\models\Club;
 use yii\bootstrap5\ActiveForm;
@@ -72,7 +73,7 @@ $currentYear = date('Y');
                                     ?>
                                 </div>
                                 <br>
-								    <?= Html::button(Yii::t('app', 'Add color'), ['class' => 'btn btn-secondary', 'id' => 'add-color']) ?>
+								    <?= ButtonHelper::addColorButton(); ?>
 								    <br>
 								    <p><em><?= Yii::t('app', 'Double-Click a color to remove it.') ?></em></p>
                                 </td>
@@ -101,8 +102,7 @@ $currentYear = date('Y');
                                    'class' => 'form-control',
                                    'data-stadien' => $stadienDataJson // Daten über ein data-Attribut übergeben
                                ]); ?>
-                              <?= Html::button(Yii::t('app', 'Add new Stadium'), ['class' => 'btn btn-secondary mt-2', 'id' => 'btn-neues-stadion', 'onClick' => 'window.open("../stadion/new", "_blank")']) ?>
-                               
+                               <?= ButtonHelper::newStadiumButton() ?>
                             
                             </td>
                             
@@ -126,7 +126,7 @@ $currentYear = date('Y');
                             </tr>
                         </table>
                         <div class="form-group">
-                            <?= Html::submitButton(Yii::t('app', 'Save'), ['class' => 'btn btn-primary']) ?>
+                            <?= ButtonHelper::saveButton() ?>
                         </div>
                         <?php ActiveForm::end(); ?>
                     <?php else: ?>

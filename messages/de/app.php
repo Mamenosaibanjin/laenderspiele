@@ -26,5 +26,6 @@ return [
     'No Games planned' => 'Keine Spiele geplant',
     'Add new Stadium' => 'Neues Stadion hinzufügen',
     'Choose a Country' => 'Wähle ein Land',
+    'Are you sure you want to delete this item?' => 'Sind Sie sicher, dass Sie dieses Element löschen möchten?'
 ];
 ?>
