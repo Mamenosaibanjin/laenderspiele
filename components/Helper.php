@@ -3,12 +3,20 @@
 namespace app\components;
 
 use app\models\Nation;
+use Yii;
+use yii\bootstrap5\Html;
 use yii\helpers\ArrayHelper;
 
 class Helper
 {
 
     
+    /**
+     * Gibt die URL zur Flagge zurück.
+     *
+     * @param string $iocCode Der Ländercode (IOC Code).
+     * @return string|null Die URL der Flagge oder null, wenn keine verfügbar ist.
+     */
     public static function getFlagUrl($iocCode, $date = null)
     {
         // Abfrage der Nation anhand des IOC-Codes
@@ -636,5 +644,54 @@ class Helper
             ->all(), 'kuerzel', 'land_de');
     }
     
+    /**
+     * Rendert die Flagge und den Namen des Landes basierend auf der aktuellen Sprache.
+     *
+     * @param string $countryCode Der Ländercode (ISO 3166-1 Alpha-2).
+     * @param array $options Zusätzliche Optionen für das Bild-Tag.
+     * @return string Der gerenderte HTML-Code für die Flagge und den Landesnamen.
+     */
+    public static function renderFlag($countryCode, $name = false, $options = [])
+    {
+        if (!$countryCode) {
+            return '';
+        }
+        
+        // Standard-Optionen für das Flaggenbild
+        $defaultImgOptions = [
+            'alt' => '',
+            'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;',
+        ];
+        
+        // Zusammenführen der Standard- und benutzerdefinierten Optionen
+        $imgOptions = array_merge($defaultImgOptions, $options);
+        
+        // URL zur Flagge
+        $flagUrl = self::getFlagUrl($countryCode);
+        if (!$flagUrl) {
+            return '';
+        }
+        
+        // Generiere den HTML-Code für die Flagge
+        $html = Html::img($flagUrl, $imgOptions);
+        
+        // Landesname entsprechend der aktuellen Sprache, wenn $name = true
+        if ($name) {
+            $language = Yii::$app->language;
+            $column = $language === 'en-US' ? 'land_en' : 'land_de';
+            $country = (new \yii\db\Query())
+            ->select([$column])
+            ->from('nation')
+            ->where(['kuerzel' => $countryCode])
+            ->scalar();
+            
+            if ($country) {
+                $html .= Html::encode($country);
+            }
+        }
+        
+        return $html;
+    }
+
 }
 ?>

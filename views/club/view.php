@@ -142,8 +142,7 @@ $currentYear = date('Y');
                             <tr>
                                 <th><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></th>
                                 <td>
-                                    <?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
-                                    <?= Html::encode($nation->land_de) ?>
+                        			<?= Helper::renderFlag($club->land, true) ?>
                                 </td>
                             </tr>
                             <?php if ($club->founded): ?>
@@ -235,22 +234,22 @@ $currentYear = date('Y');
                         <div class="row">
                             <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></div>
                             <div class="col-10" style="text-align: left;">
-                				<?= Helper::getFlagUrl($club->land) ? Html::img(Helper::getFlagUrl($club->land), ['alt' => $nation->land_de , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
-                                <?= Html::encode($nation->land_de) ?></div>
+                				<?= Helper::renderFlag($club->land, true) ?>
+                			</div>
 	
 	                        <?php if ($club->founded) :?>
-                            <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-calerndar-alt']) ?></div>
-                            <div class="col-10" style="text-align: left;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
+                            <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></div>
+                            <div class="col-10" style="text-align: left; padding-top: 10px;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
                             <?php endif; ?>
                             
 							<?php if (!is_null($stadium)): ?>
-                                <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></div>
-                                <div class="col-10" style="text-align: left;"><?= Html::encode($stadium->name) ?></div>
+                                <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></div>
+                                <div class="col-10" style="text-align: left; padding-top: 10px;"><?= Html::encode($stadium->name) ?></div>
         					<?php endif; ?>
                                 
                             <?php if (!empty($stadium)): ?>
-                                <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></div>
-                                <div class="col-10" style="text-align: left;">
+                                <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></div>
+                                <div class="col-10" style="text-align: left; padding-top: 10px;">
                             <?php endif; ?>
                             <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>
                             </div>
@@ -371,9 +370,7 @@ $currentYear = date('Y');
                                             ?>
                                                 <li class="d-flex align-items-center p-2" style="background-color: <?= $backgroundStyle ?> !important; border-width: 1px 0 0 0; border-style: solid; border-color: #e7e7e7;">
                                                     <?php if (!empty($player->nati1)): ?>
-                                                        <img src="<?= Html::encode(Helper::getFlagUrl($player->nati1)) ?>" 
-                                                             alt="<?= Html::encode($player->nati1) ?>" 
-                                                             style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;">
+                                                        <?= Helper::renderFlag($player->nati1) ?>
                                                     <?php endif; ?>
                                                     <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
                                                 </li>
@@ -432,9 +429,7 @@ $currentYear = date('Y');
                                             ?>
                                                 <li class="d-flex align-items-center p-2" style="background-color: <?= $backgroundStyle ?> !important; border-width: 1px 0 0 0; border-style: solid; border-color: #e7e7e7;">
                                                     <?php if (!empty($player->nati1)): ?>
-                                                        <img src="<?= Html::encode(Helper::getFlagUrl($player->nati1)) ?>" 
-                                                             alt="<?= Html::encode($player->nati1) ?>" 
-                                                             style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;">
+                                                        <?= Helper::renderFlag($player->nati1) ?> 
                                                     <?php endif; ?>
                                                     <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
                                                 </li>
