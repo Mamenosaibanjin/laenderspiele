@@ -1,5 +1,6 @@
 <?php
 use app\components\ButtonHelper;
+use app\components\ClubHelper;
 use app\components\Helper;
 use app\models\Club;
 use yii\bootstrap5\ActiveForm;
@@ -151,31 +152,7 @@ $currentYear = date('Y');
                                     <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
                                 </tr>
                             <?php endif; ?>
-                            <?php if ($club->farben): ?>
-                                <tr>
-                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-palette']) ?></th>
-                                    <td>
-                                        <?php 
-                                        $colors = explode('-', $club->farben);
-                                        $lastIndex = count($colors) - 1; // Index der letzten Farbe
-                                        ?>
-                                        <?php foreach ($colors as $index => $color): ?>
-                                            <span 
-                                                style="
-                                                    display:inline-block; 
-                                                    width:20px; 
-                                                    height:20px; 
-                                                    background-color:<?= strpos($color, '#') === 0 ? $color : (Html::encode(Helper::colorToHex($color))) ?>; 
-                                                    border:1px solid #000; 
-                                                    <?= $index === 0 ? 'border-radius: 10px 0 0 10px;' : '' ?> 
-                                                    <?= $index === $lastIndex ? 'border-radius: 0 10px 10px 0;' : '' ?> 
-                                                    <?= $index !== $lastIndex ? 'margin-right: -5px;' : '' ?>
-                                                ">
-                                            </span>
-                                        <?php endforeach; ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
+							<?= ClubHelper::renderColorCircle($club->farben) ?>
                             <?php if (!is_null($stadium)): ?>
                                 <tr>
                                     <th><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></th>
@@ -198,12 +175,7 @@ $currentYear = date('Y');
                                 <th><?= Html::tag('i', '', ['class' => 'fas fa-phone']) ?></th>
                                 <td><?= Html::encode($club->telefon) ?></td>
                             </tr>
-                            <?php if ($club->homepage): ?>
-                                <tr>
-                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></th>
-                                    <td><?= Html::a($club->homepage, 'http://' . $club->homepage, ['target' => '_blank']) ?></td>
-                                </tr>
-                            <?php endif; ?>
+                            <?= ClubHelper::renderHomepageTableRow($club->homepage) ?>
                         </table>
                     <?php endif; ?>
                 </div>
@@ -247,11 +219,11 @@ $currentYear = date('Y');
                                 <div class="col-10" style="text-align: left; padding-top: 10px;"><?= Html::encode($stadium->name) ?></div>
         					<?php endif; ?>
                                 
-                            <?php if (!empty($stadium)): ?>
+                            <?php if (!empty($homepage)): ?>
                                 <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></div>
                                 <div class="col-10" style="text-align: left; padding-top: 10px;">
                             <?php endif; ?>
-                            <?= Html::a($club->homepage, $club->homepage, ['target' => '_blank']) ?>
+                            <?= ClubHelper::renderHomepageDivRow($club->homepage) ?>
                             </div>
                         </div>
                     </div>

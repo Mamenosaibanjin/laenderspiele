@@ -166,7 +166,6 @@ class Club extends ActiveRecord
         return $this->stadion ? $this->stadion->name : null;
     }
     
-    
     public function getNationalSquad($clubID, $wettbewerbID = null, $jahr = null)
     {
         // Werte von getLastMatch holen, wenn $wettbewerbID oder $jahr leer sind
