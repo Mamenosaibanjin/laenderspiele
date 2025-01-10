@@ -635,13 +635,16 @@ class Helper
     
     public static function getNationenOptions()
     {
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'land_en' : 'land_de';
+        
         return ArrayHelper::map(
             Nation::find()
-            ->select(['kuerzel', 'land_de'])
+            ->select(['kuerzel', $column])
             ->from('nation')
             ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
-            ->orderBy(['land_de' => SORT_ASC])   // Optional: Alphabetische Sortierung
-            ->all(), 'kuerzel', 'land_de');
+            ->orderBy([$column => SORT_ASC])   // Optional: Alphabetische Sortierung
+            ->all(), 'kuerzel', $column);
     }
     
     /**
@@ -678,7 +681,7 @@ class Helper
         // Landesname entsprechend der aktuellen Sprache, wenn $name = true
         if ($name) {
             $language = Yii::$app->language;
-            $column = $language === 'en-US' ? 'land_en' : 'land_de';
+            $column = $language === 'en_US' ? 'land_en' : 'land_de';
             $country = (new \yii\db\Query())
             ->select([$column])
             ->from('nation')
@@ -692,6 +695,33 @@ class Helper
         
         return $html;
     }
+    
+    /**
+     * Gibt den Namen eines Landes anhand der aktuell eingestellten Sprache zurück.
+     *
+     * @param string $iocCode Der Ländercode (3 stelliges IOC Kürzel).
+     * @return string Der sprachlich abhängige Landesnamen.
+     */
+    public static function getNationname($iocCode) {
+        
+        // Landesname entsprechend der aktuellen Sprache
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'land_en' : 'land_de';
+        
+        $country = (new \yii\db\Query())
+        ->select([$column])
+        ->from('nation')
+        ->where(['kuerzel' => $iocCode])
+        ->scalar();
+        
+        if (!$country) {
+            return '';
+        }
+        
+        // Generiere den HTML-Code
+        return Html::encode($country);
+    }
+    
 
 }
 ?>

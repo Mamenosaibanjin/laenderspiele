@@ -22,6 +22,20 @@ $this->title = $isEditing
 $currentYear = date('Y');
 ?>
 
+<?php 
+$fields = [
+    ['attribute' => 'name', 'icon' => 'fas fa-shield-alt', 'options' => ['maxlength' => true]],
+    ['attribute' => 'namevoll', 'icon' => 'fas fa-address-card', 'options' => ['maxlength' => true]],
+    ['attribute' => 'nations', 'icon' => 'fas fa-earth-europe', 'options' => []],
+    ['attribute' => 'founded', 'icon' => 'fas fa-calendar-alt', 'options' => ['type' => 'date']],
+    ['attribute' => 'colors', 'icon' => 'fas fa-palette', 'options' => []],
+    ['attribute' => 'stadium', 'icon' => 'fas fa-location-dot', 'options' => [], 'data' => $stadien],
+    ['attribute' => 'address', 'icon' => 'fas fa-envelope', 'options' => ['maxlength' => true]],
+    ['attribute' => 'telefon', 'icon' => 'fas fa-phone', 'options' => ['maxlength' => true]],
+    ['attribute' => 'homepage', 'icon' => 'fas fa-laptop-code', 'options' => ['maxlength' => true]],
+];
+?>
+
 <div class="verein-page">
 
     <!-- Erste Widgetreihe -->
@@ -33,158 +47,33 @@ $currentYear = date('Y');
                 <div class="card-body">
                     <?php if ($isEditing): ?>
                         <?php $form = ActiveForm::begin(); ?>
-                        <table class="table">
-                            <tr>
-                                <th style="width: 20px;"><?= Html::tag('i', '', ['class' => 'fas fa-shield-alt']) ?></th>
-                                <td><?= $form->field($club, 'name')->textInput(['maxlength' => true])->label(false) ?></td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-address-card']) ?></th>
-                                <td><?= $form->field($club, 'namevoll')->textInput(['maxlength' => true])->label(false) ?></td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></th>
-                                <td>
-                                    <?= $form->field($club, 'land')->dropDownList(
-                                        Helper::getNationenOptions(),
-                                        [
-                                            'prompt' => Yii::t('app', 'Choose a country'),
-                                            'class' => 'form-control'
-                                        ]
-                                    )->label(false) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></th>
-                                <td><?= $form->field($club, 'founded')->input('date')->label(false) ?></td>
-                            </tr>
-
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-palette']) ?></th>
-                                <td>
-                                <div id="farben-container">
-                                    <?php
-                                    $farbenArray = explode('-', $club->farben); // Farben aus der Datenbank
-                                    foreach ($farbenArray as $index => $farbe) {
-                                        echo Html::textInput("farben[]", $farbe, [
-                                            'class' => 'form-control farbe-input',
-                                            'data-index' => $index
-                                        ]);
-                                    }
-                                    ?>
-                                </div>
-                                <br>
-								    <?= ButtonHelper::addColorButton(); ?>
-								    <br>
-								    <p><em><?= Yii::t('app', 'Double-Click a color to remove it.') ?></em></p>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></th>
-                            <td>
-                                <?= $form->field($club, 'stadionID')->hiddenInput([
-                                    'id' => 'hidden-stadion-id', 
-                                    'value' => $club->stadionID,
-                                ])->label(false); ?>
-                            
-                                <?php
-                                $stadienData = array_map(function ($stadion) {
-                                    return [
-                                        'label' => $stadion['name'] . ', ' . $stadion['stadt'],
-                                        'value' => $stadion['id'],
-                                        'klarname' => $stadion['name']
-                                    ];
-                                }, $stadien);
-                            
-                                $stadienDataJson = json_encode($stadienData);?>
-
-                               <?= Html::textInput('stadionName', $club->getStadionName(), [
-                                    'id' => 'autocomplete-stadion',
-                                   'class' => 'form-control',
-                                   'data-stadien' => $stadienDataJson // Daten über ein data-Attribut übergeben
-                               ]); ?>
-                               <?= ButtonHelper::newStadiumButton() ?>
-                            
-                            </td>
-                            
-                            </tr>
-
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-envelope']) ?></th>
-                                <td>
-                                    <?= $form->field($club, 'postfach')->textInput(['maxlength' => true])->label(Yii::t('app', 'PO Box')) ?>
-                                    <?= $form->field($club, 'strasse')->textInput(['maxlength' => true])->label(Yii::t('app', 'Street')) ?>
-                                    <?= $form->field($club, 'ort')->textInput(['maxlength' => true])->label(Yii::t('app', 'City')) ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-phone']) ?></th>
-                                <td><?= $form->field($club, 'telefon')->textInput(['maxlength' => true])->label(false) ?></td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></th>
-                                <td><?= $form->field($club, 'homepage')->textInput(['maxlength' => true])->label(false) ?></td>
-                            </tr>
-                        </table>
-                        <div class="form-group">
-                            <?= ButtonHelper::saveButton() ?>
-                        </div>
+                            <table class="table">
+                                <?php foreach ($fields as $field): ?>
+                                    <?= ClubHelper::renderEditableRow($form, $club, $field['attribute'], $field['icon'], $field['options'], $field['data'] ?? null) ?>
+                                <?php endforeach; ?>
+                            </table>
+                            <div class="form-group">
+                                <?= ButtonHelper::saveButton() ?>
+                            </div>
                         <?php ActiveForm::end(); ?>
                     <?php else: ?>
                         <table class="table">
-                            <tr>
-                                <th style="width: 20px;"><?= Html::tag('i', '', ['class' => 'fas fa-shield-alt']) ?></th>
-                                <td><?= Html::encode($club->name) ?></td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-address-card']) ?></th>
-                                <td><?= Html::encode($club->namevoll) ?></td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></th>
-                                <td>
-                        			<?= Helper::renderFlag($club->land, true) ?>
-                                </td>
-                            </tr>
-                            <?php if ($club->founded): ?>
-                                <tr>
-                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></th>
-                                    <td><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></td>
-                                </tr>
-                            <?php endif; ?>
-							<?= ClubHelper::renderColorCircle($club->farben) ?>
-                            <?php if (!is_null($stadium)): ?>
-                                <tr>
-                                    <th><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></th>
-                                    <td>
-                                        <?= Html::encode($stadium->name) ?><br>
-                                        <?= Yii::t('app', 'Capacity') ?> <?= Html::encode($stadium->kapazitaet) ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-envelope']) ?></th>
-                                <td>
-                                    <?= Html::encode($club->name) ?><br>
-                                    <?= $club->postfach ? 'Postfach ' . Html::encode($club->postfach) . '<br>' : '' ?>
-                                    <?= $club->strasse ? nl2br(Html::encode($club->strasse)) . '<br>' : '' ?>
-                                    <?= $club->ort ? Html::encode($club->ort) . '<br>' : '' ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th><?= Html::tag('i', '', ['class' => 'fas fa-phone']) ?></th>
-                                <td><?= Html::encode($club->telefon) ?></td>
-                            </tr>
-                            <?= ClubHelper::renderHomepageTableRow($club->homepage) ?>
+                        <?php $i = 0;?>
+                            <?php foreach ($fields as $field):?>
+        						<?php 
+        						    // Bestimme den zu übergebenen Wert: $club oder $stadion
+                                    $value = ($field['attribute'] === 'stadium') ? $stadium : $club; 
+                                ?>
+                                <?= ClubHelper::renderViewRow($field['attribute'], $value, $field['icon']) ?>
+                                <?php $i++;?>
+                            <?php endforeach; ?>
                         </table>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
 
-
-		<div class="col-md-2">
-		&nbsp;</div>
+		<div class="col-md-2">&nbsp;</div>
 
         <!-- Widget 2: Zusammenfassung -->
         <div class="col-md-4">
@@ -204,25 +93,9 @@ $currentYear = date('Y');
                         <p class="text-center"><?= Html::encode($club->namevoll) ?></p>
                         <hr>
                         <div class="row">
-                            <div class="col-2" style="text-align: right;"><?= Html::tag('i', '', ['class' => 'fas fa-earth-europe']) ?></div>
-                            <div class="col-10" style="text-align: left;">
-                				<?= Helper::renderFlag($club->land, true) ?>
-                			</div>
-	
-	                        <?php if ($club->founded) :?>
-                            <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-calendar-alt']) ?></div>
-                            <div class="col-10" style="text-align: left; padding-top: 10px;"><?= Html::encode(DateTime::createFromFormat('Y-m-d', $club->founded)->format('d.m.Y')) ?></div>
-                            <?php endif; ?>
-                            
-							<?php if (!is_null($stadium)): ?>
-                                <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-location-dot']) ?></div>
-                                <div class="col-10" style="text-align: left; padding-top: 10px;"><?= Html::encode($stadium->name) ?></div>
-        					<?php endif; ?>
-                                
-                            <?php if (!empty($homepage)): ?>
-                                <div class="col-2" style="text-align: right; padding-top: 10px;"><?= Html::tag('i', '', ['class' => 'fas fa-laptop-code']) ?></div>
-                                <div class="col-10" style="text-align: left; padding-top: 10px;">
-                            <?php endif; ?>
+                            <?= ClubHelper::renderCountryDivRow($club->land) ?>
+                            <?= ClubHelper::renderFoundationDivRow($club->founded) ?>
+                            <?= ClubHelper::renderStadiumDivRow($stadium) ?>
                             <?= ClubHelper::renderHomepageDivRow($club->homepage) ?>
                             </div>
                         </div>
