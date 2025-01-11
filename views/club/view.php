@@ -108,136 +108,88 @@ $fields = [
             </div>
         </div>
     </div>
-	<?php if ($recentMatches || $upcomingMatches): ?>
+    
+    <?php if ($recentMatches || $upcomingMatches): ?>
         <!-- Zweite Widgetreihe -->
         <div class="row mb-3">
-            <!-- Widget 3: Letzte 5 Spiele -->
+            <?php
+            function renderMatchWidget($title, $matches, $club, $emptyMessage)
+            {
+                return $matches
+                    ? \yii\grid\GridView::widget([
+                        'dataProvider' => new \yii\data\ArrayDataProvider([
+                            'allModels' => $matches,
+                            'pagination' => ['pageSize' => 5],
+                        ]),
+                        'summary' => false, // Entfernt die Zusammenfassung ("Showing X of Y")
+                        'columns' => [
+                            [
+                                'attribute' => 'datum',
+                                'label' => Yii::t('app', 'Date'),
+                                'value' => function ($model) {
+                                    return Helper::getFormattedDate($model->turnier->datum);
+                                },
+                            ],
+                            [
+                                'attribute' => 'zeit',
+                                'label' => Yii::t('app', 'Time'),
+                                'value' => function ($model) {
+                                    return Helper::getFormattedTime($model->turnier->zeit);
+                                },
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Home') . '/' . Yii::t('app', 'Away'),
+                                'value' => function ($model) use ($club) {
+                                    return $model->club1ID == $club->id ? Yii::t('app', 'H') : Yii::t('app', 'A');
+                                },
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Opponent'),
+                                'value' => function ($model) use ($club) {
+                                    return Helper::getLocalizedOpponent($model, $club);
+                                },
+                            ],
+                            [
+                                'label' => Yii::t('app', 'Result'),
+                                'format' => 'html',
+                                'value' => function ($model) use ($club) {
+                                    $isHome = $model->club1ID == $club->id;
+                                    $resultColor = Helper::getResultColor($isHome, $model);
+    
+                                    $result = $isHome
+                                        ? Html::encode($model->tore1) . ':' . Html::encode($model->tore2)
+                                        : Html::encode($model->tore2) . ':' . Html::encode($model->tore1);
+    
+                                    return Html::tag('strong', $result, ['class' => $resultColor]);
+                                },
+                            ],
+                        ],
+                        'tableOptions' => ['class' => 'table table-striped table-bordered'], // Bootstrap Tabelle
+                    ])
+                    : "<p>$emptyMessage</p>";
+            }
+            ?>
+            <!-- Widget: Letzte 5 Spiele -->
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header"><?= Yii::t('app', 'Last 5 Games') ?></div>
+                    <div class="card-header"><?= Yii::t('app', Yii::t('app', 'Last {number} Games', ['number' => 5])) ?></div>
                     <div class="card-body">
-                        <?php if ($recentMatches): ?>
-                            <?= \yii\grid\GridView::widget([
-                                'dataProvider' => new \yii\data\ArrayDataProvider([
-                                    'allModels' => $recentMatches,
-                                    'pagination' => ['pageSize' => 5],
-                                ]),
-                                'summary' => false, // Entfernt die Zusammenfassung ("Showing X of Y")
-                                'columns' => [
-                                    [
-                                        'attribute' => 'datum',
-                                        'label' => Yii::t('app', 'Date'),
-                                        'value' => function ($model) {
-                                            return Helper::getFormattedDate($model->turnier->datum);
-                                        },
-                                    ],
-                                    [
-                                        'attribute' => 'zeit',
-                                        'label' => Yii::t('app', 'Time'),
-                                        'value' => function ($model) {
-                                            return Helper::getFormattedTime($model->turnier->zeit);
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Home/Away'),
-                                        'value' => function ($model) use ($club) {
-                                            return $model->club1ID == $club->id ? Yii::t('app', 'H') : Yii::t('app', 'A');
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Opponent'),
-                                        'value' => function ($model) use ($club) {
-                                            return Helper::getLocalizedOpponent($model, $club);
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Result'),
-                                        'format' => 'html',
-                                        'value' => function ($model) use ($club) {
-                                            $isHome = $model->club1ID == $club->id;
-                                            $resultColor = Helper::getResultColor($isHome, $model);
-                                            
-                                            $result = $isHome
-                                                ? Html::encode($model->tore1) . ':' . Html::encode($model->tore2)
-                                                : Html::encode($model->tore2) . ':' . Html::encode($model->tore1);
-            
-                                            return Html::tag('strong', $result, ['class' => $resultColor]);
-                                        },
-                                    ],
-                                ],
-                                'tableOptions' => ['class' => 'table table-striped table-bordered'], // Bootstrap Tabelle
-                            ]); ?>
-                        <?php else: ?>
-                            <p><?= Yii::t('app', 'No Games found') ?></p>
-                        <?php endif; ?>
+                        <?= renderMatchWidget(Yii::t('app', Yii::t('app', 'Last {number} Games', ['number' => 5])), $recentMatches, $club, Yii::t('app', 'No Games found')) ?>
                     </div>
                 </div>
             </div>
-
-            <!-- Widget 4: Kommende 5 Spiele -->
+    
+            <!-- Widget: Kommende 5 Spiele -->
             <div class="col-md-6">
                 <div class="card">
-                    <div class="card-header"><?= Yii::t('app', 'Next 5 Games') ?></div>
+                    <div class="card-header"><?= Yii::t('app', Yii::t('app', 'Next {number} Games', ['number' => 5])) ?></div>
                     <div class="card-body">
-                        <?php if ($upcomingMatches): ?>
-                            <?= \yii\grid\GridView::widget([
-                                'dataProvider' => new \yii\data\ArrayDataProvider([
-                                    'allModels' => $upcomingMatches,
-                                    'pagination' => ['pageSize' => 5],
-                                ]),
-                                'summary' => false, // Entfernt die Zusammenfassung ("Showing X of Y")
-                                'columns' => [
-                                    [
-                                        'attribute' => 'datum',
-                                        'label' => Yii::t('app', 'Date'),
-                                        'value' => function ($model) {
-                                            return Helper::getFormattedDate($model->turnier->datum);
-                                        },
-                                    ],
-                                    [
-                                        'attribute' => 'zeit',
-                                        'label' => Yii::t('app', 'Time'),
-                                        'value' => function ($model) {
-                                            return Helper::getFormattedTime($model->turnier->zeit);
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Home/Away'),
-                                        'value' => function ($model) use ($club) {
-                                            return $model->club1ID == $club->id ? Yii::t('app', 'H') : Yii::t('app', 'A');
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Opponent'),
-                                        'value' => function ($model) use ($club) {
-                                            return Helper::getLocalizedOpponent($model, $club);
-                                        },
-                                    ],
-                                    [
-                                        'label' => Yii::t('app', 'Result'),
-                                        'format' => 'html',
-                                        'value' => function ($model) use ($club) {
-                                            $isHome = $model->club1ID == $club->id;
-                                            $resultColor = Helper::getResultColor($isHome, $model);
-                                            
-                                            $result = $isHome
-                                                ? Html::encode($model->tore1) . ':' . Html::encode($model->tore2)
-                                                : Html::encode($model->tore2) . ':' . Html::encode($model->tore1);
-            
-                                            return Html::tag('strong', $result, ['class' => $resultColor]);
-                                        },
-                                    ],
-                                ],
-                                'tableOptions' => ['class' => 'table table-striped table-bordered'], // Bootstrap Tabelle
-                            ]); ?>
-                        <?php else: ?>
-                            <p><?= Yii::t('app', 'No Games planned') ?></p>
-                        <?php endif; ?>
+                        <?= renderMatchWidget(Yii::t('app', Yii::t('app', 'Next {number} Games', ['number' => 5])), $upcomingMatches, $club, Yii::t('app', 'No Games planned')) ?>
                     </div>
                 </div>
             </div>
         </div>
-	<?php endif; ?>
+    <?php endif; ?>
 
     <!-- Widget 5: Squad -->
     <?php if ($squad || $nationalSquad): ?>
