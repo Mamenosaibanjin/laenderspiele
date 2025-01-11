@@ -721,7 +721,23 @@ class Helper
         // Generiere den HTML-Code
         return Html::encode($country);
     }
-    
+  
+    /**
+     * Gibt die Backgroundcolor für eine wechselnden Background zurück
+     * @param integer $index Die entsprechende Nummerierung der Zeile
+     * @return string Die ermittelte Hintergrundfarbe
+     */
+    public static function getRowColor($index) {
+        
+        $colorRowOdd = "#f0f8ff";
+        $colorRowEven = "#ffffff";
+        
+        $color = $index % 2 === 0 ? $colorRowEven : $colorRowOdd;
+        
+        $backgroundcolor = 'background-color: ' . $color . ' !important;';
+        
+        return $backgroundcolor;
+    }
 
 }
 ?>

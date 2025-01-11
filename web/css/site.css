@@ -285,3 +285,19 @@ a.desc:after {
 	color: red !important;
 	font-size: 15px !important;
 }
+
+
+.list-unstyled li:nth-child(odd) {
+    background-color: #f8f9fa; /* Helle Farbe für ungerade Zeilen */
+}
+
+.list-unstyled li:nth-child(even) {
+    background-color: #ffffff; /* Weiße Farbe für gerade Zeilen */
+}
+
+.list-unstyled li {
+    border-width: 1px 0 0 0;
+    border-style: solid;
+    border-color: #e7e7e7;
+    padding: 8px;
+}
