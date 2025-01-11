@@ -93,7 +93,7 @@ class Club extends ActiveRecord
         return $fehlendeLogos;
     }
     
-    public function getRecentMatches()
+    public function getRecentMatches($limit = 5)
     {
         return Spiel::find()
         ->alias('s') // Alias für Spiele-Tabelle
@@ -102,7 +102,7 @@ class Club extends ActiveRecord
         ->andWhere(['<=', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
         ->select(['s.*', 't.*']) // Spalten auswählen
         ->orderBy(['t.datum' => SORT_DESC]) // Sortieren
-        ->limit(5)
+        ->limit($limit)
         ->all();
     }
     
@@ -115,7 +115,7 @@ class Club extends ActiveRecord
         ->andWhere(['>=', 't.datum', new \yii\db\Expression('NOW()')]) // Datum kleiner oder gleich der aktuellen Zeit
         ->select(['s.*', 't.*']) // Spalten auswählen
         ->orderBy(['t.datum' => SORT_ASC]) // Sortieren
-        ->limit(5)
+        ->limit($limit)
         ->all();
     }
     
@@ -190,6 +190,7 @@ class Club extends ActiveRecord
             'spieler.nati1',
             'spieler.geburtstag',
             'spieler_land_wettbewerb.positionID',
+            'spieler_land_wettbewerb.wettbewerbID',
         ]) // Nur die gewünschten Spalten auswählen
         ->distinct() // Duplikate verhindern
         ->joinWith(['landWettbewerb' => function ($query) use ($clubID, $wettbewerbID, $jahr) {

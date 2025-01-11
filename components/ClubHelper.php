@@ -75,19 +75,7 @@ class ClubHelper
             return '';
         }
         
-        
-        //Sprache ermitteln
-        $locale = Yii::$app->language; // 'de', 'en_US', 'en_UK' etc.
-        
-        // Datum formatieren basierend auf Sprache
-        $dateFormat = match($locale) {
-            'de' => 'd.m.Y',
-            'en_US' => 'm/d/Y',
-            'en_UK' => 'd/m/Y',
-            default => 'Y-m-d', // Fallback-Format
-        };
-        
-        $formattedDate = DateTime::createFromFormat('Y-m-d', $founded)?->format($dateFormat);
+        $formattedDate = Helper::getFormattedDate($founded);
         
         $iconDiv = Html::tag('div', Html::tag('i', '', ['class' => 'fas fa-calendar-alt']), [
             'class' => 'col-2',
@@ -318,18 +306,7 @@ class ClubHelper
              return '';
          }
          
-         //Sprache ermitteln
-         $locale = Yii::$app->language; // 'de', 'en_US', 'en_UK' etc.
-         
-         // Datum formatieren basierend auf Sprache
-         $dateFormat = match($locale) {
-             'de' => 'd.m.Y',
-             'en_US' => 'm/d/Y',
-             'en_UK' => 'd/m/Y',
-             default => 'Y-m-d', // Fallback-Format
-         };
-         
-         $formattedDate = DateTime::createFromFormat('Y-m-d', $datum)?->format($dateFormat);
+         $formattedDate = Helper::getFormattedDate($datum);
          
          if (!$formattedDate) {
              return ''; // Falls das Datum ungültig ist
@@ -457,6 +434,25 @@ class ClubHelper
                  return '';
          }
      }
+     
+     public static function colorToHex($colorName) {
+         
+         $colors = [
+             'weiss' => '#FFFFFF',
+             'schwarz' => '#000000',
+             'rot' => '#FF0000',
+             'blau' => '#0000FF',
+             'gelb' => '#FFFF00',
+             'grün' => '#008000',
+             'violett' => '#441678',
+             'himmelblau' => '#6CABDD',
+             // Weitere Farben hier einfügen
+         ];
+         
+         return $colors[strtolower($colorName)] ?? '#FFFFFF'; // Fallback zu Schwarz
+     }
+     
+     
 
 }
 ?>

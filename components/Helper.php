@@ -3,6 +3,7 @@
 namespace app\components;
 
 use app\models\Nation;
+use DateTime;
 use Yii;
 use yii\bootstrap5\Html;
 use yii\helpers\ArrayHelper;
@@ -282,23 +283,6 @@ class Helper
         return null; // Geben Sie null zurück, falls kein Spieler gefunden wurde
     }
     
-    
-    public static function colorToHex($colorName) {
-   
-        $colors = [
-            'weiss' => '#FFFFFF',
-            'schwarz' => '#000000',
-            'rot' => '#FF0000',
-            'blau' => '#0000FF',
-            'gelb' => '#FFFF00',
-            'grün' => '#008000',
-            'violett' => '#441678',
-            'himmelblau' => '#6CABDD',
-            // Weitere Farben hier einfügen
-        ];
-        
-        return $colors[strtolower($colorName)] ?? '#FFFFFF'; // Fallback zu Schwarz
-    }
     
     public static function getImVereinSeit($player, $clubID, $year)
     {
@@ -739,5 +723,68 @@ class Helper
         return $backgroundcolor;
     }
 
+    public static function getFormattedDate($date) {
+       
+        //Sprache ermitteln
+        $locale = Yii::$app->language; // 'de', 'en_US', 'en_UK' etc.
+        
+        // Datum formatieren basierend auf Sprache
+        $dateFormat = match($locale) {
+            'de' => 'd.m.Y',
+            'en_US' => 'm/d/Y',
+            'en_UK' => 'd/m/Y',
+            default => 'Y-m-d', // Fallback-Format
+        };
+        
+        return DateTime::createFromFormat('Y-m-d', $date)?->format($dateFormat);
+        
+    }
+    
+    public static function getFormattedTime($time)
+    {
+        $locale = Yii::$app->language;
+        
+        if ($locale === 'de') {
+            return Yii::$app->formatter->asTime($time, 'php:H:i');
+        } elseif (in_array($locale, ['en_US', 'en_UK'])) {
+            $format = $locale === 'en_US' ? 'php:h:i A' : 'php:H:i';
+            return Yii::$app->formatter->asTime($time, $format);
+        }
+        
+        return Yii::$app->formatter->asTime($time, 'php:H:i');
+    }
+    
+    public static function getLocalizedName($kuerzel, $language, $originalName = null)
+    {
+        $nation = Nation::findOne(['kuerzel' => $kuerzel]);
+        
+        if (!$nation) {
+            return $originalName; // Fallback auf den ursprünglichen Namen
+        }
+        
+        $name = $language === 'de' ? $nation->land_de : $nation->land_en;
+        
+        // Optional: Den Suffix des ursprünglichen Namens anhängen
+        if ($originalName && strpos($originalName, '[') !== false) {
+            $suffix = preg_replace('/.*(\[.*\])$/', '$1', $originalName);
+            return $name . " $suffix";
+        }
+        
+        return $name;
+    }
+    
+    public static function getLocalizedOpponent($model, $club)
+    {
+        $opponentClub = $model->club1ID == $club->id ? $model->club2 : $model->club1;
+        
+        // Prüfen, ob der Club eine Nationalmannschaft ist
+        if (in_array($opponentClub->typID, [1, 2, 11, 12])) {
+            $locale = Yii::$app->language;
+            return Helper::getLocalizedName($opponentClub->land, $locale, $opponentClub->name);
+        }
+        
+        return $opponentClub->name;
+    }
+    
 }
 ?>
