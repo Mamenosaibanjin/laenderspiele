@@ -1,6 +1,7 @@
 <?php
 namespace app\components;
 
+use app\models\Nation;
 use DateTime;
 use Yii;
 use yii\helpers\Html;
@@ -412,7 +413,7 @@ class ClubHelper
      {
          switch ($field) {
              case 'name':
-                 return ClubHelper::renderClubNameRow($value->name, $labelIcon);
+                 return ClubHelper::renderClubNameRow(Html::encode(ClubHelper::getLocalizedName($value)), $labelIcon);
              case 'namevoll':
                  return ClubHelper::renderClubFullnameRow($value->namevoll, $labelIcon);
              case 'nations':
@@ -452,7 +453,31 @@ class ClubHelper
          return $colors[strtolower($colorName)] ?? '#FFFFFF'; // Fallback zu Schwarz
      }
      
-     
+     public static function getLocalizedName($club, $originalName = null)
+     {
+         // Prüfen, ob der Club eine Nationalmannschaft ist
+         if (in_array($club->typID, [1, 2, 11, 12])) {
+         
+             $locale = Yii::$app->language;
+             $nation = Nation::findOne(['kuerzel' => $club->land]);
+             
+             if (!$nation) {
+                 return $originalName; // Fallback auf den ursprünglichen Namen
+             }
+             
+             $name = $locale === 'de' ? $nation->land_de : $nation->land_en;
+             
+             // Optional: Den Suffix des ursprünglichen Namens anhängen
+             if ($originalName && strpos($originalName, '[') !== false) {
+                 $suffix = preg_replace('/.*(\[.*\])$/', '$1', $originalName);
+                 return $name . " $suffix";
+             }
+             
+             return $name;
+         }
+         
+         return $club->name;
+     }
 
 }
 ?>

@@ -82,7 +82,11 @@ $fields = [
         <!-- Widget 2: Zusammenfassung -->
         <div class="col-md-4">
             <div class="card">
-                <div class="card-header"><h3><?= Html::encode($club->name) ?></h3></div>
+                <div class="card-header">
+                	<h3>
+                    	<?= Html::encode(ClubHelper::getLocalizedName($club)) ?>
+                	</h3>
+                </div>
                 <div class="card-body d-flex align-items-center">
                     <!-- Bild als separater Div-Container -->
                     <div class="text-center" style="flex: 0 0 auto; margin-right: 20px;">
@@ -141,101 +145,36 @@ $fields = [
        <?php 
        // Mapping-Array für Positionen
         $positionMapping = PositionHelper::getMapping(['TW', 'AB', 'MF', 'ST', 'TR']);
+        $title = '';
+        $url = '';
+        
+        if ($squad) :
+            $title = Yii::t('app', 'Season') . ' ' . $currentYear . '/' . ($currentYear + 1);
+            $url = ['/kader/' . $club->id . '/' . $currentYear];
+        else :
+            $squad = $nationalSquad;
+            $lastMatch = Club::getLastMatch($club->id);
+            $wettbewerbID = $lastMatch['wettbewerbID'] ?? null;
+            $jahr = $lastMatch['jahr'] ?? null;
+            $title = Helper::getTurniernameFullname($wettbewerbID, $jahr);
+            $url = ['kader/' . $club->id . '/' . $jahr . '/' . $wettbewerbID];
+        endif;
         ?>
+        
         <div class="card"> <!-- Gesamtrahmen für den Kader -->
             <div class="card-header">
                 <h3><?= Yii::t('app', 'Squad') ?></h3> <!-- Überschrift für den gesamten Abschnitt -->
             </div>
             <div class="card-body">
-                <!-- Vereins-Kader anzeigen, falls vorhanden -->
-                <?php if ($squad): ?>
-                    <h4><?= Yii::t('app', 'Season') ?> <?= $currentYear . '/' . ($currentYear+1); ?></h4><br>
-                    <div class="row five-column-layout">
-                		<?php foreach ($positionMapping as $positionID => $positionName): ?>
-                            <?php 
-                            // Spieler filtern und sortieren
-                            $filteredPlayers = SquadHelper::getFilteredAndSortedPlayers($squad, $positionID);
-                            
-                            if (empty($filteredPlayers)) continue;
-
-                            ?>
-                            <div class="col-5">
-                                <div class="panel">
-                                    <div class="panel-heading">
-                                        <h4 class="title"><?= Html::encode($positionName) ?></h4>
-                                    </div>
-                                    <div class="panel-body">
-                                        <ul class="list-unstyled">
-                                            <?php foreach ($filteredPlayers as $player): ?>
-                                                <li>
-                                                	<?php if (!empty($player->nati1)): ?>
-                                                    	<?= Helper::renderFlag($player->nati1) ?>
-                                                   	<?php endif; ?>
-                                                    <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                        <div style="text-align: right;">
-							<?= Html::a(Yii::t('app', 'Complete Squad'), ['/kader/' . $club->id . '/' . $currentYear], ['class' => 'text-decoration-none']) ?>
-						</div>
-                    </div>
-                <?php endif; ?>
-                
-                <!-- National-Kader anzeigen, falls vorhanden -->
-                <?php if ($nationalSquad): ?>
-                <?php 
-                    $lastMatch = Club::getLastMatch($club->id);
-                    
-                    if (!$lastMatch) {
-                        // Keine Spiele gefunden, leere Sammlung zurückgeben
-                        return [];
-                    }
-                    
-                    $wettbewerbID = $lastMatch['wettbewerbID'];
-                    $jahr = $lastMatch['jahr'];
+                <!-- Kader anzeigen, falls vorhanden -->
+                <?php SquadHelper::renderSquad(
+                    $squad, 
+                    $positionMapping, 
+                    $title,
+                    $url,
+                    Yii::t('app', 'Complete Squad')
+                );
                 ?>
-                    <h4><?= Helper::getTurniername($wettbewerbID) . ' ' . $jahr; ?></h4><br>
-                    <div class="row five-column-layout">
-                		<?php foreach ($positionMapping as $positionID => $positionName): ?>
-                         	<?php 
-                            // Spieler filtern und sortieren
-                         	$filteredPlayers = SquadHelper::getFilteredAndSortedPlayers($nationalSquad, $positionID);
-                            
-                         	if (empty($filteredPlayers)) continue;
-                            ?>
-                            <div class="col-5">
-                                <div class="panel">
-                                    <div class="panel-heading">
-                                        <h4 class="title"><?= Html::encode($positionName) ?></h4>
-                                    </div>
-                                    <div class="panel-body">
-                                        <ul class="list-unstyled">
-                                            <?php 
-                                            $index = 0;
-                                            foreach ($filteredPlayers as $player):
-                                                $index++;
-                                                ?>
-                                                <li>
-                                                    <?php if (!empty($player->nati1)): ?>
-                                                        <?= Helper::renderFlag($player->nati1) ?> 
-                                                    <?php endif; ?>
-                                                    <?= Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
-                                                </li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                        <div style="text-align: right;">
-							<?= Html::a(Yii::t('app', 'Complete Squad'), ['/kader/' . $club->id . '/' . $jahr . '/' . $wettbewerbID], ['class' => 'text-decoration-none']) ?>
-						</div>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
     <?php endif; ?>

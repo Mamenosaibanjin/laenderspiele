@@ -754,37 +754,5 @@ class Helper
         return Yii::$app->formatter->asTime($time, 'php:H:i');
     }
     
-    public static function getLocalizedName($kuerzel, $language, $originalName = null)
-    {
-        $nation = Nation::findOne(['kuerzel' => $kuerzel]);
-        
-        if (!$nation) {
-            return $originalName; // Fallback auf den ursprünglichen Namen
-        }
-        
-        $name = $language === 'de' ? $nation->land_de : $nation->land_en;
-        
-        // Optional: Den Suffix des ursprünglichen Namens anhängen
-        if ($originalName && strpos($originalName, '[') !== false) {
-            $suffix = preg_replace('/.*(\[.*\])$/', '$1', $originalName);
-            return $name . " $suffix";
-        }
-        
-        return $name;
-    }
-    
-    public static function getLocalizedOpponent($model, $club)
-    {
-        $opponentClub = $model->club1ID == $club->id ? $model->club2 : $model->club1;
-        
-        // Prüfen, ob der Club eine Nationalmannschaft ist
-        if (in_array($opponentClub->typID, [1, 2, 11, 12])) {
-            $locale = Yii::$app->language;
-            return Helper::getLocalizedName($opponentClub->land, $locale, $opponentClub->name);
-        }
-        
-        return $opponentClub->name;
-    }
-    
 }
 ?>

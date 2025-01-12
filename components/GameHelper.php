@@ -48,7 +48,7 @@ class GameHelper
                 [
                     'label' => Yii::t('app', 'Opponent'),
                     'value' => function ($model) use ($club) {
-                    return Helper::getLocalizedOpponent($model, $club);
+                    return GameHelper::getLocalizedOpponent($model, $club);
                     },
                     ],
                 [
@@ -69,6 +69,13 @@ class GameHelper
                 'tableOptions' => ['class' => 'table table-striped table-bordered'], // Bootstrap Tabelle
                 ])
             : "<p>$emptyMessage</p>";
+    }
+        
+    public static function getLocalizedOpponent($model, $club)
+    {
+        $opponentClub = $model->club1ID == $club->id ? $model->club2 : $model->club1;
+        
+        return ClubHelper::getLocalizedName($opponentClub, $opponentClub->name);
     }
 }
 ?>
