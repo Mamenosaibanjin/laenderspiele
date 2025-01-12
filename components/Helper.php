@@ -471,18 +471,23 @@ class Helper
     
     public static function getTurniernameFullname($turnier, $jahr)
     {
+        
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'name_en' : 'name';
+        
+        
         $query = (new \yii\db\Query())
-        ->select(['name', 'land'])
+        ->select([$column, 'land'])
         ->from(['wettbewerb'])
         ->where(['ID' => $turnier])
         ->one(); // Ändere scalar() zu one()
         
         if ($query) {
-            $turniername = $query['name'] . " " . $jahr;
+            $turniername = $query[$column] . " " . $jahr;
             if ($turnier >= 500) :
                 $turniername .= "/" . ($jahr+1);
             endif;
-            return '<b>' . $turniername . '</b>';
+            return $turniername;
         }
         
         return null; // Fallback, falls kein Datensatz gefunden wird
