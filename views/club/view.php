@@ -1,6 +1,7 @@
 <?php
 use app\components\ButtonHelper;
 use app\components\ClubHelper;
+use app\components\GameHelper;
 use app\components\PositionHelper;
 use app\components\Helper;
 use app\models\Club;
@@ -112,69 +113,13 @@ $fields = [
     <?php if ($recentMatches || $upcomingMatches): ?>
         <!-- Zweite Widgetreihe -->
         <div class="row mb-3">
-            <?php
-            function renderMatchWidget($title, $matches, $club, $emptyMessage)
-            {
-                return $matches
-                    ? \yii\grid\GridView::widget([
-                        'dataProvider' => new \yii\data\ArrayDataProvider([
-                            'allModels' => $matches,
-                            'pagination' => ['pageSize' => 5],
-                        ]),
-                        'summary' => false, // Entfernt die Zusammenfassung ("Showing X of Y")
-                        'columns' => [
-                            [
-                                'attribute' => 'datum',
-                                'label' => Yii::t('app', 'Date'),
-                                'value' => function ($model) {
-                                    return Helper::getFormattedDate($model->turnier->datum);
-                                },
-                            ],
-                            [
-                                'attribute' => 'zeit',
-                                'label' => Yii::t('app', 'Time'),
-                                'value' => function ($model) {
-                                    return Helper::getFormattedTime($model->turnier->zeit);
-                                },
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Home') . '/' . Yii::t('app', 'Away'),
-                                'value' => function ($model) use ($club) {
-                                    return $model->club1ID == $club->id ? Yii::t('app', 'H') : Yii::t('app', 'A');
-                                },
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Opponent'),
-                                'value' => function ($model) use ($club) {
-                                    return Helper::getLocalizedOpponent($model, $club);
-                                },
-                            ],
-                            [
-                                'label' => Yii::t('app', 'Result'),
-                                'format' => 'html',
-                                'value' => function ($model) use ($club) {
-                                    $isHome = $model->club1ID == $club->id;
-                                    $resultColor = Helper::getResultColor($isHome, $model);
-    
-                                    $result = $isHome
-                                        ? Html::encode($model->tore1) . ':' . Html::encode($model->tore2)
-                                        : Html::encode($model->tore2) . ':' . Html::encode($model->tore1);
-    
-                                    return Html::tag('strong', $result, ['class' => $resultColor]);
-                                },
-                            ],
-                        ],
-                        'tableOptions' => ['class' => 'table table-striped table-bordered'], // Bootstrap Tabelle
-                    ])
-                    : "<p>$emptyMessage</p>";
-            }
-            ?>
+ 
             <!-- Widget: Letzte 5 Spiele -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header"><?= Yii::t('app', Yii::t('app', 'Last {number} Games', ['number' => 5])) ?></div>
                     <div class="card-body">
-                        <?= renderMatchWidget(Yii::t('app', Yii::t('app', 'Last {number} Games', ['number' => 5])), $recentMatches, $club, Yii::t('app', 'No Games found')) ?>
+                        <?= GameHelper::renderMatchWidget(Yii::t('app', Yii::t('app', 'Last {number} Games', ['number' => 5])), $recentMatches, $club, Yii::t('app', 'No Games found')) ?>
                     </div>
                 </div>
             </div>
@@ -184,7 +129,7 @@ $fields = [
                 <div class="card">
                     <div class="card-header"><?= Yii::t('app', Yii::t('app', 'Next {number} Games', ['number' => 5])) ?></div>
                     <div class="card-body">
-                        <?= renderMatchWidget(Yii::t('app', Yii::t('app', 'Next {number} Games', ['number' => 5])), $upcomingMatches, $club, Yii::t('app', 'No Games planned')) ?>
+                        <?= GameHelper::renderMatchWidget(Yii::t('app', Yii::t('app', 'Next {number} Games', ['number' => 5])), $upcomingMatches, $club, Yii::t('app', 'No Games planned')) ?>
                     </div>
                 </div>
             </div>
