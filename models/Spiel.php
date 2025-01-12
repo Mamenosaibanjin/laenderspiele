@@ -96,6 +96,11 @@ class Spiel extends ActiveRecord
         return $this->hasOne(Referee::class, ['id' => 'referee4ID']);
     }
     
+    public function getWettbewerb()
+    {
+        return $this->hasOne(Turnier::class, ['id' => 'wettbewerbID']);
+    }
+    
     /**
      * Prüft, ob eine Aktion einer Heimmannschaft zugeordnet ist.
      */

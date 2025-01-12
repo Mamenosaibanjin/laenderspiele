@@ -69,6 +69,7 @@ $config = [
                 'spieler/search' => 'spieler/search',
                 'club/<id:\d+>' => 'club/view',
                 'club/search' => 'club/search', // Neue Regel für die Club-Suche
+                'stadion/<id:\d+>' => 'stadion/view',
                 'kader/<id:\d+>/<year:\d+>' => 'kader/view',
                 'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
