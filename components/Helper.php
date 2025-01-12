@@ -460,8 +460,15 @@ class Helper
     
     public static function getTurniername($turnier)
     {
+        if ($turnier == '') :
+            return '';
+        endif;
+        
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'name_en' : 'name';
+        
         $query = (new \yii\db\Query())
-        ->select(['name', 'land'])
+        ->select([$column, 'land'])
         ->from(['wettbewerb'])
         ->where(['ID' => $turnier])
         ->scalar();
@@ -730,6 +737,10 @@ class Helper
 
     public static function getFormattedDate($date) {
        
+        if ($date == '') :
+            return '';
+        endif;
+        
         //Sprache ermitteln
         $locale = Yii::$app->language; // 'de', 'en_US', 'en_UK' etc.
         

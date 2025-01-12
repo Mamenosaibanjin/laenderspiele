@@ -34,6 +34,11 @@ return [
     'H' => 'H',
     'A' => 'A',
     'Opponent' => 'Gegner',
-    'Result' => 'Ergebnis'
+    'Result' => 'Ergebnis',
+    'Competition' => 'Wettbewerb',
+    'Spectators' => 'Zuschauer',
+    'Matches and Results' => 'Termine & Ergebnisse',
+    'Stadium Data' => 'Stadiondaten'
+    
 ];
 ?>
