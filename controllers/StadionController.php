@@ -7,7 +7,7 @@ use yii\web\Controller;
 use app\models\Club;
 use app\models\Nation;
 use app\models\Spiel;
-use app\models\Stadiums;
+use app\models\Stadion;
 use Yii;
 use yii\web\Response;
 
@@ -17,7 +17,7 @@ class StadionController extends Controller
     {
         $isEditing = !(Yii::$app->user->isGuest); // Bearbeitungsmodus für eingeloggte Benutzer
         
-        $stadium = Stadiums::findOne($id);
+        $stadium = Stadion::findOne($id);
         if (!$stadium) {
             throw new \yii\web\NotFoundHttpException(Yii::t('app', 'Stadium not found.'));
         }
@@ -44,6 +44,22 @@ class StadionController extends Controller
             'teams' => $teams,
             'matches' => $matches,
             'isEditing' => $isEditing,
+        ]);
+    }
+    
+    public function actionNew()
+    {
+        $stadium = new Stadion();
+        
+        if ($stadium->load(Yii::$app->request->post()) && $stadium->save()) {
+            return $this->redirect(['view', 'id' => $stadium->id]);
+        }
+        
+        return $this->render('view', [
+            'stadium' => $stadium,
+            'isEditing' => true, // Flag für Bearbeitungsmodus
+            'teams' => [], // Keine Teams bei einem neuen Stadion
+            'matches' => new ActiveDataProvider(['query' => Spiel::find()->where('0=1')]), // Leerer DataProvider
         ]);
     }
     

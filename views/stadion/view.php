@@ -86,12 +86,13 @@ $this->title = $isEditing
                 <div class="card-body">
                     <?= GridView::widget([
                         'dataProvider' => $matches,
+                        'summary' => false,
                         'tableOptions' => ['class' => 'table table-striped table-bordered'],
                         'columns' => [
                             [
                                 'attribute' => 'wettbewerb',
                                 'label' => Yii::t('app', 'Competition'),
-                                'value' => fn($model) => Helper::getTurniername($model->turnier->wettbewerb ?? '') ?? '',
+                                'value' => fn($model) => Helper::getTurniername($model->turnier->wettbewerb->id ?? '') ?? '',
                                 'format' => 'raw',
                             ],
                             [

@@ -38,7 +38,8 @@ return [
     'Competition' => 'Wettbewerb',
     'Spectators' => 'Zuschauer',
     'Matches and Results' => 'Termine & Ergebnisse',
-    'Stadium Data' => 'Stadiondaten'
+    'Stadium Data' => 'Stadiondaten',
+    'Choose a country' => 'Land auswählen'
     
 ];
 ?>
