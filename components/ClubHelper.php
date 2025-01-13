@@ -359,7 +359,10 @@ class ClubHelper
                  break;
                  
              case 'colors':
-                 $farbenArray = explode('-', $club->farben);
+                 $farbenArray = !empty($club->farben) && is_string($club->farben)
+                 ? explode('-', $club->farben)
+                 : ['#ffffff']; // Fallback auf Standardfarbe
+                 
                  $inputs = '<div id="farben-container">';
                  foreach ($farbenArray as $index => $farbe) {
                      $inputs .= Html::textInput("farben[]", $farbe, [

@@ -5,7 +5,7 @@ namespace app\controllers;
 use yii\web\Controller;
 use app\models\Club;
 use app\models\Nation;
-use app\models\Stadiums;
+use app\models\Stadion;
 use Yii;
 use yii\web\Response;
 
@@ -52,7 +52,7 @@ class ClubController extends Controller
             }
         }
         
-        $stadien = Stadiums::getStadiums();
+        $stadien = Stadion::getStadiums();
         
         // View rendern
         return $this->render('view', [
@@ -80,6 +80,27 @@ class ClubController extends Controller
         ->all();
         
         return $clubs;
+    }
+    
+    public function actionNew()
+    {
+        $club = new Club();
+        
+        if ($club->load(Yii::$app->request->post()) && $club->save()) {
+            return $this->redirect(['view', 'id' => $club->id]);
+        }
+        
+        return $this->render('view', [
+            'club' => $club,
+            'nation' => $club->nation,
+            'stadium' => $club->stadion,
+            'recentMatches' => [],
+            'upcomingMatches' => [],
+            'squad' => [],
+            'nationalSquad' => [],
+            'isEditing' => true,
+            'stadien' => Stadion::getStadiums(),
+        ]);
     }
 }
 ?>
