@@ -58,3 +58,26 @@ $(document).ready(function () {
         }
     });
 });
+
+function updateStadiumList() {
+    const stadionInput = document.getElementById('autocomplete-stadion');
+    const updateUrl = stadionInput.dataset.updateUrl;
+
+    // AJAX-Request, um die neue Stadienliste zu holen
+    fetch(updateUrl)
+        .then(response => response.json())
+        .then(data => {
+            // Update der Stadienliste im data-Attribute
+            stadionInput.dataset.stadien = JSON.stringify(data);
+
+            // Optional: Debugging
+            console.log("Stadienliste aktualisiert:", data);
+        })
+        .catch(error => console.error('Fehler beim Aktualisieren der Stadienliste:', error));
+}
+
+// Beispielaufruf nach dem Anlegen eines neuen Stadions
+document.getElementById('add-stadium-button').addEventListener('click', () => {
+    updateStadiumList();
+});
+

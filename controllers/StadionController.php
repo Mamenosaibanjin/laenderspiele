@@ -63,5 +63,20 @@ class StadionController extends Controller
         ]);
     }
     
+    
+    public function actionGetList()
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        
+        $stadien = Stadion::find()->select(['id', 'name', 'stadt'])->asArray()->all();
+        return array_map(function ($stadion) {
+            return [
+                'label' => $stadion['name'] . ', ' . $stadion['stadt'],
+                'value' => $stadion['id'],
+                'klarname' => $stadion['name']
+            ];
+        }, $stadien);
+    }
+    
 }
 ?>

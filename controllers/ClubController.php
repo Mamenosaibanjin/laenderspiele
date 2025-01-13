@@ -102,5 +102,6 @@ class ClubController extends Controller
             'stadien' => Stadion::getStadiums(),
         ]);
     }
+
 }
 ?>

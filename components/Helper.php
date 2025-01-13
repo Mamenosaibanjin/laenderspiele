@@ -3,6 +3,7 @@
 namespace app\components;
 
 use app\models\Nation;
+use app\models\Typ;
 use DateTime;
 use Yii;
 use yii\bootstrap5\Html;
@@ -643,6 +644,21 @@ class Helper
             ->all(), 'kuerzel', $column);
     }
     
+    
+    public static function getTypeOptions()
+    {
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'name_en' : 'name_de';
+        
+        return ArrayHelper::map(
+            Typ::find()
+            ->select(['id', $column])
+            ->from('typ')
+            ->orderBy([$column => SORT_ASC])   // Optional: Alphabetische Sortierung
+            ->all(), 'id', $column);
+    }
+    
+
     /**
      * Rendert die Flagge und den Namen des Landes basierend auf der aktuellen Sprache.
      *

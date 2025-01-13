@@ -31,6 +31,7 @@ $fields = [
     ['attribute' => 'name', 'icon' => 'fas fa-shield-alt', 'options' => ['maxlength' => true]],
     ['attribute' => 'namevoll', 'icon' => 'fas fa-address-card', 'options' => ['maxlength' => true]],
     ['attribute' => 'nations', 'icon' => 'fas fa-earth-europe', 'options' => []],
+    ['attribute' => 'type', 'icon' => 'fas fa-layer-group', 'options' => []],
     ['attribute' => 'founded', 'icon' => 'fas fa-calendar-alt', 'options' => ['type' => 'date']],
     ['attribute' => 'colors', 'icon' => 'fas fa-palette', 'options' => []],
     ['attribute' => 'stadium', 'icon' => 'fas fa-location-dot', 'options' => [], 'data' => $stadien],

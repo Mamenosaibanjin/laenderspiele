@@ -353,6 +353,7 @@ class ClubHelper
                      'klarname' => $stadion['name']
                  ];
                  }, $stadien)),
+                 'data-update-url' => Yii::$app->urlManager->createUrl(['stadion/get-list']), // URL zum Abrufen der aktualisierten Liste
                  ]) .
                  ButtonHelper::newStadiumButton();
                  
@@ -386,6 +387,17 @@ class ClubHelper
                      ]
                  )->label(false);
                  
+                 break;
+                 
+             case 'type':
+                 $inputs =
+                 $form->field($club, 'typID')->dropDownList(
+                 Helper::getTypeOptions(),
+                 [
+                 'prompt' => Yii::t('app', 'Choose a type'),
+                 'class' => 'form-control'
+                     ]
+                 )->label(false);
                  break;
                  
              case 'founded':
