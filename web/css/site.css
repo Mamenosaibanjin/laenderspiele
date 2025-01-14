@@ -301,3 +301,9 @@ a.desc:after {
     border-color: #e7e7e7;
     padding: 8px;
 }
+
+.dropdown-container {
+    display: flex;
+    gap: 30px; /* Abstand zwischen den Dropdowns */
+    align-items: flex-start; /* Optional: Ausrichtung an der oberen Kante */
+}

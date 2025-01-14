@@ -645,6 +645,16 @@ class Helper
     }
     
     
+    public static function getSpielfussOptions()
+    {
+        return [
+            'r' => Yii::t('app', 'Right Foot'),
+            'l' => Yii::t('app', 'Left Foot'),
+            'b' => Yii::t('app', 'Two-Footed'),
+        ];
+    }
+    
+    
     public static function getTypeOptions()
     {
         $language = Yii::$app->language;

@@ -41,6 +41,10 @@ return [
     'Stadium Data' => 'Stadiondaten',
     'Choose a country' => 'Land auswählen',
     'Choose a type' => 'Typ auswählen',
-    'Founded' => 'Gegründet'
+    'Founded' => 'Gegründet',
+    'Choose Foot' => 'Fuß auswählen',
+    'Right Foot' => 'rechter Fuß',
+    'Left Foot' => 'linker Fuß',
+    'Two-Footed' => 'Beidfüßig'
 ];
 ?>
