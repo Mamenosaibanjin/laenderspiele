@@ -43,6 +43,17 @@ class ButtonHelper
     }
     
     /**
+     * Shortcut für einen "Details Speichern"-Button.
+     *
+     * @param array $options Zusätzliche Optionen für den Button.
+     * @return string Der generierte "Speichern"-Button-HTML-Code.
+     */
+    public static function saveDetailsButton($options = [])
+    {
+        return self::createButton(\Yii::t('app', 'Save Details'), null, array_merge(['type' => 'submit'], $options));
+    }
+    
+    /**
      * Shortcut für einen "Abbrechen"-Button.
      *
      * @param string $url Die URL, auf die verwiesen wird.

@@ -17,11 +17,11 @@ $this->registerJsFile('@web/js/spieler.js',  ['depends' => [\yii\web\JqueryAsset
 $isEditing = !(Yii::$app->user->isGuest); // Zustand für Bearbeitungsmodus
 $this->title = $spieler->fullname ?? 'Spielerprofil';
 $fields = [
-    ['attribute' => 'name', 'icon' => 'fas fa-user', 'options' => []],
     ['attribute' => 'vorname', 'icon' => 'fas fa-signature', 'options' => []],
+    ['attribute' => 'name', 'icon' => 'fas fa-user', 'options' => []],
     ['attribute' => 'fullname', 'icon' => 'fas fa-address-card', 'options' => []],
     ['attribute' => 'geburtstag', 'icon' => 'fas fa-birthday-cake', 'options' => ['type' => 'date']],
-    ['attribute' => 'nationalitaet', 'icon' => 'fas fa-flag', 'options' => ['type' => 'dropdown']],
+    ['attribute' => 'nati1', 'icon' => 'fas fa-flag', 'options' => ['type' => 'dropdown']],
     ['attribute' => 'height', 'icon' => 'fas fa-ruler-vertical', 'options' => []],
     ['attribute' => 'weight', 'icon' => 'fas fa-weight', 'options' => []],
     ['attribute' => 'spielfuss', 'icon' => 'fas fa-shoe-prints', 'options' => ['type' => 'dropdown']],
@@ -53,6 +53,10 @@ $fields = [
 
                 <?php if ($isEditing): ?>
                         <?php $form = ActiveForm::begin(); ?>
+                    	<?php 
+                    	   $playerID = Yii::$app->request->get('id'); // 51574 in deinem Beispiel
+                    	   echo Html::hiddenInput('playerID', $playerID);
+                    	?>
                         <table class="table">
                             <?php foreach ($fields as $field): ?>
                                 <?= SpielerHelper::renderEditableRow($form, $spieler, $field['attribute'], $field['icon'], $field['options']) ?>
@@ -65,7 +69,9 @@ $fields = [
                     <?php else: ?>
                         <table class="table">
                             <?php foreach ($fields as $field): ?>
-                                <?= SpielerHelper::renderViewRow($field['attribute'], $spieler, $field['icon']) ?>
+                            	<?php if (isset($field)): ?>
+                                	<?= SpielerHelper::renderViewRow($field['attribute'], $spieler, $field['icon']) ?>
+                                <?php endif; ?>
                             <?php endforeach; ?>
                         </table>
                     <?php endif; ?>

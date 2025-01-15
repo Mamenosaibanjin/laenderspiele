@@ -17,45 +17,65 @@ class SpielerController extends Controller
 {
     public function actionView($id = 0)
     {
+        $isEditing = !Yii::$app->user->isGuest; // Bearbeitungsmodus nur für eingeloggte Benutzer
+        
+        // Spieler-Daten laden oder neues Modell erstellen
+        $spieler = $id ? Spieler::findOne($id) : new Spieler();
+        
+        if (!$spieler && $id) {
+            throw new \yii\web\NotFoundHttpException('Der angeforderte Spieler wurde nicht gefunden.');
+        }
+        
+        // Vereinslisten laden
         $vereine = Club::find()
         ->andWhere(['typID' => [3, 4, 5, 6, 7, 8, 9, 10, 13]])
         ->orderBy('name')
-        ->all(); // Vereine alphabetisch sortieren
+        ->all();
         
         $nationen = Club::find()
         ->andWhere(['typID' => [1, 2, 11, 12]])
         ->orderBy('name')
-        ->all(); // Vereine alphabetisch sortieren
+        ->all();
         
+        // Weitere Daten laden
         $positionen = Position::find()
         ->orderBy('positionKurz')
-        ->all(); // Positionen alphabetisch sortieren
+        ->all();
         
         $wettbewerbe = Wettbewerb::find()
         ->orderBy('name')
-        ->all(); // Positionen alphabetisch sortieren
+        ->all();
         
-        // Spieler-Daten
-        $spieler = Spieler::findOne($id);
-        
-        // Vereins-Karriere
+        // Karriere-Daten laden
         $vereinsKarriere = SpielerVereinSaison::find()
         ->where(['spielerID' => $id, 'jugend' => 0])
         ->orderBy(['von' => SORT_DESC])
         ->all();
         
-        // Jugendvereine
         $jugendvereine = SpielerVereinSaison::find()
         ->where(['spielerID' => $id, 'jugend' => 1])
         ->orderBy(['von' => SORT_DESC])
         ->all();
         
-        // Länderspiel-Karriere
         $laenderspiele = SpielerLandWettbewerb::find()
         ->where(['spielerID' => $id])
         ->orderBy(['jahr' => SORT_DESC])
         ->all();
         
+        // Bearbeitungsmodus: Daten speichern
+        if ($isEditing && Yii::$app->request->isPost) {
+            $request = Yii::$app->request;
+            
+            // Spieler-Daten laden und speichern
+            if ($spieler->load($request->post()) && $spieler->save()) {
+                Yii::$app->session->setFlash('success', 'Die Spielerdaten wurden erfolgreich gespeichert.');
+                return $this->redirect(['spieler/view', 'id' => $spieler->id]);
+            } else {
+                Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spielerdaten.');
+            }
+        }
+        
+        // View rendern
         return $this->render('view', [
             'spieler' => $spieler,
             'vereinsKarriere' => $vereinsKarriere,
@@ -65,6 +85,7 @@ class SpielerController extends Controller
             'nationen' => $nationen,
             'positionen' => $positionen,
             'wettbewerbe' => $wettbewerbe,
+            'isEditing' => $isEditing,
         ]);
     }
     
@@ -119,48 +140,45 @@ class SpielerController extends Controller
     }
     
 
-    public function actionSave()
+    public function actionSaveDetails()
     {
         $request = Yii::$app->request;
-        $data = json_decode($request->getRawBody(), true);
-        
+        $data = Yii::$app->request->post();
         if ($request->isPost && $data) {
-            try {
-                $playerID = $data['playerID'];
-                $player = Spieler::findOne($playerID);
-                if (!$player) {
-                    $player = new Spieler();
-                }
-                
-                // Spieler-Daten aktualisieren
-                $player->name = $data['name'];
-                $player->vorname = $data['vorname'];
-                $player->fullname = $data['fullname'];
-                $player->geburtstag = $data['geburtstag'];
-                $player->geburtsort = $data['geburtsort'];
-                $player->geburtsland = $data['geburtsland'];
-                $player->nati1 = $data['nati1'];
-                $player->nati2 = $data['nati2'];
-                $player->nati3 = $data['nati3'];
-                $player->weight = $data['weight'];
-                $player->height = $data['height'];
-                $player->spielfuss = $data['spielfuss'];
-                $player->homepage = $data['homepage'];
-                $player->facebook = $data['facebook'];
-                $player->instagram = $data['instagram'];
-                
-                if ($player->save()) {
-                    // Weiterleitung zur Detailansicht des Spielers nach erfolgreicher Speicherung
-                    return $this->asJson([
-                        'success' => true,
-                        'message' => 'Speichern erfolgreich'
-                    ]);
-                } else {
-                    return $this->asJson(['success' => false, 'message' => 'Speichern fehlgeschlagen']);
-                }
-            } catch (\Exception $e) {
-                Yii::error('Fehler beim Speichern des Spielers: ' . $e->getMessage());
-                return $this->asJson(['success' => false, 'message' => 'Fehler beim Speichern']);
+            $playerID = $data['playerID'];
+            $player = Spieler::findOne($playerID);
+            if (!$player) {
+                $player = new Spieler();
+            }
+           
+            // Spieler-Daten aktualisieren
+            $player->name = $data['Spieler']['name'];
+            $player->vorname = $data['Spieler']['vorname'];
+            $player->fullname = $data['Spieler']['fullname'];
+            $player->geburtstag = $data['Spieler']['geburtstag'];
+            $player->geburtsort = $data['Spieler']['geburtsort'];
+            $player->geburtsland = $data['Spieler']['geburtsland'];
+            $player->nati1 = $data['Spieler']['nati1'];
+            $player->nati2 = $data['Spieler']['nati2'];
+            $player->nati3 = $data['Spieler']['nati3'];
+            $player->weight = $data['Spieler']['weight'];
+            $player->height = $data['Spieler']['height'];
+            $player->spielfuss = $data['Spieler']['spielfuss'];
+            $player->homepage = $data['Spieler']['homepage'];
+            $player->facebook = $data['Spieler']['facebook'];
+            $player->instagram = $data['Spieler']['instagram'];
+            
+            if ($player->load($data) && $player->save()) {
+                return $this->asJson([
+                    'success' => true,
+                    'message' => 'Speichern erfolgreich',
+                ]);
+            } else {
+                return $this->asJson([
+                    'success' => false,
+                    'message' => 'Speichern fehlgeschlagen',
+                    'errors' => $player->errors, // Gibt Validierungsfehler zurück
+                ]);
             }
         }
         

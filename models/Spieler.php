@@ -20,11 +20,11 @@ class Spieler extends ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'vorname', 'fullname', 'geburtsort', 'geburtsland'], 'string'],
+            [['name', 'vorname', 'fullname', 'geburtsort', 'geburtsland', 'facebook', 'instagram'], 'string'],
             [['geburtstag'], 'date', 'format' => 'php:Y-m-d'], // Date im Format YYYY-MM-DD
             [['height', 'weight'], 'number'],
             [['spielfuss'], 'string', 'max' => 1], // Max. 1 Zeichen (z.B. 'L' oder 'R')
-            [['homepage', 'facebook', 'instagram'], 'url'],
+            [['homepage'], 'url'],
             [['nati1', 'nati2', 'nati3'], 'string', 'max' => 3], // IOC-Code max. 3 Zeichen
         ];
     }

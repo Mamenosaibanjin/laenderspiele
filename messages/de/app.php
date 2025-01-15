@@ -9,6 +9,7 @@ return [
     'Street' => 'Straße',
     'City' => 'Ort',
     'Save' => 'Speichern',
+    'Save Details' => 'Details Speichern',
     'Squad' => 'Kader',
     'Goal' => 'Tor',
     'Defender' => 'Abwehr',

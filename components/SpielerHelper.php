@@ -29,7 +29,7 @@ class SpielerHelper
                 Html::endTag('div');
                 break;
                 
-            case 'nationalitaet':
+            case 'nati1':
                 $inputs = Html::beginTag('div', ['class' => 'dropdown-container']) .
                 $form->field($spieler, 'nati1')->dropDownList(
                 Helper::getNationenOptions(),
@@ -81,15 +81,18 @@ class SpielerHelper
 
     public static function renderViewRow($field, $spieler, $labelIcon = null)
     {
+        
+        if ($spieler->$field == '') : return ''; endif;
+        
         $value = $spieler->$field ?? 'Unbekannt';
         switch ($field) {
             case 'geburtstag':
                 $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long');
                 break;
                 
-            case 'nationalitaet':
+            case 'nati1':
                 $value = !empty($spieler->nati1)
-                ? Html::img(Helper::getFlagUrl($spieler->nati1), ['style' => 'width: 20px;']) . ' ' . Html::encode($spieler->nati1)
+                ? Html::img(Helper::getFlagUrl($spieler->nati1), ['style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) . ' ' . Html::encode($spieler->nati1)
                 : 'Unbekannt';
                 break;
                 
