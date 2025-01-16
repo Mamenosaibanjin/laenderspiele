@@ -18,6 +18,7 @@ class SpielerController extends Controller
     public function actionView($id = 0)
     {
         $isEditing = !Yii::$app->user->isGuest; // Bearbeitungsmodus nur für eingeloggte Benutzer
+        Yii::debug('Form submitted', 'debug');
         
         // Spieler-Daten laden oder neues Modell erstellen
         $spieler = $id ? Spieler::findOne($id) : new Spieler();
@@ -65,15 +66,52 @@ class SpielerController extends Controller
         // Bearbeitungsmodus: Daten speichern
         if ($isEditing && Yii::$app->request->isPost) {
             $request = Yii::$app->request;
+            Yii::info($request->post(), 'Spielerdaten');
             
             // Spieler-Daten laden und speichern
             if ($spieler->load($request->post()) && $spieler->save()) {
+                Yii::debug($spieler->attributes, 'debug'); // Logge alle Attribute vor dem Speichern
+                
                 Yii::$app->session->setFlash('success', 'Die Spielerdaten wurden erfolgreich gespeichert.');
-                return $this->redirect(['spieler/view', 'id' => $spieler->id]);
+                return $this->redirect(['spieler/' . $spieler->id]);
+            } else if ($spieler->hasErrors()) {
+                Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spielerdaten.'.var_dump($request->post()));
+            }
+         
+            // VereinsKarriere-Daten speichern
+            $karriereData = $request->post('SpielerVereinSaison', []);
+            $allSaved = true;
+            
+            foreach ($karriereData as $index => $data) {
+                $karriere = isset($data['id']) ? SpielerVereinSaison::findOne($data['id']) : new SpielerVereinSaison();
+                $karriere->spielerID = $spieler->id; // Spieler-ID setzen
+               
+                // Konvertiere die Eingaben
+                $karriere->vereinID = $data['verein'] ?? null; // Zuordnung für Verein
+                $karriere->positionID = $data['position'] ?? null; // Zuordnung für Position
+                $karriere->von = str_replace('-', '', $data['von'] ?? ''); // YYYY-MM zu YYYYMM
+                $karriere->bis = str_replace('-', '', $data['bis'] ?? ''); // YYYY-MM zu YYYYMM
+                $karriere->jugend = $data['jugend'] ?? 0; // YYYY-MM zu YYYYMM
+                
+                if (!$karriere->save()) {
+
+                    $allSaved = false;
+                    Yii::error($karriere->errors, "Fehler beim Speichern von VereinsKarriere (Index $index)");
+                }
+            }
+            
+            if ($allSaved) {
+                Yii::$app->session->setFlash('success', 'Alle VereinsKarriere-Daten wurden erfolgreich gespeichert.');
             } else {
-                Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spielerdaten.');
+                Yii::$app->session->setFlash('error', 'Einige VereinsKarriere-Daten konnten nicht gespeichert werden.');
+            }
+            
+            // Nach dem Speichern zur Detailansicht zurückkehren
+            if ($allSaved && !$spieler->hasErrors()) {
+                return $this->redirect(['spieler/' . $spieler->id]);
             }
         }
+        
         
         // View rendern
         return $this->render('view', [

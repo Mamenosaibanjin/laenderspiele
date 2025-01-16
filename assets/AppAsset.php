@@ -29,6 +29,7 @@ class AppAsset extends AssetBundle
         'css/site.css',
         'css/widgets.css',
         'css/spielbericht.css',
+        'css/spieler.css',
         'css/site.css',
         'https://fonts.googleapis.com/css2?family=Material+Icons&display=swap',
         'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',

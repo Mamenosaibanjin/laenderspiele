@@ -40,12 +40,15 @@ return [
     'Spectators' => 'Zuschauer',
     'Matches and Results' => 'Termine & Ergebnisse',
     'Stadium Data' => 'Stadiondaten',
+    'Choose a Position' => 'Position auswählen',
     'Choose a country' => 'Land auswählen',
     'Choose a type' => 'Typ auswählen',
     'Founded' => 'Gegründet',
     'Choose Foot' => 'Fuß auswählen',
     'Right Foot' => 'rechter Fuß',
     'Left Foot' => 'linker Fuß',
-    'Two-Footed' => 'Beidfüßig'
+    'Two-Footed' => 'Beidfüßig',
+    'Delete' => 'Löschen' ,
+    'Youth' => 'Jugend',
 ];
 ?>

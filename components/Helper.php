@@ -796,5 +796,30 @@ class Helper
         return Yii::$app->formatter->asTime($time, 'php:H:i');
     }
     
+    /**
+     * Gibt eine Liste aller verfügbaren Positionen aus der Datenbank zurück.
+     *
+     * @return array Assoziatives Array
+     */
+    public static function getAllPositions(): array
+    {
+        // Landesname entsprechend der aktuellen Sprache
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'positionLang_en' : 'positionLang_de';
+                
+        // Nationen mit gültigem ISO3166-Code abrufen
+        $positions = (new \yii\db\Query())
+        ->select(['id', $column])
+        ->from('position')
+        ->orderBy([$column => SORT_ASC])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        // Ergebnis formatieren
+        $result = [];
+        foreach ($positions as $position) {
+            $result[$position['id']] = $position[$column];
+        }
+        return $result;
+    }
 }
 ?>

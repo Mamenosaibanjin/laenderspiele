@@ -67,6 +67,7 @@ class SpielerHelper
                 )->label(false);
                 break;
                 
+                
             default:
                 $inputs = $form->field($spieler, $field)->textInput($options)->label(false);
                 break;
@@ -107,5 +108,114 @@ class SpielerHelper
             Html::tag('td', $value)
             );
     }
+    
+    public static function renderEditableRowMulti($form, $spieler, $fields, $labelIcon, $options = [])
+    {
+        $index = $options['index'] ?? 0; // Index aus Optionen holen
+        $cells = '';
+        
+        foreach ($fields as $field) {
+            $inputs = '';
+            switch ($field) {
+                case 'von':
+                    $inputs = $form->field($spieler, "[$index]von")->input('month', [
+                    'value' => substr($spieler->von, 0, 4) . '-' . substr($spieler->von, 4, 2),
+                    'style' => 'width: 140px;',
+                    ])->label(false);
+                    break;
+                    
+                case 'bis':
+                    $inputs = $form->field($spieler, "[$index]bis")->input('month', [
+                    'value' => $spieler->bis ? substr($spieler->bis, 0, 4) . '-' . substr($spieler->bis, 4, 2) : '',
+                    'style' => 'width: 140px;',
+                    ])->label(false);
+                    break;
+                    
+                case 'verein':
+                    $vereine = $options['vereine'] ?? []; // Vereine aus Optionen holen
+                    $vereinId = is_object($spieler->verein) ? $spieler->verein->id : $spieler->verein;
+                    $vereinName = $vereinId ? Helper::getClubName($vereinId) . ' (' . Helper::getClubNation($vereinId) . ')' : '';
+                    
+                    $vereinsDaten = json_encode(array_map(function ($verein) {
+                        return [
+                            'label' => $verein['name'],
+                            'value' => $verein['id'],
+                            'klarname' => $verein['name'],
+                        ];
+                    }, $vereine));
+                        
+                        $inputs =
+                        Html::hiddenInput("SpielerVereinSaison[$index][verein]", $vereinId, [
+                            'id' => "hidden-verein-id-$index",
+                        ]).
+                        Html::textInput("[$index]vereinName", $vereinName, [
+                            'id' => "autocomplete-verein-$index",
+                            'class' => 'form-control',
+                            'data-vereine' => $vereinsDaten,
+                            'placeholder' => Yii::t('app', 'Search for a club'),
+                        ]);
+                        break;
+                        
+                case 'land':
+                    $inputs = $form->field($spieler, "[$index]land")->dropDownList(
+                    Helper::getNationenOptions(),
+                    [
+                    'prompt' => Yii::t('app', 'Choose a country'),
+                    'class' => 'form-control',
+                    ]
+                    )->label(false);
+                    break;
+                    
+                case 'position':
+                    $positionen = $options['positionen'] ?? []; // Positionen aus Optionen holen
+                    //$positionId = $spieler->position; // Aktuelle PositionID
+                    $positionId = is_object($spieler->position) ? $spieler->position->id : $spieler->position;
+                    
+                    $inputs = $form->field($spieler, "[$index]position")->dropDownList(
+                        Helper::getAllPositions(),
+                        [
+                            'prompt' => Yii::t('app', 'Choose a position'),
+                            'class' => 'form-control',
+                            'options' => [$positionId => ['Selected' => true]] // Vorbelegung setzen
+                        ]
+                        )->label(false);
+                        break;
+                    
+                case 'buttons':
+                    $inputs = 
+                    Html::tag('div',
+                    Html::checkbox("SpielerVereinSaison[$index][jugend]", $spieler->jugend, [
+                    'id' => "jugend-switch-$index",
+                    'autocomplete' => 'off',
+                    'value' => '1',
+                    ]) .
+                    Html::label(Yii::t('app', 'Youth'), "jugend-switch-$index", [
+                    'class' => 'btn btn-secondary btn-sm',
+                    'style' => 'margin-left: 7px;',
+                    ]),
+                    ['class' => 'btn-group-toggle', 'data-toggle' => 'buttons', 'style' => 'float: left; padding-right: 7px;']
+                    ) . " " .
+                    Html::SubmitButton(Yii::t('app', 'Save'), [
+                    'class' => 'btn btn-primary btn-sm',
+                    ]) . 
+                    " " . 
+                    Html::button(Yii::t('app', 'X'), [
+                    'class' => 'btn btn-danger btn-sm',
+                    'onclick' => "deleteRow($index)", // Optional: Funktion zum Löschen
+                    ]);
+                    break;
+                    
+                default:
+                    $inputs = $form->field($spieler, "[$index]$field")->textInput($options)->label(false);
+                    break;
+            }
+            
+            $cells .= Html::tag('td', $inputs);
+        }
+        
+        return Html::tag('tr', $cells);
+    }
+    
+    
 }
 ?>

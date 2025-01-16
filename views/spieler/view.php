@@ -81,51 +81,63 @@ $fields = [
         </div>
 	</div>
 
-
     <!-- Widget 2: Vereinskarriere -->
-    <?php
-    $currentMonth = date('Ym'); // Aktueller Monat im Format 'YYYYMM'
-    ?>
-    <?php if ((!empty($vereinsKarriere)) && ($spieler->id > 0 || 1 == 1)): ?>
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Vereinskarriere 
-                        	<?php if ($isEditing) : ?>
-                        		<button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
-                        	<?php endif; ?>
-                        </h3>
-                    </div>
-                    <div class="card-body">
-                        <table class="table" id="career-table">
-                            <thead>
-                                <tr>
-                                    <th>Zeitraum</th>
-                                    <th colspan="2">Verein</th>
-                                    <th>Land</th>
-                                    <th>Position</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?= $this->render('_career_table', [
-                                    'vereinsKarriere' => $vereinsKarriere,
-                                    'isEditing' => $isEditing,
-                                    'currentMonth' => $currentMonth,
-                                    'vereine' => $vereine,
-                                    'positionen' => $positionen
-                                ]) ?>
-                            </tbody>
-                        </table>
-                        
-                        <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
-                        	neuer Verein
-                        </button>
-                    </div>
+<?php
+$currentMonth = date('Ym'); // Aktueller Monat im Format 'YYYYMM'
+?>
+
+<?php if ((!empty($vereinsKarriere)) && ($spieler->id > 0 || 1 == 1)): ?>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Vereinskarriere 
+                        <?php if ($isEditing) : ?>
+                            <button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
+                        <?php endif; ?>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <?php $form = ActiveForm::begin([
+                        'id' => 'career-form',
+                        'method' => 'post', // WICHTIG: Muss POST sein
+                        'action' => ['spieler/view', 'id' => $spieler->id], // Ziel-Action
+                    ]); ?>
+                    
+                    <table class="table" id="career-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Zeitraum</th>
+                                <th>Verein</th>
+                                <th>Position</th>
+                                <?php if ($isEditing): ?>
+                                    <th>Aktionen</th>
+                                <?php endif; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($vereinsKarriere as $index => $karriere): ?>
+    									<?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
+                                        <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
+                                            'index' => $index,
+                                            'positionen' => $positionen,
+                                            'vereine' => $vereine,
+                                        ]); ?>
+	                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    
+                    <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
+                        neuer Verein
+                    </button>
+
+                    <?php ActiveForm::end(); ?>
                 </div>
             </div>
         </div>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
+
                               
     <!-- Widget 3: Jugendvereine -->
     <?php if ((!empty($jugendvereine)) && ($spieler->id > 0 || 1 == 1)): ?>

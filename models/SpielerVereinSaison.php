@@ -22,9 +22,20 @@ class SpielerVereinSaison extends ActiveRecord
         return [
             [['spielerID', 'vereinID', 'positionID'], 'required'],
             [['spielerID', 'vereinID', 'positionID'], 'integer'],
-            [['von', 'bis'], 'integer'], // YYYYMM; kann NULL sein
+            [['von', 'bis'], 'safe'], // Markiere die Felder als sicher für Eingaben
             [['jugend'], 'boolean'],
         ];
+    }
+    
+    public function beforeSave($insert)
+    {
+        if (!empty($this->von)) {
+            $this->von = str_replace('-', '', $this->von); // YYYY-MM zu YYYYMM
+        }
+        if (!empty($this->bis)) {
+            $this->bis = str_replace('-', '', $this->bis); // YYYY-MM zu YYYYMM
+        }
+        return parent::beforeSave($insert);
     }
     
     /**

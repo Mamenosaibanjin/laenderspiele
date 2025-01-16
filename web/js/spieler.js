@@ -210,10 +210,6 @@ function savePlayerNations(rowId) {
         jahr: row.querySelector('[name="jahr"]').value,
         land: row.querySelector('[name="land"]').value,
     };
-    
-    // Debug-Ausgabe der Daten
-    console.log("NationData");
-    console.log(nationData);
 
     // Prüfen, ob die erforderlichen Felder ausgefüllt sind
     const requiredFields = ['wettbewerbID', 'landID', 'positionID', 'jahr'];
@@ -249,6 +245,7 @@ function savePlayerNations(rowId) {
 
 });
 
+/**
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.getElementById('verein-input');
     const hiddenInput = document.getElementById('vereinID');
@@ -276,6 +273,38 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedOption = options.find(option => option.value === input.value);
         if (!selectedOption) {
             hiddenInput.value = '';
+        }
+    });
+});
+Alte Awesomecplete Funktion
+
+**/
+
+document.addEventListener('DOMContentLoaded', function () {
+	console.log('Start');
+    const input = document.getElementById('autocomplete-verein');
+    const hiddenInput = document.getElementById('hidden-verein-id');
+    const vereinsDaten = JSON.parse(input.dataset.vereine);
+
+	console.log('Vereinsdaten:', vereinsDaten); // Überprüfen, ob die Daten geladen werden
+
+    // Autovervollständigung mit jQuery UI oder einer anderen Bibliothek
+    $(input).autocomplete({
+        source: vereinsDaten.map(item => ({
+            label: item.label,
+            value: item.value,
+            klarname: item.klarname,
+        })),
+        select: function (event, ui) {
+            // Setze den ausgewählten Namen und die ID
+            input.value = ui.item.klarname;
+            hiddenInput.value = ui.item.value;
+            return false; // Verhindert, dass der Wert überschrieben wird
+        },
+        focus: function (event, ui) {
+            // Zeige während der Navigation den Klarnamen an
+            input.value = ui.item.klarname;
+            return false;
         }
     });
 });

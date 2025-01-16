@@ -1,3 +1,4 @@
+/*
 .widget {
     border: 1px solid #ddd;
     padding: 20px;
@@ -16,4 +17,8 @@ table th, table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
+}
+*/
+.field-hidden-verein-id {
+	display: none;
 }
