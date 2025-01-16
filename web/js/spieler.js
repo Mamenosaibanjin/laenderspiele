@@ -333,7 +333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const addButton = document.getElementById(`add-${tableId.replace('-table', '')}-entry`);
         if (addButton) {
             addButton.addEventListener('click', () => {
- let newRow = '';
+ 				let newRow = '';
 
                 if (tableId === 'national-team-table') {
                     // Spezifische Struktur für die Nationalmannschaft
@@ -377,49 +377,52 @@ document.addEventListener('DOMContentLoaded', () => {
                         </tr>`;
                 } else {
                     // Generische Struktur für andere Tabellen
-                    newRow = `
-                        <tr>
-                            <td>
-                                <input type="month" class="form-control show-edit w-auto" name="von" style="width: 140px !important;">
-                                <input type="month" class="form-control show-edit w-auto" name="bis" style="width: 140px !important;">
-                            </td>
-                            <td></td>
-                            <td>
-                                <input type="text" class="form-control show-edit" list="${tableId}-list" style="width: 175px;">
-                                <input type="hidden" name="vereinID" value="">
-                                <datalist id="${tableId}-list">
-                                    <?php foreach ($vereine as $verein): ?>
-                                        <option value="<?= Html::encode($verein->name) ?> (<?= Html::encode($verein->land) ?>)" data-id="<?= $verein->id ?>"></option>
-                                    <?php endforeach; ?>
-                                </datalist>
-                            </td>
-                            <td></td>
-                            <td>
-                                <select class="form-control show-edit" name="positionID">
-                                    <?php foreach ($positionen as $position): ?>
-                                        <option value="<?= $position->id ?>"><?= Html::encode($position->positionLang_de) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td>
-                            	<div class="btn-group-toggle show-edit" data-toggle="buttons">
-                                    <label class="btn btn-outline-primary btn-sm">
-                                        <input type="checkbox" name="jugend" id="jugend-switch" autocomplete="off"> Jugend
-                                    </label>
-                                </div>
-                                <button class="btn btn-primary btn-sm save-button show-edit">Speichern</button>
-                                <button class="btn btn-secondary btn-sm cancel-button show-edit">Abbrechen</button>
-                            </td>
-                        </tr>`;
-                }
-                tableBody.insertAdjacentHTML('afterbegin', newRow);
+					newRow = `
+					<tr>
+					    <td>
+					        <div class="form-group field-spielerverein-von">
+					            <input type="month" class="form-control show-edit w-auto" name="SpielerVereinSaison[new][von]" style="width: 140px !important;" placeholder="Von">
+					        </div>
+					    </td>
+					    <td>
+					        <div class="form-group field-spielerverein-bis">
+					            <input type="month" class="form-control show-edit w-auto" name="SpielerVereinSaison[new][bis]" style="width: 140px !important;" placeholder="Bis">
+					        </div>
+					    </td>
+					    <td>
+					        <div class="form-group field-spielerverein-verein">
+					            <input type="text" class="form-control show-edit verein-input" list="vereine-datalist" name="SpielerVereinSaison[new][verein]" placeholder="Verein">
+					            <input type="hidden" name="SpielerVereinSaison[new][vereinID]" value="">
+					        </div>
+					    </td>
+					    <td>
+					        <div class="form-group field-spielerverein-position">
+					            <select class="form-control show-edit" name="SpielerVereinSaison[new][position]">
+					                ${document.getElementById('position-options').innerHTML}
+					            </select>
+					        </div>
+					    </td>
+					    <td>
+					            <div class="btn-group-toggle" data-toggle="buttons" style="float: left; padding-right: 7px;">
+					                <input type="checkbox" name="SpielerVereinSaison[new][jugend]" id="jugend-switch-new" autocomplete="off" value="1">
+					                <label for="jugend-switch-new" class="btn btn-secondary btn-sm" style="margin-left: 2px;">
+					                    Jugend
+					                </label>
+					            </div>
+					        <button type="submit" class="btn btn-primary btn-sm">Speichern</button>
+					        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">X</button>
+					    </td>
+					</tr>`;
+					tableBody.insertAdjacentHTML('afterbegin', newRow);
 
-                // Initialisieren der Event-Listener für die neue Zeile
-                const addedRow = tableBody.querySelector('tr:first-child');
-                if (addedRow) {
-                    initializeRowEventListeners(addedRow);
-                } else {
-                    console.error("Neue Zeile wurde nicht erfolgreich hinzugefügt.");
+					// Initialisieren der Event-Listener für neue Felder
+					const addedRow = tableBody.querySelector('tr:first-child');
+					if (addedRow) {
+					    initializeRowEventListeners(addedRow);
+					} else {
+					    console.error("Neue Zeile wurde nicht erfolgreich hinzugefügt.");
+					}
+
                 }
             });
         }

@@ -12,6 +12,21 @@ use app\models\Spieler;
 /** @var $jugendvereine app\models\SpielerVereinSaison[] */
 /** @var $laenderspiele app\models\SpielerLandWettbewerb */
 
+?>
+<!-- Datalist für Vereine -->
+<datalist id="vereine-datalist">
+    <?php foreach ($vereine as $verein): ?>
+        <option value="<?= Html::encode($verein->name) ?>" data-id="<?= $verein->id ?>"><?= Html::encode($verein->land) ?></option>
+    <?php endforeach; ?>
+</datalist>
+
+<!-- Optionen für Positionen -->
+<select id="position-options" style="display: none;">
+    <?php foreach ($positionen as $position): ?>
+        <option value="<?= $position->id ?>"><?= Html::encode($position->positionLang_de) ?></option>
+    <?php endforeach; ?>
+</select>
+<?php
 $this->registerJsFile('@web/js/spieler.js',  ['depends' => [\yii\web\JqueryAsset::class]]);
 
 $isEditing = !(Yii::$app->user->isGuest); // Zustand für Bearbeitungsmodus
@@ -82,61 +97,77 @@ $fields = [
 	</div>
 
     <!-- Widget 2: Vereinskarriere -->
-<?php
-$currentMonth = date('Ym'); // Aktueller Monat im Format 'YYYYMM'
-?>
+    <?php
+    $currentMonth = date('Ym'); // Aktueller Monat im Format 'YYYYMM'
+    ?>
 
-<?php if ((!empty($vereinsKarriere)) && ($spieler->id > 0 || 1 == 1)): ?>
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>Vereinskarriere 
-                        <?php if ($isEditing) : ?>
-                            <button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
+    <?php if ((!empty($vereinsKarriere)) && ($spieler->id > 0 || 1 == 1)): ?>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Vereinskarriere 
+                            <?php if ($isEditing) : ?>
+                                <button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
+                            <?php endif; ?>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <?php if ($isEditing): ?>
+                            <?php $form = ActiveForm::begin([
+                                'id' => 'career-form',
+                                'method' => 'post', // WICHTIG: Muss POST sein
+                                'action' => ['spieler/view', 'id' => $spieler->id], // Ziel-Action
+                            ]); ?>
+
+                            <table class="table" id="career-table">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2">Zeitraum</th>
+                                        <th>Verein</th>
+                                        <th>Position</th>
+                                        <th>Aktionen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+    	                            <?php foreach ($vereinsKarriere as $index => $karriere): ?>
+        									<?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
+                                            <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
+                                                'index' => $index,
+                                                'positionen' => $positionen,
+                                                'vereine' => $vereine,
+                                            ]); ?>
+    	                            <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                            
+                            <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
+                                neuer Verein
+                            </button>
+
+                        	<?php ActiveForm::end(); ?>
+                        	
+                        <?php else: ?>
+                        
+                            <table class="table" id="career-table">
+                                <thead>
+                                    <tr>
+                                        <th>Zeitraum</th>
+                                        <th>Verein</th>
+                                        <th>Land</th>
+                                        <th>Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?= SpielerHelper::renderViewRowMulti($vereinsKarriere, ['zeitraum', 'verein', 'land', 'position'], ['index' => 0]); ?>
+                                </tbody>
+							</table>                        
                         <?php endif; ?>
-                    </h3>
-                </div>
-                <div class="card-body">
-                    <?php $form = ActiveForm::begin([
-                        'id' => 'career-form',
-                        'method' => 'post', // WICHTIG: Muss POST sein
-                        'action' => ['spieler/view', 'id' => $spieler->id], // Ziel-Action
-                    ]); ?>
-                    
-                    <table class="table" id="career-table">
-                        <thead>
-                            <tr>
-                                <th colspan="2">Zeitraum</th>
-                                <th>Verein</th>
-                                <th>Position</th>
-                                <?php if ($isEditing): ?>
-                                    <th>Aktionen</th>
-                                <?php endif; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($vereinsKarriere as $index => $karriere): ?>
-    									<?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
-                                        <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
-                                            'index' => $index,
-                                            'positionen' => $positionen,
-                                            'vereine' => $vereine,
-                                        ]); ?>
-	                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    
-                    <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
-                        neuer Verein
-                    </button>
-
-                    <?php ActiveForm::end(); ?>
-                </div>
+	                </div>
+	            </div>
             </div>
         </div>
-    </div>
-<?php endif; ?>
+    <?php endif; ?>
 
                               
     <!-- Widget 3: Jugendvereine -->
@@ -197,7 +228,7 @@ $currentMonth = date('Ym'); // Aktueller Monat im Format 'YYYYMM'
                                                 </td>
                                                 <td style="<?= $jugend->von <= $currentMonth && ($jugend->bis >= $currentMonth || $jugend->bis === null) ? 'background-color: #79C01D !important; font-weight: bold;' : '' ?>">
                                                     <span class="display-mode">
-                                                        <?= Html::img(Helper::getFlagUrl($jugend->verein->land), ['alt' => $jugend->verein->land, 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?>
+                                                        <?= Helper::getFlagUrl($jugend->verein->land); ?>
                                                     </span>
                                                 </td>
                                             <?php else: ?>

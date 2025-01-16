@@ -93,7 +93,7 @@ class SpielerHelper
                 
             case 'nati1':
                 $value = !empty($spieler->nati1)
-                ? Html::img(Helper::getFlagUrl($spieler->nati1), ['style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) . ' ' . Html::encode($spieler->nati1)
+                ? Helper::getFlagUrl($spieler->nati1)
                 : 'Unbekannt';
                 break;
                 
@@ -214,6 +214,62 @@ class SpielerHelper
         }
         
         return Html::tag('tr', $cells);
+    }
+           
+    public static function renderViewRowMulti($karriereDaten, $fields, $options = [])
+    {
+        $rows = '';
+        $index = $options['index'] ?? 0; // Fallback für Index
+        
+        foreach ($karriereDaten as $daten) {
+            $cells = '';
+            
+            foreach ($fields as $field) {
+                $value = '';
+                switch ($field) {
+                    case 'zeitraum':
+                        $von = isset($daten['von']) ? substr($daten['von'], 0, 4) . '/' . substr($daten['von'], 4, 2) : 'N/A';
+                        $bis = isset($daten['bis']) ? substr($daten['bis'], 0, 4) . '/' . substr($daten['bis'], 4, 2) : 'N/A';
+                        $value = "$von - $bis";
+                        break;
+                        
+                    case 'verein':
+                        $verein = $daten['verein'] ?? null;
+                        $vereinId = is_object($verein) ? $verein->id : $verein; // ID aus dem Objekt extrahieren
+                        $value = $vereinId
+                        ? Html::img(Helper::getClubLogoUrl($vereinId), ['alt' => 'Logo', 'style' => 'height: 20px; margin-right: 5px;']) .
+                        Html::a(Html::encode(Helper::getClubName($vereinId)), ['/club/view', 'id' => $vereinId], ['class' => 'text-decoration-none'])
+                        : Yii::t('app', 'Unknown Club');
+                        break;
+                        
+                    case 'land':
+                        $verein = $daten['verein'] ?? null;
+                        $vereinId = is_object($verein) ? $verein->id : $verein; // ID aus dem Objekt extrahieren
+                        $nation = $vereinId ? Helper::getClubNation($vereinId) : null;
+                        $value = $nation
+                        ? Helper::getFlagUrl($nation)
+                        : Yii::t('app', 'Unknown Country');
+                        break;
+                        
+                    case 'position':
+                        $position = $daten['position'] ?? null;
+                        $positionId = is_object($position) ? $position->id : $position; // ID aus dem Objekt extrahieren
+                        $value = $positionId ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
+                        break;
+                        
+                    default:
+                        $value = $daten[$field] ?? Yii::t('app', 'Unknown');
+                        break;
+                }
+                
+                $cells .= Html::tag('td', $value);
+            }
+            
+            $rows .= Html::tag('tr', $cells);
+            $index++;
+        }
+        
+        return $rows;
     }
     
     

@@ -51,7 +51,7 @@ class Helper
         ];
         
         if (array_key_exists($iocCode, $specialFlags)) {
-            return $specialFlags[$iocCode];
+            $flagUrl = $specialFlags[$iocCode];
         }
         
         // Historische Flaggen-Logik
@@ -66,18 +66,20 @@ class Helper
                 ['start' => '27.04.1992', 'end' => '03.02.2003', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
             ],
         ];
-        if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
-            foreach ($historicalFlags[$isoCode] as $flag) {
+        if ($dateTimestamp !== null && isset($historicalFlags[$iocCode])) {
+            foreach ($historicalFlags[$iocCode] as $flag) {
                 $startTimestamp = strtotime(str_replace('.', '-', $flag['start']));
                 $endTimestamp = strtotime(str_replace('.', '-', $flag['end']));
                 if ($dateTimestamp >= $startTimestamp && $dateTimestamp <= $endTimestamp) {
-                    return $flag['url'];
+                    $flagUrl = $flag['url'];
                 }
             }
         }
         
         // Aktuelle Flagge zurückgeben, wenn keine historische Flagge zutrifft
-        return $baseUrl . $currentFlag;
+        $flagUrl = $baseUrl . $currentFlag;
+        
+        return Html::img($flagUrl, ['alt' => self::getNationname($iocCode), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
     }
     
     /**
@@ -151,7 +153,7 @@ class Helper
         
     }
     
-        /**
+     /**
      * Gibt den Nationskürzel eines Vereins zurück.
      * @param int|string $clubId Die ID des Vereins.
      * @return string Der Nationskürzel des Vereinswappens.
@@ -698,7 +700,7 @@ class Helper
         }
         
         // Generiere den HTML-Code für die Flagge
-        $html = Html::img($flagUrl, $imgOptions);
+        $html = Helper::getFlagUrl($countryCode);
         
         // Landesname entsprechend der aktuellen Sprache, wenn $name = true
         if ($name) {
@@ -821,5 +823,24 @@ class Helper
         }
         return $result;
     }
+    
+    /**
+     * Gibt die Position eines Spielers zurück.
+     * @param int|string $positionId Die ID der Position.
+     * @return string Der Position des Spielers.
+     */
+    public static function getPosition($positionId)
+    {
+        // Nationen mit gültigem ISO3166-Code abrufen
+        $position = (new \yii\db\Query())
+        ->select(['id', 'positionKurz'])
+        ->from('position')
+        ->where(['id' => $positionId])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        return $position[0]['positionKurz'];
+        
+    }
+    
 }
 ?>
