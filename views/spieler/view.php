@@ -106,18 +106,14 @@ $fields = [
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <h3>Vereinskarriere 
-                            <?php if ($isEditing) : ?>
-                                <button class="btn btn-secondary btn-sm" id="add-career-entry">+</button>
-                            <?php endif; ?>
-                        </h3>
+                        <h3>Vereinskarriere</h3>
                     </div>
                     <div class="card-body">
                         <?php if ($isEditing): ?>
                             <?php $form = ActiveForm::begin([
                                 'id' => 'career-form',
                                 'method' => 'post', // WICHTIG: Muss POST sein
-                                'action' => ['spieler/view', 'id' => $spieler->id], // Ziel-Action
+                                'action' => ['spieler/' . $spieler->id], // Ziel-Action
                             ]); ?>
 
                             <table class="table" id="career-table">
@@ -130,6 +126,14 @@ $fields = [
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    <!-- Leere Zeile für Neuanlage -->
+                                    <?php $index = count($vereinsKarriere); ?>
+                                    <?= SpielerHelper::renderEditableRowMulti($form, new \app\models\SpielerVereinSaison(), ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
+                                        'index' => $index,
+                                        'positionen' => $positionen,
+                                        'vereine' => $vereine,
+                                    ]); ?>
+                                    
     	                            <?php foreach ($vereinsKarriere as $index => $karriere): ?>
         									<?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
                                             <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [

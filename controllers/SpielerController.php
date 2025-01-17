@@ -18,7 +18,6 @@ class SpielerController extends Controller
     public function actionView($id = 0)
     {
         $isEditing = !Yii::$app->user->isGuest; // Bearbeitungsmodus nur für eingeloggte Benutzer
-        Yii::debug('Form submitted', 'debug');
         
         // Spieler-Daten laden oder neues Modell erstellen
         $spieler = $id ? Spieler::findOne($id) : new Spieler();
@@ -66,23 +65,23 @@ class SpielerController extends Controller
         // Bearbeitungsmodus: Daten speichern
         if ($isEditing && Yii::$app->request->isPost) {
             $request = Yii::$app->request;
-            Yii::info($request->post(), 'Spielerdaten');
-            
-            // Spieler-Daten laden und speichern
-            if ($spieler->load($request->post()) && $spieler->save()) {
-                Yii::debug($spieler->attributes, 'debug'); // Logge alle Attribute vor dem Speichern
-                
-                Yii::$app->session->setFlash('success', 'Die Spielerdaten wurden erfolgreich gespeichert.');
-                return $this->redirect(['spieler/' . $spieler->id]);
-            } else if ($spieler->hasErrors()) {
-                Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spielerdaten.'.var_dump($request->post()));
-            }
-         
+ 
             // VereinsKarriere-Daten speichern
             $karriereData = $request->post('SpielerVereinSaison', []);
             $allSaved = true;
             
             foreach ($karriereData as $index => $data) {
+                // Prüfen, ob Eintrag gelöscht werden soll
+                if (!empty($data['delete']) && $data['delete'] == '1') {
+                    if (!empty($data['id'])) {
+                        $toDelete = SpielerVereinSaison::findOne($data['id']);
+                        if ($toDelete && !$toDelete->delete()) {
+                            $allSaved = false;
+                            Yii::error("Fehler beim Löschen von VereinsKarriere (ID: {$data['id']})");
+                        }
+                    }
+                    continue; // Überspringen, da gelöscht
+                }
                 $karriere = isset($data['id']) ? SpielerVereinSaison::findOne($data['id']) : new SpielerVereinSaison();
                 $karriere->spielerID = $spieler->id; // Spieler-ID setzen
                
