@@ -88,7 +88,7 @@ class SpielerHelper
         $value = $spieler->$field ?? 'Unbekannt';
         switch ($field) {
             case 'geburtstag':
-                $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long');
+                $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long') . ", " . Html::encode($spieler->geburtsort) . " " . Helper::getFlagUrl($spieler->geburtsland);
                 break;
                 
             case 'nati1':
@@ -238,8 +238,8 @@ class SpielerHelper
                 $value = '';
                 switch ($field) {
                     case 'zeitraum':
-                        $von = isset($daten['von']) ? substr($daten['von'], 0, 4) . '/' . substr($daten['von'], 4, 2) : 'N/A';
-                        $bis = isset($daten['bis']) ? substr($daten['bis'], 0, 4) . '/' . substr($daten['bis'], 4, 2) : 'N/A';
+                        $von = isset($daten['von']) ? substr($daten['von'], 0, 4) . '/' . substr($daten['von'], 4, 2) : '';
+                        $bis = isset($daten['bis']) ? substr($daten['bis'], 0, 4) . '/' . substr($daten['bis'], 4, 2) : '';
                         $value = "$von - $bis";
                         break;
                         
