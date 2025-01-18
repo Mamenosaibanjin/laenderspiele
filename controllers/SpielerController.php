@@ -36,6 +36,10 @@ class SpielerController extends Controller
         $vereinsKarriere = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 0])->orderBy(['von' => SORT_DESC])->all();
         $jugendvereine = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 1])->orderBy(['von' => SORT_DESC])->all();
         
+        $laenderspiele = SpielerLandWettbewerb::find()->where(['spielerID' => $id])->orderBy(['jahr' => SORT_DESC])->all();
+        
+        
+        
         Yii::debug(Yii::$app->request->post(), 'Post-Daten');
         
         // Bearbeitungsmodus: Daten speichern
@@ -93,6 +97,7 @@ class SpielerController extends Controller
             'spieler' => $spieler,
             'vereinsKarriere' => $vereinsKarriere,
             'jugendvereine' => $jugendvereine,
+            'laenderspiele' => $laenderspiele,
             'vereine' => $vereine,
             'nationen' => $nationen,
             'positionen' => $positionen,
