@@ -138,7 +138,28 @@ class ClubHelper
             );
     }
     
-    /**
+        /**
+     * Rendert eine Tabellenzeile mit einem Email-Link.
+     *
+     * @param string|null $email Die URL der Email.
+     * @return string Der gerenderte HTML-Code für die Tabellenzeile oder ein leerer String.
+     */
+    public static function renderEmailTableRow($email, $labelIcon) {
+        if (!$email) {
+            return '';
+        }
+        
+        // Überprüfen, ob die URL mit "http" beginnt, andernfalls "http://" hinzufügen
+        $url = strpos($email, 'http') === 0 ? $email : 'http://' . $email;
+        
+        // HTML für die Tabellenzeile erstellen
+        return Html::tag('tr',
+            Html::tag('th', Html::tag('i', '', ['class' => $labelIcon])) .
+            Html::tag('td', Html::mailto($email, $email))
+            );
+    }
+    
+/**
      * Rendert eine Tabellenzeile mit dem Kurznamen des Vereins.
      *
      * @param string|null $name Der Kurzame des Vereins.
@@ -445,6 +466,8 @@ class ClubHelper
                  return ClubHelper::renderPhonenumberRow($value->telefon, $labelIcon);
              case 'homepage':
                  return ClubHelper::renderHomepageTableRow($value->homepage, $labelIcon);
+             case 'email':
+                 return ClubHelper::renderEmailTableRow($value->email, $labelIcon);
              default:
                  // Standardfall für einfache Felder
                  return '';

@@ -38,6 +38,7 @@ $fields = [
     ['attribute' => 'address', 'icon' => 'fas fa-envelope', 'options' => ['maxlength' => true]],
     ['attribute' => 'telefon', 'icon' => 'fas fa-phone', 'options' => ['maxlength' => true]],
     ['attribute' => 'homepage', 'icon' => 'fas fa-laptop-code', 'options' => ['maxlength' => true]],
+    ['attribute' => 'email', 'icon' => 'fas fa-at', 'options' => ['maxlength' => true]],
 ];
 ?>
 
