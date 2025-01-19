@@ -50,6 +50,7 @@ class SpielerController extends Controller
             // Spieler-Daten speichern
             if ($spieler->load($postData) && $spieler->save()) {
                 Yii::$app->session->setFlash('success', 'Spieler-Daten erfolgreich gespeichert.');
+                $allSaved = true; // Nach Speichern neu laden
             } else {
                 $allSaved = false;
                 Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spieler-Daten: ' . json_encode($spieler->errors));
@@ -87,9 +88,22 @@ class SpielerController extends Controller
             if ($allSaved) {
                 Yii::$app->session->setFlash('success', 'Alle Daten erfolgreich gespeichert.');
                 return $this->redirect(['spieler/view', 'id' => $spieler->id]);
-            } else {
-                Yii::$app->session->setFlash('error', 'Es gab Fehler beim Speichern der Daten.');
             }
+        }
+        
+        if ($spieler->id == 0) {
+            // Nur allgemeine Spielerdaten bearbeiten
+            return $this->render('view', [
+                'spieler' => $spieler,
+                'vereinsKarriere' => [],
+                'jugendvereine' => [],
+                'laenderspiele' => [],
+                'vereine' => $vereine,
+                'nationen' => $nationen,
+                'positionen' => $positionen,
+                'wettbewerbe' => $wettbewerbe,
+                'isEditing' => $isEditing,
+            ]);
         }
         
         // View rendern

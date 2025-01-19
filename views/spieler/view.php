@@ -53,7 +53,7 @@ $fields = [
     <?php $form = ActiveForm::begin([
         'id' => 'spieler-form',
         'method' => 'post', // Wichtig: POST-Methode für Formulare
-        'action' => ['spieler/' . $spieler->id], // Ziel-Action
+        'action' => ['spieler/' . ($spieler->id ?: 'new')],
     ]); ?>
     
     <!-- Widget 1: Allgemeine Spielerdaten -->
@@ -91,36 +91,36 @@ $fields = [
         </div>
     </div>
     
-    <!-- Widget 2: Vereinskarriere -->
-    <?php if ((!empty($vereinsKarriere)) && ($spieler->id > 0 || 1 == 1)): ?>
-        <div class="row mb-3">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Vereinskarriere</h3>
-                    </div>
-                    <div class="card-body">
-                        <?php if ($isEditing): ?>
-                            <table class="table" id="career-table">
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Zeitraum</th>
-                                        <th>Verein</th>
-                                        <th>Position</th>
-                                        <th>Aktionen</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Leere Zeile für Neuanlage -->
-                                    <?php $index = count($vereinsKarriere); ?>
-                                    <?= SpielerHelper::renderEditableRowMulti($form, new \app\models\SpielerVereinSaison(), ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
-                                        'index' => $index,
-                                        'positionen' => $positionen,
-                                        'vereine' => $vereine,
-                                    ]); ?>
-                                    
+<!-- Widget 2: Vereinskarriere -->
+<?php if ($spieler->id > 0): ?>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Vereinskarriere</h3>
+                </div>
+                <div class="card-body">
+                    <?php if ($isEditing): ?>
+                        <table class="table" id="career-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">Zeitraum</th>
+                                    <th>Verein</th>
+                                    <th>Position</th>
+                                    <th>Aktionen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Leere Zeile für Neuanlage -->
+                                <?= SpielerHelper::renderEditableRowMulti($form, new \app\models\SpielerVereinSaison(), ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
+                                    'index' => 'new',
+                                    'positionen' => $positionen,
+                                    'vereine' => $vereine,
+                                ]); ?>
+                                
+                                <!-- Bestehende Einträge -->
+                                <?php if (!empty($vereinsKarriere) || !empty($jugendvereine)): ?>
                                     <?php $gesamteKarriere = array_merge($vereinsKarriere, $jugendvereine); ?>
-                                    
                                     <?php foreach ($gesamteKarriere as $index => $karriere): ?>
                                         <?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
                                         <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
@@ -129,32 +129,33 @@ $fields = [
                                             'vereine' => $vereine,
                                         ]); ?>
                                     <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                            
-                            <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
-                                neuer Verein
-                            </button>
-                        <?php else: ?>
-                            <table class="table" id="career-table">
-                                <thead>
-                                    <tr>
-                                        <th>Zeitraum</th>
-                                        <th>Verein</th>
-                                        <th>Land</th>
-                                        <th>Position</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?= SpielerHelper::renderViewRowMulti($vereinsKarriere, ['zeitraum', 'verein', 'land', 'position'], ['index' => 0]); ?>
-                                </tbody>
-                            </table>
-                        <?php endif; ?>
-                    </div>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                        
+                        <button type="button" class="btn btn-primary mt-2" id="btn-neuer-verein" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/club/new', '_blank')">
+                            neuer Verein
+                        </button>
+                    <?php else: ?>
+                        <table class="table" id="career-table">
+                            <thead>
+                                <tr>
+                                    <th>Zeitraum</th>
+                                    <th>Verein</th>
+                                    <th>Land</th>
+                                    <th>Position</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?= SpielerHelper::renderViewRowMulti($vereinsKarriere, ['zeitraum', 'verein', 'land', 'position'], ['index' => 0]); ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
     
     <div class="form-group">
         <?= ButtonHelper::saveButton() ?>
@@ -164,7 +165,7 @@ $fields = [
 
 	<?php if (!$isEditing): ?>               
         <!-- Widget 3: Jugendvereine -->
-        <?php if ((!empty($jugendvereine)) && ($spieler->id > 0 || 1 == 1)): ?>
+        <?php if ((!empty($jugendvereine)) && ($spieler->id > 0)): ?>
             <div class="row mb-3">
                 <div class="col-md-12">
                     <div class="card">
@@ -193,7 +194,7 @@ $fields = [
     <?php endif;?>
 
      <!-- Widget 4: Nationalmannschaftskarriere -->
-    <?php if ((!empty($laenderspiele)) && ($spieler->id > 0 || 1 == 1)): ?>
+    <?php if ((!empty($laenderspiele)) && ($spieler->id > 0)): ?>
         <div class="row mb-3">
             <div class="col-md-12">
                 <div class="card">

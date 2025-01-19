@@ -88,13 +88,36 @@ class SpielerHelper
         $value = $spieler->$field ?? 'Unbekannt';
         switch ($field) {
             case 'geburtstag':
-                $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long') . ", " . Html::encode($spieler->geburtsort) . " " . Helper::getFlagUrl($spieler->geburtsland);
+                $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long') . ", " . Html::encode($spieler->geburtsort) . " " . Helper::getFlagUrl($spieler->geburtsland, $spieler->geburtstag);
                 break;
                 
             case 'nati1':
-                $value = !empty($spieler->nati1)
-                ? Helper::getFlagUrl($spieler->nati1)
-                : 'Unbekannt';
+                $value = '';
+                if (!empty($spieler->nati1)) {
+                    $value .= Helper::getFlagUrl($spieler->nati1) . " ";
+                }
+                if (!empty($spieler->nati2)) {
+                    $value .= Helper::getFlagUrl($spieler->nati2) . " ";
+                }
+                if (!empty($spieler->nati3)) {
+                    $value .= Helper::getFlagUrl($spieler->nati3);
+                }
+                $value = trim($value) ?: 'Unbekannt';
+                break;
+                
+            case 'homepage':
+                $url = Html::encode($spieler->homepage);
+                $value = Html::a($url, "http://$url", ['target' => '_blank']);
+                break;
+                
+            case 'facebook':
+                $username = Html::encode($spieler->facebook);
+                $value = Html::a("$username", "http://www.facebook.com/$username", ['target' => '_blank']);
+                break;
+                
+            case 'instagram':
+                $username = Html::encode($spieler->instagram);
+                $value = Html::a("$username", "http://www.instagram.com/$username", ['target' => '_blank']);
                 break;
                 
             default:

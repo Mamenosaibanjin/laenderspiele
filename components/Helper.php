@@ -65,13 +65,20 @@ class Helper
             'rs' => [
                 ['start' => '27.04.1992', 'end' => '03.02.2003', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
             ],
+            'ly' => [
+                ['start' => '19.11.1977', 'end' => '23.08.2011', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg/1280px-Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg.png'],
+            ],
         ];
-        if ($dateTimestamp !== null && isset($historicalFlags[$iocCode])) {
-            foreach ($historicalFlags[$iocCode] as $flag) {
+
+        if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
+            foreach ($historicalFlags[$isoCode] as $flag) {
                 $startTimestamp = strtotime(str_replace('.', '-', $flag['start']));
                 $endTimestamp = strtotime(str_replace('.', '-', $flag['end']));
                 if ($dateTimestamp >= $startTimestamp && $dateTimestamp <= $endTimestamp) {
                     $flagUrl = $flag['url'];
+                    
+                    return Html::img($flagUrl, ['alt' => self::getNationname($iocCode), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
+                    
                 }
             }
         }
