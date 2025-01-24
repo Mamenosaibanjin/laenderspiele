@@ -411,14 +411,36 @@ class ClubHelper
                  break;
                  
              case 'type':
+                 $vereine = $werteArray;
                  $inputs =
                  $form->field($club, 'typID')->dropDownList(
                  Helper::getTypeOptions(),
                  [
                  'prompt' => Yii::t('app', 'Choose a type'),
-                 'class' => 'form-control'
-                     ]
+                 'class' => 'form-control',
+                 'onchange' => 'handleTypeChange(this)', // JS-Funktion, die das Feld für Nachfolger-IDs zeigt/versteckt
+                   ]
                  )->label(false);
+                 
+                 // Autocomplete für NachfolgerID, falls typID = 6
+                 $inputs .=
+                 $form->field($club, 'nachfolgerID')->hiddenInput([
+                     'id' => 'hidden-nachfolger-id',
+                     'value' => $club->nachfolgerID,
+                 ])->label(false) .
+                 Html::label(Yii::t('app', 'Successor Club'), 'autocomplete-successor', ['class' => 'form-label']) .
+                 Html::textInput('nachfolgerName', $club->getNachfolgerName(), [
+                     'id' => 'autocomplete-nachfolger',
+                     'class' => 'form-control',
+                     'disabled' => $club->typID == 6 ? false : true, // Initiales Attribut setzen
+                     'data-nachfolger' => json_encode(array_map(function ($verein) {
+                     return [
+                         'label' => $verein['name'] . ' (' . $verein['land'] . ')',
+                         'value' => $verein['id'],
+                         'klarname' => $verein['name'],
+                     ];
+                     }, $vereine)),
+                     ]);
                  break;
                  
              case 'founded':

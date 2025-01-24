@@ -50,5 +50,6 @@ return [
     'Two-Footed' => 'Beidfüßig',
     'Delete' => 'Löschen' ,
     'Youth' => 'Jugend',
+    'Successor Club' => 'Nachfolge-Verein',
 ];
 ?>

@@ -77,7 +77,66 @@ function updateStadiumList() {
 }
 
 // Beispielaufruf nach dem Anlegen eines neuen Stadions
-document.getElementById('add-stadium-button').addEventListener('click', () => {
+document.getElementById('btn-neues-stadion').addEventListener('click', () => {
     updateStadiumList();
 });
 
+
+// Autocomplete für Stadionfeld
+$(document).ready(function () {
+    const availableStadien = JSON.parse($('#autocomplete-stadion').attr('data-stadien'));
+
+    $('#autocomplete-stadion').autocomplete({
+        source: availableStadien,
+        select: function (event, ui) {
+            $('#autocomplete-stadion').val(ui.item.klarname);
+            $('#hidden-stadion-id').val(ui.item.value);
+            return false;
+        }
+    });
+
+    $('#autocomplete-stadion').blur(function () {
+        if ($('#hidden-stadion-id').val() === '') {
+            $('#autocomplete-stadion').val('');
+        }
+    });
+});
+
+// Autocomplete für Nachfolger
+$(document).ready(function () {
+	console.log("Data");
+    const $nachfolgerInput = $('#autocomplete-nachfolger');
+    const availableNachfolger = $nachfolgerInput.attr('data-nachfolger');
+    console.log("Data-Nachfolger:", availableNachfolger);
+
+    if (!availableNachfolger) {
+        console.error("Das data-nachfolger-Attribut ist leer oder fehlt.");
+        return;
+    }
+
+    $nachfolgerInput.autocomplete({
+        source: JSON.parse(availableNachfolger),
+        select: function (event, ui) {
+            $nachfolgerInput.val(ui.item.klarname);
+            $('#hidden-nachfolger-id').val(ui.item.value);
+            return false;
+        }
+    });
+});
+
+
+function handleTypeChange(selectElement) {
+    const typeId = parseInt(selectElement.value, 10); // Den aktuellen Typ abrufen
+    const successorInput = document.getElementById('autocomplete-nachfolger');
+
+    if (typeId === 6) {
+        // Nachfolger-Input aktivieren
+        successorInput.disabled = false;
+		successorInput.focus(); // Setzt den Fokus auf das Feld
+    } else {
+        // Nachfolger-Input deaktivieren und leeren
+        successorInput.disabled = true;
+        successorInput.value = ''; // Optional: Inhalt löschen
+        document.getElementById('hidden-nachfolger-id').value = ''; // Verstecktes Feld auch zurücksetzen
+    }
+}

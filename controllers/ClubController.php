@@ -41,6 +41,20 @@ class ClubController extends Controller
                 // Farben speichern
                 $farbenArray = $request->post('farben', []); // Array von Farbwerten
                 $club->farben = implode('-', $farbenArray); // Speicherung als String
+                // Nachfolger-ID speichern, wenn typID = 6
+                if ($club->typID == 6) {
+                    $clubData = $request->post('Club', []); // Hole die Daten aus dem Club-Array
+                    
+                    if (isset($clubData['nachfolgerID'])) {
+                        $nachfolgerID = $clubData['nachfolgerID'];
+                        echo "Nachfolger: " . $nachfolgerID; // Debug-Ausgabe
+                        $club->nachfolgerID = $nachfolgerID ?: null;
+                    } else {
+                        $club->nachfolgerID = null; // Keine Nachfolger-ID gefunden
+                    }
+                } else {
+                    $club->nachfolgerID = null; // Keine Nachfolger-ID bei anderen Typen
+                }
                 
                 if ($club->save()) {
                     Yii::debug($club->attributes, __METHOD__);
@@ -52,8 +66,6 @@ class ClubController extends Controller
             }
         }
         
-        $stadien = Stadion::getStadiums();
-        
         // View rendern
         return $this->render('view', [
             'club' => $club,
@@ -64,7 +76,8 @@ class ClubController extends Controller
             'squad' => $squad,
             'nationalSquad' => $nationalSquad,
             'isEditing' => $isEditing,
-            'stadien' => $stadien,
+            'stadien' => Stadion::getStadiums(),
+            'vereine' => Club::getClubs(),
         ]);
     }
 
@@ -100,6 +113,7 @@ class ClubController extends Controller
             'nationalSquad' => [],
             'isEditing' => true,
             'stadien' => Stadion::getStadiums(),
+            'vereine' => Club::getClubs(),
         ]);
     }
 

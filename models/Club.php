@@ -218,5 +218,21 @@ class Club extends ActiveRecord
         }
     }
     
-}
+    public function getNachfolgername()
+    {
+        if ($this->nachfolgerID) {
+            $nachfolger = Club::findOne($this->nachfolgerID);
+            return $nachfolger ? $nachfolger->name : null;
+        }
+        return null;
+    }
+
+    public static function getClubs()
+    {
+        $query = Club::find()
+        ->orderBy(['name' => SORT_ASC]) // Sortieren
+        ->all();
+        
+        return $query;
+    }}
 ?>
