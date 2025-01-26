@@ -1,6 +1,6 @@
 <?php
 return [
-    'Create New Club' => 'Neuen Club erstellen',
+    'Create New Club (#{id})' => 'Neuen Club erstellen (#{id})',
     'Edit Club: {name}' => 'Club bearbeiten: {name}',
     'Club data' => 'Vereinsdaten',
     'Add color' => 'Farbe hinzufügen',

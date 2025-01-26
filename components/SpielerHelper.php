@@ -280,7 +280,7 @@ class SpielerHelper
                         $vereinId = is_object($verein) ? $verein->id : $verein; // ID aus dem Objekt extrahieren
                         $nation = $vereinId ? Helper::getClubNation($vereinId) : null;
                         $value = $nation
-                        ? Helper::getFlagUrl($nation)
+                        ? Helper::getFlagUrl($nation, $daten['von'])
                         : Yii::t('app', 'Unknown Country');
                         break;
                         

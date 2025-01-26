@@ -21,8 +21,9 @@ use app\components\SquadHelper;
 $this->registerJsFile('@web/js/club.js',  ['depends' => [\yii\web\JqueryAsset::class]]);
 
 $this->title = $isEditing
-? ($club->isNewRecord ? Yii::t('app', 'Create New Club') : Yii::t('app', 'Edit Club: {name}', ['name' => $club->name]))
-: $club->namevoll;
+? ($club->isNewRecord
+    ? Yii::t('app', 'Create New Club (#{id})', ['id' => Club::find()->max('id') + 1])
+    : Yii::t('app', 'Edit Club: {name}', ['name' => $club->name])): $club->namevoll;
 $currentYear = date('Y');
 ?>
 
@@ -49,7 +50,13 @@ $fields = [
         <!-- Widget 1: Vereinsdaten -->
          <div class="col-md-6">
             <div class="card">
-                <div class="card-header"><h3><?= Yii::t('app', 'Club data') ?></h3></div>
+                <div class="card-header">
+                	<h3>
+                	 <?= $club->isNewRecord
+                        ? Yii::t('app', 'Create New Club (#{id})', ['id' => Club::find()->max('id') + 1])
+                        : Yii::t('app', 'Edit Club: {name}', ['name' => $club->namevoll]); ?>
+					</h3>
+				</div>
                 <div class="card-body">
                     <?php if ($isEditing): ?>
                         <?php $form = ActiveForm::begin(); ?>

@@ -68,6 +68,10 @@ class Helper
             'ly' => [
                 ['start' => '19.11.1977', 'end' => '23.08.2011', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg/1280px-Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg.png'],
             ],
+            'mm' => [
+                ['start' => '03.01.1974', 'end' => '20.10.2010', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Myanmar_%281974%E2%80%932010%29.svg/1920px-Flag_of_Myanmar_%281974%E2%80%932010%29.svg.png'],
+                ['start' => '04.01.1948', 'end' => '02.01.1974', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Flag_of_Burma_%281948%E2%80%931974%29.svg/1920px-Flag_of_Burma_%281948%E2%80%931974%29.svg.png'],
+            ],
         ];
 
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
