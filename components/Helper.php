@@ -72,6 +72,9 @@ class Helper
                 ['start' => '03.01.1974', 'end' => '20.10.2010', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Flag_of_Myanmar_%281974%E2%80%932010%29.svg/1920px-Flag_of_Myanmar_%281974%E2%80%932010%29.svg.png'],
                 ['start' => '04.01.1948', 'end' => '02.01.1974', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Flag_of_Burma_%281948%E2%80%931974%29.svg/1920px-Flag_of_Burma_%281948%E2%80%931974%29.svg.png'],
             ],
+            'za' => [
+                ['start' => '31.05.1928', 'end' => '26.04.1994', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/d/dc/Flag_of_South_Africa_%281928-1982%29.svg'],
+            ],
         ];
 
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {

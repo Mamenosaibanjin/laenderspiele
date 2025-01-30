@@ -120,7 +120,7 @@ $fields = [
                                 
                                 <!-- Bestehende Einträge -->
                                 <?php if (!empty($vereinsKarriere) || !empty($jugendvereine)): ?>
-                                    <?php $gesamteKarriere = array_merge($vereinsKarriere, $jugendvereine); ?>
+                                    <?php $gesamteKarriere = array_slice(array_merge($vereinsKarriere, $jugendvereine), 0, 20); ?>
                                     <?php foreach ($gesamteKarriere as $index => $karriere): ?>
                                         <?= Html::hiddenInput("SpielerVereinSaison[$index][id]", $karriere->id); ?>
                                         <?= SpielerHelper::renderEditableRowMulti($form, $karriere, ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
