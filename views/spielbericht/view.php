@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="info-row">
 	                    <i class="material-icons">stadium</i>
                         <span>
-                            <img src="<?= Helper::getFlagUrl($spiel->stadium->land) ?>" alt="Flagge" class="flag" style="margin-right: 5px; height: 15px;">
+                            <?= Helper::getFlagUrl($spiel->stadium->land) ?>
                             <?= Html::encode($spiel->stadium->name) ?> (<?= Html::encode($spiel->stadium->stadt) ?>)
                         </span>
                     </div>
@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     <i class="material-icons">sports</i>
                    	<? //Html::img(Yii::getAlias('@web/assets/img/spielbericht/whistle.png'), ['alt' = 'Datum', 'style' = 'height: 25px;'])  Alternative als PNG ?>
                         <span>
-                            <img src="<?= Helper::getFlagUrl($spiel->referee1->nati1) ?>" alt="Flagge" class="flag" style="margin-right: 5px; height: 15px;">
+                            <?= Helper::getFlagUrl($spiel->referee1->nati1) ?>
                             <?= Html::encode($spiel->referee1->vorname . ' ' . $spiel->referee1->name) ?>
                         </span>
                     </div>
@@ -464,7 +464,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="info-row">
 	                    <i class="material-icons material-icons_logo">sports_score</i>
                             <span>
-                                <img src="<?= Helper::getFlagUrl($spiel->referee2->nati1) ?>" alt="Flagge" class="flag" style="margin-right: 5px; height: 15px;">
+                                 <?= Helper::getFlagUrl($spiel->referee2->nati1) ?>
                                 <?= Html::encode($spiel->referee2->vorname . ' ' . $spiel->referee2->name) ?>
                             </span>
                         </div>
@@ -473,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="info-row">
 	                    <i class="material-icons">sports_score</i>
                             <span>
-                                <img src="<?= Helper::getFlagUrl($spiel->referee3->nati1) ?>" alt="Flagge" class="flag" style="margin-right: 5px; height: 15px;">
+                                 <?= Helper::getFlagUrl($spiel->referee3->nati1) ?>
                                 <?= Html::encode($spiel->referee3->vorname . ' ' . $spiel->referee3->name) ?>
                             </span>
                         </div>
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="info-row">
 	                    <i class="material-icons">scoreboard</i>
                             <span>
-                                <img src="<?= Helper::getFlagUrl($spiel->referee4->nati1) ?>" alt="Flagge" class="flag" style="margin-right: 5px; height: 15px;">
+                                 <?= Helper::getFlagUrl($spiel->referee4->nati1) ?>
                                 <?= Html::encode($spiel->referee4->vorname . ' ' . $spiel->referee4->name) ?>
                             </span>
                         </div>
