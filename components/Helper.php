@@ -60,10 +60,17 @@ class Helper
                 ['start' => '01.01.1991', 'end' => '30.06.2004', 'url' => 'https://example.com/flags/irq_1991_2004.png'],
             ],
             'ba' => [
+                ['start' => '31.01.1946', 'end' => '28.02.1992', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/6/61/Flag_of_Yugoslavia_%281946-1992%29.svg'],
                 ['start' => '01.03.1992', 'end' => '04.02.1998', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg/1920px-Flag_of_Bosnia_and_Herzegovina_%281992%E2%80%931998%29.svg.png'],
             ],
             'rs' => [
+                ['start' => '31.01.1946', 'end' => '26.04.1992', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/6/61/Flag_of_Yugoslavia_%281946-1992%29.svg'],
                 ['start' => '27.04.1992', 'end' => '03.02.2003', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
+                ['start' => '04.02.2003', 'end' => '03.06.2006', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
+            ],
+            'me' => [
+                ['start' => '27.04.1992', 'end' => '03.02.2003', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
+                ['start' => '04.02.2003', 'end' => '03.06.2006', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg/1920px-Flag_of_Serbia_and_Montenegro_%281992%E2%80%932006%29.svg.png'],
             ],
             'ly' => [
                 ['start' => '19.11.1977', 'end' => '23.08.2011', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg/1280px-Flag_of_Libya_%281977%E2%80%932011%2C_2-3%29.svg.png'],
