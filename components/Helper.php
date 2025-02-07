@@ -82,6 +82,9 @@ class Helper
             'za' => [
                 ['start' => '31.05.1928', 'end' => '26.04.1994', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/d/dc/Flag_of_South_Africa_%281928-1982%29.svg'],
             ],
+            'am' => [
+                ['start' => '17.12.1952', 'end' => '23.08.1991', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/1920px-Flag_of_the_Soviet_Union.svg.png'],
+            ],
         ];
 
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
