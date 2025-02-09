@@ -30,7 +30,7 @@ class Helper
         $isoCode = strtolower($nation->ISO3166);
         $baseUrl = "https://flagpedia.net/data/flags/w580/";
         $currentFlag = $isoCode . ".png";
-        
+
         // Datumskonvertierung
         $dateTimestamp = null;
         if ($date !== null) {
@@ -48,6 +48,7 @@ class Helper
             'BSK' => "https://upload.wikimedia.org/wikipedia/commons/2/2d/Flag_of_the_Basque_Country.svg",
             'GAL' => "https://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Galicia.svg",
             'CAT' => "https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg",
+            'IEA' => "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg",
         ];
         
         if (array_key_exists($iocCode, $specialFlags)) {
@@ -85,6 +86,7 @@ class Helper
             'am' => [
                 ['start' => '17.12.1952', 'end' => '23.08.1991', 'url' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Flag_of_the_Soviet_Union.svg/1920px-Flag_of_the_Soviet_Union.svg.png'],
             ],
+
         ];
 
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
@@ -100,9 +102,14 @@ class Helper
             }
         }
         
+
+        if ($nation->ISO3166 == 'AF') {
+            $flagUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg";
+        } else {
+        
         // Aktuelle Flagge zurückgeben, wenn keine historische Flagge zutrifft
         $flagUrl = $baseUrl . $currentFlag;
-        
+        }
         return Html::img($flagUrl, ['alt' => self::getNationname($iocCode), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
     }
     
