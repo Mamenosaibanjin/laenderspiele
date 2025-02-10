@@ -4,7 +4,7 @@ namespace tests\unit\models;
 
 use app\models\User;
 
-class UserTest extends \Codeception\Test\Unit
+class UserTest_ extends \Codeception\Test\Unit
 {
     public function testFindUserById()
     {
