@@ -27,6 +27,7 @@ class Helper
             return null; // Kein ISO-Code gefunden, keine Flagge verfügbar
         }
         
+//        if ($nation->ISO3166 == NULL) { die; }
         $isoCode = strtolower($nation->ISO3166);
         $baseUrl = "https://flagpedia.net/data/flags/w580/";
         $currentFlag = $isoCode . ".png";

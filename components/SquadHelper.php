@@ -14,18 +14,30 @@ class SquadHelper
      */
     public static function getFilteredAndSortedPlayers(array $squad, int $positionID): array
     {
-        // Spieler filtern
-        $filteredPlayers = array_filter($squad, function ($player) use ($positionID) {
-            return ($player->vereinSaison[0]->positionID ?? null) === $positionID;
-        });
+        // Spieler filtern & nur relevante Position beibehalten
+        $filteredSquad = array_filter($squad, function ($spieler) use ($positionID) {
+            // Prüfen, ob landWettbewerb existiert und ein Array ist
+            if (!isset($spieler->_related['landWettbewerb']) || !is_array($spieler->_related['landWettbewerb'])) {
+                return false;
+            }
             
+            // Überprüfen, ob mindestens eine Position übereinstimmt
+            foreach ($spieler->_related['landWettbewerb'] as $wettbewerb) {
+                if (isset($wettbewerb->positionID) && $wettbewerb->positionID === $positionID) {
+                    return true;
+                }
+            }
+            
+            return false;
+        });
+        
+            echo "<pre>";var_dump($filteredSquad);echo "</pre>";
             // Spieler sortieren
-            usort($filteredPlayers, function ($a, $b) {
-                return strcmp($a->name, $b->name);
-            });
-                
-                return $filteredPlayers;
+            usort($filteredSquad, fn($a, $b) => strcmp($a->name, $b->name));
+            
+            return $filteredSquad;
     }
+    
     
     /** Funktion zur Anzeige eines Kaders
      * 
@@ -44,22 +56,33 @@ class SquadHelper
         echo '<div class="row five-column-layout">';
         
         foreach ($positionMapping as $positionID => $positionName) {
-            // Spieler filtern und sortieren
-            $filteredPlayers = SquadHelper::getFilteredAndSortedPlayers($players, $positionID);
-            
-            if (empty($filteredPlayers)) {
-                continue;
-            }
-            
             echo '<div class="col-5">
-                    <div class="panel">
-                        <div class="panel-heading">
-                            <h4 class="title">' . Html::encode($positionName) . '</h4>
-                        </div>
-                        <div class="panel-body">
-                            <ul class="list-unstyled">';
+            <div class="panel">
+                <div class="panel-heading">
+                    <h4 class="title">' . Html::encode($positionName) . '</h4>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-unstyled">';
             
-            foreach ($filteredPlayers as $player) {
+            foreach ($players as $player) {
+                // Prüfen, ob die Position zur aktuellen $positionID passt
+                if (!isset($player->landWettbewerb) || !is_array($player->landWettbewerb)) {
+                    continue;
+                } 
+                
+                $hasMatchingPosition = false;
+                foreach ($player->landWettbewerb as $wettbewerb) {
+                    if (isset($wettbewerb->positionID) && $wettbewerb->positionID === $positionID) {
+                        $hasMatchingPosition = true;
+                        break;
+                    }
+                }
+                
+                if (!$hasMatchingPosition) {
+                    continue;
+                }
+                
+                // Spieler anzeigen
                 echo '<li>';
                 if (!empty($player->nati1)) {
                     echo Helper::renderFlag($player->nati1) . ' ';
@@ -69,9 +92,9 @@ class SquadHelper
             }
             
             echo '        </ul>
-                        </div>
-                    </div>
-                </div>';
+                </div>
+            </div>
+        </div>';
         }
         
         echo '<div style="text-align: right;">';
