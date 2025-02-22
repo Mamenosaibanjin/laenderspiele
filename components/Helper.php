@@ -3,10 +3,12 @@
 namespace app\components;
 
 use app\models\Nation;
+use app\models\Flags;
 use app\models\Typ;
 use DateTime;
 use Yii;
 use yii\bootstrap5\Html;
+use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
 class Helper
@@ -14,51 +16,92 @@ class Helper
 
     
     /**
-     * Gibt die URL zur Flagge zurück.
-     *
+     * Gibt die URL und den Namen zur Flagge zurück.
+     * Ersetzt langfristig die bisherige Funktion getFlagUrl
+     *      
      * @param string $iocCode Der Ländercode (IOC Code).
      * @return string|null Die URL der Flagge oder null, wenn keine verfügbar ist.
      */
-    public static function getFlagUrl($iocCode, $date = null)
+    public static function getFlagInfo($key, $date = null)
     {
-        // Abfrage der Nation anhand des IOC-Codes
-        $nation = Nation::findOne(['kuerzel' => $iocCode]);
-        if (!$nation) {
-            return null; // Kein ISO-Code gefunden, keine Flagge verfügbar
+        $language = Yii::$app->language;
+        $column = match ($language) {
+            'de-DE' => 'name_de',
+            'fr-FR' => 'name_fr',
+            default => 'name_en',
+        };
+        
+        $query = (new Query())
+        ->select(['flag_url', $column])
+        ->from('flags')
+        ->where(['key' => $key]);
+        
+        if ($date !== null) {
+            $query->andWhere([
+                'or',
+                ['startdatum' => null], // Falls kein Startdatum definiert ist
+                ['<=', 'startdatum', $date]
+            ])->andWhere([
+                'or',
+                ['enddatum' => null], // Falls kein Enddatum definiert ist
+                ['>=', 'enddatum', $date]
+            ]);
         }
         
-//        if ($nation->ISO3166 == NULL) { die; }
-        $isoCode = strtolower($nation->ISO3166);
-        $baseUrl = "https://flagpedia.net/data/flags/w580/";
-        $currentFlag = $isoCode . ".png";
-
-        // Datumskonvertierung
-        $dateTimestamp = null;
-        if ($date !== null) {
-            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) { // Format: YYYY-MM-DD
-                $dateTimestamp = strtotime($date);
-            } elseif (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date)) { // Format: DD.MM.YYYY
-                $dateTimestamp = strtotime(str_replace('.', '-', $date));
-            } elseif (preg_match('/^\d{6}$/', $date)) { // Format: YYYYMM
-                $dateTimestamp = strtotime(substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-01');
-            }
+        $flag = $query->orderBy(['startdatum' => SORT_DESC])->one();
+        
+        if (!$flag) {
+            return null;
         }
-
+        
+        $flagUrl = $flag['flag_url'];
+        
+        // Falls die URL nicht mit http:// oder https:// beginnt, Prefix ergänzen
+        if (!preg_match('~^https?://~', $flagUrl)) {
+            $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
+        }
+        
+        return Html::img($flagUrl, [
+            'alt' => $flag[$column],
+            'style' => 'height: 20px; border-radius: 5px; border: 1px solid darkgrey;',
+        ]) . " " . Html::encode($flag[$column]);
+    }
+    
+    public static function getFlagUrl($iocCode, $date = null)
+    {
         // Sonderfälle für nicht verfügbare Flaggen
         $specialFlags = [
+            'ADL' => "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Flag_of_Andaluc%C3%ADa.svg/1920px-Flag_of_Andaluc%C3%ADa.svg.png",
+            'AST' => "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Flag_of_Asturias.svg/1920px-Flag_of_Asturias.svg.png",
             'BSK' => "https://upload.wikimedia.org/wikipedia/commons/2/2d/Flag_of_the_Basque_Country.svg",
             'GAL' => "https://upload.wikimedia.org/wikipedia/commons/6/64/Flag_of_Galicia.svg",
             'CAT' => "https://upload.wikimedia.org/wikipedia/commons/c/ce/Flag_of_Catalonia.svg",
             'IEA' => "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg",
         ];
         
-        if (array_key_exists($iocCode, $specialFlags)) {
-            $flagUrl = $specialFlags[$iocCode];
+        // Sonderflagge zurückgeben, falls der IOC-Code in der Liste ist
+        if (isset($specialFlags[$iocCode])) {
+            return Html::img($specialFlags[$iocCode], [
+                'alt' => self::getNationname($iocCode),
+                'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;',
+            ]);
         }
+        
+        // Abfrage der Nation anhand des IOC-Codes
+        $nation = Nation::findOne(['kuerzel' => $iocCode]);
+        
+        // Falls keine Nation gefunden wird, gibt es keine Flagge
+        if (!$nation || empty($nation->ISO3166)) {
+            return null;
+        }
+        
+        $isoCode = strtolower($nation->ISO3166);
+        $baseUrl = "https://flagpedia.net/data/flags/w580/";
+        $currentFlag = $isoCode . ".png";
         
         // Historische Flaggen-Logik
         $historicalFlags = [
-            'IRQ' => [
+            'iq' => [
                 ['start' => '01.01.1991', 'end' => '30.06.2004', 'url' => 'https://example.com/flags/irq_1991_2004.png'],
             ],
             'ba' => [
@@ -90,28 +133,37 @@ class Helper
 
         ];
 
+        // Falls ein Datum angegeben wurde, konvertieren wir es
+        $dateTimestamp = null;
+        if ($date !== null) {
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) { // YYYY-MM-DD
+                $dateTimestamp = strtotime($date);
+            } elseif (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date)) { // DD.MM.YYYY
+                $dateTimestamp = strtotime(str_replace('.', '-', $date));
+            } elseif (preg_match('/^\d{6}$/', $date)) { // YYYYMM
+                $dateTimestamp = strtotime(substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-01');
+            }
+        }
+        
+        // Falls ein Datum gegeben ist, prüfen wir, ob es eine historische Flagge gibt
         if ($dateTimestamp !== null && isset($historicalFlags[$isoCode])) {
             foreach ($historicalFlags[$isoCode] as $flag) {
                 $startTimestamp = strtotime(str_replace('.', '-', $flag['start']));
                 $endTimestamp = strtotime(str_replace('.', '-', $flag['end']));
                 if ($dateTimestamp >= $startTimestamp && $dateTimestamp <= $endTimestamp) {
-                    $flagUrl = $flag['url'];
-                    
-                    return Html::img($flagUrl, ['alt' => self::getNationname($iocCode), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
-                    
+                    return Html::img($flag['url'], [
+                        'alt' => self::getNationname($iocCode),
+                        'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;',
+                    ]);
                 }
             }
         }
         
-
-        if ($nation->ISO3166 == 'AF') {
-            $flagUrl = "https://upload.wikimedia.org/wikipedia/commons/5/5c/Flag_of_the_Taliban.svg";
-        } else {
-        
-        // Aktuelle Flagge zurückgeben, wenn keine historische Flagge zutrifft
-        $flagUrl = $baseUrl . $currentFlag;
-        }
-        return Html::img($flagUrl, ['alt' => self::getNationname($iocCode), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
+        // Standard-Flagge zurückgeben, falls keine Sonder- oder historische Flagge zutrifft
+        return Html::img($baseUrl . $currentFlag, [
+            'alt' => self::getNationname($iocCode),
+            'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;',
+        ]);
     }
     
     /**
@@ -662,6 +714,29 @@ class Helper
         $isWin = ($isHome && $match->tore1 > $match->tore2) || (!$isHome && $match->tore2 > $match->tore1);
         $isDraw = $match->tore1 === $match->tore2;
         return $isWin ? 'text-success' : ($isDraw ? 'text-secondary' : 'text-danger');
+    }
+    
+    // Ersetzt langfristig getNationenOptions
+    public static function getCurrentNationsOptions()
+    {
+        $language = Yii::$app->language;
+        $column = match ($language) {
+            'en_US' => 'name_en',
+            'fr_FR' => 'name_fr',
+            default => 'name_de', // Standard: Deutsch
+        };
+        
+        return ArrayHelper::map(
+            Flags::find()
+            ->select(['key', $column])
+            ->where(['enddatum' => null]) // Nur aktuelle Nationen
+            ->orderBy([$column => SORT_ASC])
+            ->all(),
+            'key',
+            function ($model) use ($column) {
+                return $model[$column] . " - " . $model['key'];
+            }
+            );
     }
     
     public static function getNationenOptions()

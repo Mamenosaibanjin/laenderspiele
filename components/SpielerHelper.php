@@ -20,7 +20,7 @@ class SpielerHelper
                 $form->field($spieler, 'geburtsort')->textInput([])->label(false) .
                 
                 $form->field($spieler, 'geburtsland')->dropDownList(
-                Helper::getNationenOptions(),
+                Helper::getCurrentNationsOptions(),
                 [
                 'prompt' => Yii::t('app', 'Choose a country'),
                 'class' => 'form-control'
@@ -32,21 +32,21 @@ class SpielerHelper
             case 'nati1':
                 $inputs = Html::beginTag('div', ['class' => 'dropdown-container']) .
                 $form->field($spieler, 'nati1')->dropDownList(
-                Helper::getNationenOptions(),
+                Helper::getCurrentNationsOptions(),
                 [
                 'prompt' => Yii::t('app', 'Choose a country'),
                 'class' => 'form-control'
                     ]
                 )->label(false) .
                 $form->field($spieler, 'nati2')->dropDownList(
-                Helper::getNationenOptions(),
+                Helper::getCurrentNationsOptions(),
                 [
                 'prompt' => Yii::t('app', 'Choose a country'),
                 'class' => 'form-control'
                     ]
                 )->label(false) .
                 $form->field($spieler, 'nati3')->dropDownList(
-                Helper::getNationenOptions(),
+                Helper::getCurrentNationsOptions(),
                 [
                 'prompt' => Yii::t('app', 'Choose a country'),
                 'class' => 'form-control'
@@ -88,19 +88,22 @@ class SpielerHelper
         $value = $spieler->$field ?? 'Unbekannt';
         switch ($field) {
             case 'geburtstag':
-                $value = Yii::$app->formatter->asDate($spieler->geburtstag, 'long') . ", " . Html::encode($spieler->geburtsort) . " " . Helper::getFlagUrl($spieler->geburtsland, $spieler->geburtstag);
+                $birthdate = $spieler->geburtstag ?: null; // Falls kein Geburtsdatum vorhanden, bleibt es null
+                $countryFlag = Helper::getFlagInfo($spieler->geburtsland, $birthdate ?? date('Y-m-d'));
+                
+                if ($birthdate) {
+                    $value = Yii::$app->formatter->asDate($birthdate, 'long') . ", " . Html::encode($spieler->geburtsort) . " " . $countryFlag;
+                } else {
+                    $value = Html::encode($spieler->geburtsort) . " " . $countryFlag;
+                }
                 break;
                 
             case 'nati1':
                 $value = '';
-                if (!empty($spieler->nati1)) {
-                    $value .= Helper::getFlagUrl($spieler->nati1) . " ";
-                }
-                if (!empty($spieler->nati2)) {
-                    $value .= Helper::getFlagUrl($spieler->nati2) . " ";
-                }
-                if (!empty($spieler->nati3)) {
-                    $value .= Helper::getFlagUrl($spieler->nati3);
+                foreach (['nati1', 'nati2', 'nati3'] as $field) {
+                    if (!empty($spieler->$field)) {
+                        $value .= Helper::getFlagInfo($spieler->$field) . "<br>";
+                    }
                 }
                 $value = trim($value) ?: 'Unbekannt';
                 break;
