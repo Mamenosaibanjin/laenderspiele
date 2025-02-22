@@ -39,11 +39,11 @@ class Helper
         if ($date !== null) {
             $query->andWhere([
                 'or',
-                ['startdatum' => null], // Falls kein Startdatum definiert ist
+                ['startdatum' => null],
                 ['<=', 'startdatum', $date]
             ])->andWhere([
                 'or',
-                ['enddatum' => null], // Falls kein Enddatum definiert ist
+                ['enddatum' => null],
                 ['>=', 'enddatum', $date]
             ]);
         }
@@ -61,11 +61,17 @@ class Helper
             $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
         }
         
-        return Html::img($flagUrl, [
-            'alt' => $flag[$column],
-            'style' => 'height: 20px; border-radius: 5px; border: 1px solid darkgrey;',
-        ]) . " " . Html::encode($flag[$column]);
+        return Html::tag('span',
+            Html::img($flagUrl, [
+                'alt' => $flag[$column],
+                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+            ]) . Html::encode($flag[$column]),
+            [
+                'style' => 'display: inline-block; vertical-align: middle;'
+            ]
+            );
     }
+    
     
     public static function getFlagUrl($iocCode, $date = null)
     {
