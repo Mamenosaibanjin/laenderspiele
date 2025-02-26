@@ -21,7 +21,7 @@ class SpielerLandWettbewerb extends ActiveRecord
     public function rules()
     {
         return [
-            [['spielerID', 'landID', 'positionID', 'jahr'], 'required'],
+            [['spielerID', 'positionID'], 'required'],
             [['spielerID', 'wettbewerbID', 'tournamentID', 'landID', 'positionID'], 'integer'],
             [['jahr'], 'integer'], // YYYY
             

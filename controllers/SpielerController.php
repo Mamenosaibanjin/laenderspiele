@@ -9,6 +9,7 @@ use app\models\Spiel;
 use app\models\Spieler;
 use app\models\SpielerVereinSaison;
 use app\models\SpielerLandWettbewerb;
+use app\models\Tournament;
 use Yii;
 use http\Url;
 use app\models\Wettbewerb;
@@ -31,6 +32,12 @@ class SpielerController extends Controller
         $nationen = Club::find()->andWhere(['typID' => [1, 2, 11, 12]])->orderBy('name')->all();
         $positionen = Position::find()->orderBy('positionKurz')->all();
         $wettbewerbe = Wettbewerb::find()->orderBy('name')->all();
+        
+        $tournaments = Tournament::find()
+        ->select(['tournament.*', 'wettbewerb.name AS wettbewerb_name']) // Alle Spalten von tournament + Wettbewerbsname
+        ->leftJoin('wettbewerb', 'wettbewerb.id = tournament.wettbewerbID') // Join mit Wettbewerb-Tabelle
+        ->asArray()
+        ->all();
         
         // Karriere-Daten laden
         $vereinsKarriere = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 0])->orderBy(['von' => SORT_DESC])->all();
@@ -91,8 +98,39 @@ class SpielerController extends Controller
             }
         }
         
+        // Länderspiel-Daten speichern
+        $laenderspieleData = $postData['SpielerLandWettbewerb'] ?? [];
+
+        foreach ($laenderspieleData as $index => $data) {
+            // Eintrag löschen
+            if (!empty($data['delete']) && $data['delete'] == '1') {
+                if (!empty($data['id']) && $toDelete = SpielerLandWettbewerb::findOne($data['id'])) {
+                    if (!$toDelete->delete()) {
+                        $allSaved = false;
+                        Yii::error("Fehler beim Löschen von Länderspiel-Daten (ID: {$data['id']})");
+                    }
+                }
+                continue;
+            }
+
+            // Bestehenden Eintrag laden oder neuen erstellen
+            $laenderspiel = !empty($data['id']) ? SpielerLandWettbewerb::findOne($data['id']) : new SpielerLandWettbewerb();
+            $laenderspiel->spielerID = $spieler->id;
+            $laenderspiel->landID = $data['land'];
+            $laenderspiel->positionID = $data['position'] ?? null;
+            $laenderspiel->tournamentID = $data['tournamentID'] ?? null;
+            $laenderspiel->jahr = !empty($postData['jahr']) ? $postData['jahr'] : null;
+            
+            if (!$laenderspiel->save()) {
+                $allSaved = false;
+                Yii::error("Fehler beim Speichern von Länderspiel-Daten: " . json_encode($laenderspiel->errors));
+            }
+        }
+        
+        
         if ($spieler->id == 0) {
             // Nur allgemeine Spielerdaten bearbeiten
+           
             return $this->render('view', [
                 'spieler' => $spieler,
                 'vereinsKarriere' => [],
@@ -103,6 +141,7 @@ class SpielerController extends Controller
                 'positionen' => $positionen,
                 'wettbewerbe' => $wettbewerbe,
                 'isEditing' => $isEditing,
+                'tournaments' => $tournaments,
             ]);
         }
         
@@ -117,7 +156,8 @@ class SpielerController extends Controller
             'positionen' => $positionen,
             'wettbewerbe' => $wettbewerbe,
             'isEditing' => $isEditing,
-        ]);
+            'tournaments' => $tournaments,
+            ]);
     }
     
     

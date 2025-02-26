@@ -30,6 +30,11 @@ class Tournament extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Tournament::class, ['parentTournamentID' => 'id']);
     }
+    
+    public function getWettbewerb()
+    {
+        return $this->hasOne(Wettbewerb::class, ['id' => 'wettbewerbID']);
+    }
 }
 
 ?>

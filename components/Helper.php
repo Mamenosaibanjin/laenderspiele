@@ -4,6 +4,7 @@ namespace app\components;
 
 use app\models\Nation;
 use app\models\Flags;
+use app\models\Tournament;
 use app\models\Typ;
 use DateTime;
 use Yii;
@@ -971,7 +972,6 @@ class Helper
      */
     public static function getPosition($positionId)
     {
-        // Nationen mit gültigem ISO3166-Code abrufen
         $position = (new \yii\db\Query())
         ->select(['id', 'positionKurz'])
         ->from('position')
@@ -980,6 +980,22 @@ class Helper
         
         return $position[0]['positionKurz'];
         
+    }
+    
+    public static function getTournamentName($tournamentId) {
+        $tournament = Tournament::findOne($tournamentId);
+        return $tournament->wettbewerb->name .
+        " (" . $tournament->jahr .
+        ($tournament->land !== null ? " - " . $tournament->land : "") . ")";
+    }
+    
+    public static function getWettbewerbInfo($wettbewerbId) {
+        return (new Query())
+        ->select(['wettbewerb.name', 'spieler_land_wettbewerb.jahr', 'spieler_land_wettbewerb.land'])
+        ->from('spieler_land_wettbewerb')
+        ->innerJoin('wettbewerb', 'wettbewerb.id = spieler_land_wettbewerb.wettbewerbID')
+        ->where(['wettbewerb.id' => $wettbewerbId])
+        ->one();
     }
     
 }

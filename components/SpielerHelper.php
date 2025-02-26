@@ -186,6 +186,80 @@ class SpielerHelper
                         ]);
                         break;
                         
+                case 'nation':
+                    $nationen = $options['nationen'] ?? [];
+                    $landId = $spieler->landID ?? null;
+                    $landName = $landId ? Helper::getClubName($landId) . ' (' . Helper::getClubNation($landId) . ')' : '';
+                    
+                    $nationenDaten = json_encode(array_map(function ($land) {
+                        
+                        //$land = Helper::getClubNation($verein['id']);  // Dynamisch das Land aus der Helper-Methode holen
+                        return [
+                            'label' => Html::encode($land['name']),
+                            'value' => $land['id'],
+                            'klarname' => Html::encode($land['name'] . " (" . $land['land'] . ")"),
+                        ];
+                    }, $nationen));
+                   
+                        $inputs =
+                        Html::hiddenInput("SpielerLandWettbewerb[$index][land]", $landId, [
+                            'id' => "hidden-land-id-$index",
+                        ]) .
+                        Html::textInput("[$index]landName", $landName, [
+                            'id' => "autocomplete-land-$index",
+                            'class' => 'form-control',
+                            'data-nationen' => $nationenDaten,
+                            'placeholder' => Yii::t('app', 'Search for a nation'),
+                        ]);
+                        break;
+
+                case 'wettbewerb':
+                    $tournaments = $options['tournaments'] ?? [];
+                    $tournamentId = $spieler->tournamentID ?? null; // tournamentID oder NULL
+                    $wettbewerbName = $tournamentId ? Helper::getTournamentName($tournamentId) : '';
+                    $tournamentDaten = json_encode(array_map(function ($tournament) {
+                        return [
+                            'label' => Html::encode(
+                                $tournament['wettbewerb_name'] .
+                                " (" . $tournament['jahr'] .
+                                ($tournament['land'] !== null ? " - " . $tournament['land'] : "") . ")"
+                                ),
+                            'value' => $tournament['id'],
+                            'klarname' => Html::encode(
+                                $tournament['wettbewerb_name'] .
+                                " (" . $tournament['jahr'] .
+                                ($tournament['land'] !== null ? " - " . $tournament['land'] : "") . ")"
+                                ),
+                        ];
+                    }, $tournaments));
+                        
+                        // Info-Fenster für alte Einträge ohne tournamentID
+                        $infoText = '';
+                        if (!$tournamentId && $spieler->wettbewerbID) {
+                            $wettbewerbInfo = Helper::getWettbewerbInfo($spieler->wettbewerbID);
+                            if ($wettbewerbInfo) {
+                                $infoText = "Fehlende Zuordnung! Wettbewerb: {$wettbewerbInfo['name']} ({$wettbewerbInfo['jahr']} - {$wettbewerbInfo['land']})";
+                            }
+                        }
+
+                        $inputs =
+                        Html::hiddenInput("SpielerLandWettbewerb[$index][tournamentID]", $tournamentId, [
+                            'id' => "hidden-tournament-id-$index",
+                        ]) .
+                        Html::textInput("[$index]wettbewerbName", $wettbewerbName, [
+                            'id' => "autocomplete-wettbewerb-$index",
+                            'class' => 'form-control',
+                            'data-tournaments' => $tournamentDaten,
+                            'placeholder' => Yii::t('app', 'Search for a tournament'),
+                        ]);
+                        
+                        if ($infoText) {
+                            $inputs .= Html::tag('div', $infoText, ['class' => 'alert alert-warning mt-2']);
+                        }
+                        
+                        break;
+                        
+                        
                 case 'land':
                     $inputs = $form->field($spieler, "[$index]land")->dropDownList(
                     Helper::getNationenOptions(),
@@ -212,6 +286,24 @@ class SpielerHelper
                         
                 case 'buttons':
                     $inputs =
+                    Html::submitButton(Yii::t('app', 'Save'), [
+                    'class' => 'btn btn-primary btn-sm',
+                    ]) .
+                    " " .
+                    Html::checkbox("SpielerLandWettbewerb[$index][delete]", false, [
+                    'id' => "delete-switch-$index",
+                    'value' => '1',
+                    'class' => 'd-none',
+                    ]) .
+                    Html::button(Yii::t('app', 'X'), [
+                    'class' => 'btn btn-danger btn-sm',
+                    'onclick' => "$('#delete-switch-$index').prop('checked', true); $(this).closest('form').submit();",
+                    'data-confirm' => Yii::t('app', 'Möchten Sie diesen Eintrag wirklich löschen?'),
+                    ]);
+                    break;
+                        
+                case 'buttonsMitJugend':
+                    $inputs =
                     Html::tag('div',
                     Html::checkbox("SpielerVereinSaison[$index][jugend]", $spieler->jugend, [
                     'id' => "jugend-switch-$index",
@@ -229,13 +321,13 @@ class SpielerHelper
                         ]) .
                         " " .
                         Html::checkbox("SpielerVereinSaison[$index][delete]", false, [
-                        'id' => "delete-switch-$index",
+                        'id' => "delete-switch-nation-$index",
                         'value' => '1',
                         'class' => 'd-none',
                         ]) .
                         Html::button(Yii::t('app', 'X'), [
                         'class' => 'btn btn-danger btn-sm',
-                        'onclick' => "$('#delete-switch-$index').prop('checked', true); $(this).closest('form').submit();",
+                        'onclick' => "$('#delete-switch-nation-$index').prop('checked', true); $(this).closest('form').submit();",
                         'data-confirm' => Yii::t('app', 'Möchten Sie diesen Eintrag wirklich löschen?'),
                         ]);
                         break;
