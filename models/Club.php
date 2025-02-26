@@ -191,15 +191,27 @@ class Club extends ActiveRecord
             'spieler.geburtstag',
             'spieler_land_wettbewerb.positionID',
             'spieler_land_wettbewerb.wettbewerbID',
-        ]) // Nur die gewünschten Spalten auswählen
-        ->distinct() // Duplikate verhindern
+            'spieler_land_wettbewerb.tournamentID',
+        ])
+        ->distinct()
         ->joinWith(['landWettbewerb' => function ($query) use ($clubID, $wettbewerbID, $jahr) {
-            $query->alias('spieler_land_wettbewerb'); // Alias explizit setzen
-            // Filter direkt in der joinWith-Abfrage
-            $query->andWhere([
+            $query->alias('spieler_land_wettbewerb')
+            ->leftJoin('tournament', 'spieler_land_wettbewerb.tournamentID = tournament.id')
+            ->andWhere([
                 'spieler_land_wettbewerb.landID' => $clubID,
-                'spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID,
-                'spieler_land_wettbewerb.jahr' => $jahr,
+            ])
+            ->andWhere([
+                'OR',
+                [
+                    'AND',
+                    ['tournament.wettbewerbID' => $wettbewerbID],
+                    ['tournament.jahr' => $jahr]
+                ],
+                [
+                    'AND',
+                    ['spieler_land_wettbewerb.wettbewerbID' => $wettbewerbID],
+                    ['spieler_land_wettbewerb.jahr' => $jahr]
+                ]
             ]);
         }])
         ->orderBy([
