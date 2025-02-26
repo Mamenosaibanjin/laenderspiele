@@ -45,12 +45,14 @@ class SpieleController extends Controller
             // Daten aus der Tabelle "turnier" holen
             $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);
             $turniername = Helper::getTurniername($wettbewerbID); // Wettbewerbsname holen
+            $turnierjahr = $jahr . '-01-01';
             
             return $this->render('view', [
                 'spiele' => $spiele,
                 'turniername' => $turniername,
                 'jahr' => $jahr,
                 'model' => $model,
+                'turnierjahr' => $turnierjahr,
             ]);
         }
         

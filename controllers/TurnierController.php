@@ -16,6 +16,8 @@ class TurnierController extends Controller
         $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);
         $turniername = Helper::getTurniername($wettbewerbID); // Wettbewerbsname holen
         
+        $turnierjahr = $jahr . '-01-01';
+                
         // Teilnehmer abrufen
         $clubs = Turnier::findTeilnehmer($wettbewerbID, $jahr);
         
@@ -41,6 +43,7 @@ class TurnierController extends Controller
             'anzahlTore' => $anzahlTore,
             'anzahlPlatzverweise' => $anzahlPlatzverweise,
             'topScorers' => $topScorers,
+            'turnierjahr' => $turnierjahr,
             
         ]);
     }

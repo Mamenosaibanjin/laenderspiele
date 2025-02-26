@@ -1,6 +1,10 @@
 <?php
 use yii\helpers\Html;
 use app\components\Helper;
+use yii\helpers\Url;
+use yii\web\JsExpression;
+use yii\widgets\ActiveForm;
+
 
 // Positionen-Mapping
 $positionMapping = [
@@ -64,7 +68,7 @@ $currentPositionID = null;
                         <td style="background-color: <?= $backgroundStyle; ?> !important; width: <?= $turnier == '' ? '30%' : '40%'?>;">
                             <?php if (($turnier == '') OR ($positionID > 4)) :?>
                             	<?php if (!empty($player->nati1)): ?>
-                                	<img src="<?= Html::encode(Helper::getFlagUrl($player->nati1)) ?>" alt="<?= Html::encode($player->nati1) ?>" style="width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey;">
+                                	<?= Helper::getFlagInfo($player->nati1, null, false) ?>
 	                            <?php endif; ?>
                             <?php endif; ?>
                             <?= Html::a(Html::encode(($player->vorname . ($player->vorname ? ' ' : '')) . $player->name), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
@@ -74,9 +78,17 @@ $currentPositionID = null;
                         	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 20%;"><?= Html::encode(Helper::getImVereinSeit($player, $club->id, $jahr)) ?></td>
                         <?php else: ?>
                         	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 40%;">
-                        		<?php 
+                        		<?php
                         		if ($positionID <= 4) {
-                            		$vereine = Helper::getClubsAtTurnier($player->id, $turnier, $jahr);
+                        		    
+                        		    $tournamentID = null;
+                        		    
+                        		    // Prüfen, ob der Spieler eine Beziehung zu "landWettbewerb" hat
+                        		    if (!empty($player->landWettbewerb) && isset($player->landWettbewerb[0]->tournamentID)) {
+                        		        $tournamentID = $player->landWettbewerb[0]->tournamentID;
+                        		    }
+                        		    
+                        		    $vereine = Helper::getClubsAtTurnier($player->id, $tournamentID, $jahr);
     
                             		// Nur wenn $vereine ein Array ist, iterieren
                             		if (!empty($vereine)) {
@@ -84,7 +96,7 @@ $currentPositionID = null;
                             		        $clubName = Helper::getClubName($clubID);
                             		        
                             		        echo "<div style='padding: 5px 0;'>";
-                            		        echo Html::img(Helper::getFlagUrl(Helper::getClubNation($clubID)), ['alt' => Html::encode(Helper::getClubName($clubID)), 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']);
+                            		        echo Helper::getFlagInfo(Helper::getClubNation($clubID), $jahr . '-07-01', false);
                                 	        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
                             		        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
                             		        echo "</div>";
@@ -153,5 +165,81 @@ $currentPositionID = null;
                 <?php endforeach; ?>
             </tbody>
         </table>
+        
+<div id="spieler-zuordnung-container">
+    <div class="mb-3">
+        <input type="text" class="form-control" id="spielerKaderSearch" placeholder="Spieler suchen..."><br>
+        <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
+            Neuer Spieler
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('spielerKaderSearch');
+    const bearbeitenButton = document.getElementById('btn-spieler-bearbeiten');
+    let selectedSpielerID = null;
+
+    if (searchInput) {
+        if (!searchInput.awesomplete) {
+            const awesomplete = new Awesomplete(searchInput, {
+                minChars: 2,
+                autoFirst: true,
+                replace: function (suggestion) {
+                    this.input.value = suggestion.label;
+                },
+            });
+            searchInput.awesomplete = awesomplete;
+        }
+
+        searchInput.addEventListener('input', function () {
+            const term = searchInput.value.trim();
+            if (term.length < 2) {
+                bearbeitenButton.textContent = "Neuer Spieler";
+                bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+                bearbeitenButton.disabled = false;
+                selectedSpielerID = null;
+                return;
+            }
+
+            fetch(`<?= \yii\helpers\Url::to(['spieler/search']) ?>?term=${encodeURIComponent(term)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        searchInput.awesomplete.list = data.map(item => ({
+                            label: item.value,
+                            value: item.id,
+                        }));
+                    } else {
+                        searchInput.awesomplete.list = [];
+                        bearbeitenButton.textContent = "Neuer Spieler";
+                        bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+                        bearbeitenButton.disabled = false;
+                        selectedSpielerID = null;
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler bei der Suche:', error);
+                    searchInput.awesomplete.list = [];
+                    bearbeitenButton.textContent = "Neuer Spieler";
+                    bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
+                    bearbeitenButton.disabled = false;
+                    selectedSpielerID = null;
+                });
+        });
+
+        searchInput.addEventListener('awesomplete-selectcomplete', function (event) {
+            selectedSpielerID = event.text.value;
+            searchInput.value = event.text.label;
+
+            bearbeitenButton.textContent = "Spieler bearbeiten";
+            bearbeitenButton.setAttribute('onclick', `window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/${selectedSpielerID}', '_blank')`);
+            bearbeitenButton.disabled = false;
+        });
+    }
+});
+</script>
+
     </div>
 </div>

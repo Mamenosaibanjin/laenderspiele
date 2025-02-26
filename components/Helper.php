@@ -22,7 +22,7 @@ class Helper
      * @param string $iocCode Der Ländercode (IOC Code).
      * @return string|null Die URL der Flagge oder null, wenn keine verfügbar ist.
      */
-    public static function getFlagInfo($key, $date = null)
+    public static function getFlagInfo($key, $date = null, $showName = true)
     {
         $language = Yii::$app->language;
         $column = match ($language) {
@@ -61,15 +61,19 @@ class Helper
             $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
         }
         
-        return Html::tag('span',
-            Html::img($flagUrl, [
-                'alt' => $flag[$column],
-                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
-            ]) . Html::encode($flag[$column]),
-            [
-                'style' => 'display: inline-block; vertical-align: middle;'
-            ]
-            );
+        $flagHtml = Html::img($flagUrl, [
+            'alt' => $flag[$column],
+            'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+        ]);
+        
+        // Wenn showName true ist, wird der Ländernamen hinzugefügt
+        if ($showName) {
+            $flagHtml .= " " . Html::encode($flag[$column]);
+        }
+        
+        return Html::tag('span', $flagHtml, [
+            'style' => 'display: inline-block; vertical-align: middle;'
+        ]);
     }
     
     
@@ -523,32 +527,55 @@ class Helper
      */
     public static function getClubsAtTurnier($playerId, $turnier, $jahr)
     {
-        // Wenn kein Turnier angegeben ist
+        $query = (new \yii\db\Query())
+        ->select(['c.id', 'MAX(svs.von) AS von']) // Maximales "von"-Datum je Club holen
+        ->from(['c' => 'clubs'])
+        ->innerJoin(['svs' => 'spieler_verein_saison'], 'svs.vereinID = c.id')
+        ->where([
+            'svs.spielerID' => $playerId,
+            'svs.jugend' => 0,
+        ]);
+        
         if ($turnier == 0 OR $turnier == 42) {
-            $query = (new \yii\db\Query())
-            ->select(['c.id'])
-            ->from(['c' => 'clubs'])
-            ->innerJoin(['svs' => 'spieler_verein_saison'], 'svs.vereinID = c.id')
-            ->where([
-                'svs.spielerID' => $playerId,
-                'svs.jugend' => 0,
-            ])
-            ->andWhere([
+            // Freundschaftsspiele -> gesamtes Jahr berücksichtigen
+            $startDatum = $jahr . '01';
+            $endDatum = $jahr . '12';
+            
+            $query->andWhere([
                 'or',
-                ['and', ['>=', 'svs.bis', $jahr . '01'], ['<=', 'svs.von', $jahr . '12']],
-                ['between', 'svs.bis', $jahr . '01', $jahr . '12'],
-                ['between', 'svs.von', $jahr . '01', $jahr . '12'],
-            ])
-            ->groupBy(['c.id'])
-            ->orderBy(['svs.von' => SORT_DESC]);
+                ['and', ['>=', 'svs.bis', $startDatum], ['<=', 'svs.von', $endDatum]],
+                ['between', 'svs.bis', $startDatum, $endDatum],
+                ['between', 'svs.von', $startDatum, $endDatum],
+            ]);
+        } else {
+            // Turniere -> Stichtag beachten
+            $startDatum = (new \yii\db\Query())
+            ->select(['startdatum'])
+            ->from('tournament')
+            ->where(['id' => $turnier])
+            ->scalar();
             
-            // Alle Ergebnisse abrufen
-            $clubIDs = $query->column(); // Gibt ein Array aller IDs zurück
+            if (!$startDatum) {
+                return null;
+            }
             
-            return !empty($clubIDs) ? $clubIDs : null;
+            $query->andWhere([
+                'or',
+                ['and', ['<=', 'svs.von', $startDatum], ['>=', 'svs.bis', $startDatum]],
+                ['and', ['<=', 'svs.von', $startDatum], ['svs.bis' => null]],
+            ]);
         }
         
-        return null; // Wenn $turnier nicht 0 ist
+        // Anpassung: "GROUP BY" mit Aggregation
+        $query->groupBy(['c.id'])
+        ->orderBy(['von' => SORT_DESC]); // Sortierung nach maximalem "von"-Datum
+        
+        $clubIDs = $query->column(); // Gibt ein Array aller IDs zurück
+        
+        //$sql = $query->createCommand()->getRawSql();
+        //var_dump($sql);
+        
+        return !empty($clubIDs) ? $clubIDs : null;
     }
     
     public static function getTurniername($turnier)

@@ -9,12 +9,15 @@ $config = [
     'id' => 'basic',
     'language' => 'de-DE',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log'],
+    'bootstrap' => ['log', 'bootstrap5'], // Hier 'bootstrap5' hinzufügen
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
     ],
     'components' => [
+        'bootstrap5' => [
+            'class' => 'yii\bootstrap5\BootstrapAsset', // Bootstrap5-Asset laden
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'qasay_quRjCoJpgEtuXg5rQcWAxhWjMQ',
@@ -84,6 +87,7 @@ $config = [
                 'turnier/search' => 'turnier/search',
                 'site/login' => 'site/login',
                 'site/logout' => 'site/logout',
+                'spieler-land-wettbewerb/add' => 'spieler-land-wettbewerb/add',
                 
                 // Regel zur Entfernung von "site"
                 'site/<action:\w+>/<id:\d*>' => '<action>',

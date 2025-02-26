@@ -8,6 +8,7 @@ use app\components\Helper;
 /** @var int $jahr */
 
 $this->title = "Turnier - $turniername $jahr";
+
 ?>
 <div class="verein-page row">
     <!-- Widget 1: Vereinsdaten -->
@@ -26,10 +27,7 @@ $this->title = "Turnier - $turniername $jahr";
                         <?php foreach ($clubs as $index => $club): ?>
                             <tr>
                                 <td style="width: 50%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;">
-                                    <?= Html::img(Helper::getFlagUrl($club['land']), [
-                                        'alt' => $club['name'],
-                                        'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;',
-                                    ]) ?>
+                                    <?= Helper::getFlagInfo($club['land'], $turnierjahr, false) ?>
                                     <?= Html::encode($club['name']) ?>
                                 </td>
                                 <td style="width: 10%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;">
@@ -102,7 +100,7 @@ $this->title = "Turnier - $turniername $jahr";
                         <?php foreach ($topScorers as $scorer): ?>
                         <tr>
                             <td>
-                                 <?= Helper::getFlagUrl($scorer['nati1']) ? Html::img(Helper::getFlagUrl($scorer['nati1']), ['alt' => $scorer['nati1'] , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) : '' ?>
+                                 <?= Helper::getFlagInfo($scorer['nati1'], $turnierjahr, false) ?>
                             </td>
                             <td class="truncate-cell">
 								<?php $spielername = htmlspecialchars($scorer['name']); ?>

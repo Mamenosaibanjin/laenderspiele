@@ -292,11 +292,11 @@ document.addEventListener('DOMContentLoaded', function () {
                                 />
                             </div>
                         </td>
-                      	<td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Html::img(Helper::getFlagUrl(Helper::getClubNation($spiel->club1->id)), ['alt' => $spiel->club1->name , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?></td>
+                      	<td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnierjahr, false) ?></td>
                         <td style="text-align: center; width: 10%;">
                         	<?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel['spielID']], ['class' => 'text-decoration-none']) ?>
                         </td>
-                        <td style="width: 50%;"><?= Html::img(Helper::getFlagUrl(Helper::getClubNation($spiel->club2->id)), ['alt' => $spiel->club2->name , 'style' => 'width: 25px; height: 20px; border-radius: 5px; border: 1px solid darkgrey; margin-right: 8px;']) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
+                        <td style="width: 50%;"><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnierjahr, false) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
                         <td>
                             <?php if (!Yii::$app->user->isGuest): ?>
                                 <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [

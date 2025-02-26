@@ -3,7 +3,9 @@ namespace app\controllers;
 
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use Yii;
 use app\models\Club;
+use app\models\SpielerLandWettbewerb;
 
 class KaderController extends Controller
 {
@@ -23,11 +25,15 @@ class KaderController extends Controller
             $squad = $club->getSquad($id, $year);
         }
         
+        $spielerLandWettbewerb = new SpielerLandWettbewerb();
+        
         return $this->render('view', [
             'club' => $club,
             'jahr' => $year,
             'squad' => $squad,
             'turnier' => $turnier,
+            'spielerLandWettbewerb' => $spielerLandWettbewerb,
+            
         ]);
         
     }
