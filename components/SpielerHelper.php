@@ -2,6 +2,8 @@
 namespace app\components;
 
 use app\components\Helper;
+use app\models\Tournament;
+use app\models\Wettbewerb;
 use Yii;
 use yii\helpers\Html;
 
@@ -305,11 +307,11 @@ class SpielerHelper
                 case 'buttonsMitJugend':
                     $inputs =
                     Html::tag('div',
-                    Html::checkbox("SpielerVereinSaison[$index][jugend]", $spieler->jugend, [
+                    Html::checkbox("SpielerVereinSaison[$index][jugend]", in_array($spieler->jugend, [1, '1'], true), [
                     'id' => "jugend-switch-$index",
                     'autocomplete' => 'off',
                     'value' => '1',
-                    ]) .
+                    ]) . 
                     Html::label(Yii::t('app', 'Youth'), "jugend-switch-$index", [
                     'class' => 'btn btn-secondary btn-sm',
                     'style' => 'margin-left: 7px;',
@@ -351,7 +353,6 @@ class SpielerHelper
         
         foreach ($karriereDaten as $daten) {
             $cells = '';
-            
             foreach ($fields as $field) {
                 $value = '';
                 switch ($field) {
@@ -374,8 +375,21 @@ class SpielerHelper
                         $verein = $daten['verein'] ?? null;
                         $vereinId = is_object($verein) ? $verein->id : $verein; // ID aus dem Objekt extrahieren
                         $nation = $vereinId ? Helper::getClubNation($vereinId) : null;
+                        
+                        if (!empty($daten['von'])) {
+                            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $daten['von'])) {
+                                // Bereits im Format YYYY-MM-DD
+                                $startdatum = $daten['von'];
+                            } else {
+                                // Format YYYYMM → Umwandeln in YYYY-MM-DD
+                                $startdatum = substr($daten['von'], 0, 4) . '-' . substr($daten['von'], 4, 2) . '-01';
+                            }
+                        } else {
+                            $startdatum = null;
+                        }
+                        
                         $value = $nation
-                        ? Helper::getFlagUrl($nation, $daten['von'])
+                        ? Helper::getFlagInfo($nation, $startdatum, false)
                         : Yii::t('app', 'Unknown Country');
                         break;
                         
@@ -383,6 +397,43 @@ class SpielerHelper
                         $position = $daten['position'] ?? null;
                         $positionId = is_object($position) ? $position->id : $position; // ID aus dem Objekt extrahieren
                         $value = $positionId ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
+                        break;
+                        
+                    case 'nation':
+                        $verein = $daten['landID'] ?? null;
+                        $vereinId = is_object($verein) ? $verein->id : $verein;
+                        
+                        $startdatum = $tournament->startdatum ? substr($tournament->startdatum, 0, 4) . '-' . substr($tournament->startdatum, 4, 2) . '-01' : null;
+                        $nation = $vereinId ? Helper::getClubNation($vereinId) : null;
+                        $value = $nation
+                        ? Helper::getFlagInfo($nation, $startdatum, false) . ' ' . Html::encode(Helper::getClubName($vereinId))
+                        : Yii::t('app', 'Unknown Country');
+                        break;
+                        
+                    case 'tournament':
+                        $tournamentId = $daten['tournamentID'] ?? null;
+                        if ($tournamentId) {
+                            $tournament = Tournament::findOne($tournamentId);
+                            if ($tournament) {
+                                $wettbewerb = Wettbewerb::findOne($tournament->wettbewerbID);
+                                $wettbewerbName = $wettbewerb ? $wettbewerb->name : Yii::t('app', 'Unknown Tournament');
+                                $jahr = $tournament->jahr ?? Yii::t('app', 'Unknown Year');
+
+                                // Länderdarstellung mit Mehrfach-Ländern
+                                $laenderKeys = !empty($tournament->land) ? explode('/', $tournament->land) : [];
+                                $landNamen = [];
+                                foreach ($laenderKeys as $key) {
+                                    $startdatum = $tournament->startdatum ? substr($tournament->startdatum, 0, 4) . '-' . substr($tournament->startdatum, 4, 2) . '-01' : null;
+                                    $flagInfo = Helper::getFlagInfo($key, $startdatum, false);
+                                    $landNamen[] = $flagInfo;
+                                }
+                                $landAnzeige = implode("", $landNamen);
+                                
+                                $value = "$landAnzeige $wettbewerbName $jahr";
+                            }
+                        } else {
+                            $value = Yii::t('app', 'Unknown Tournament');
+                        }
                         break;
                         
                     default:

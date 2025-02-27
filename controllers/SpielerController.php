@@ -36,6 +36,10 @@ class SpielerController extends Controller
         $tournaments = Tournament::find()
         ->select(['tournament.*', 'wettbewerb.name AS wettbewerb_name']) // Alle Spalten von tournament + Wettbewerbsname
         ->leftJoin('wettbewerb', 'wettbewerb.id = tournament.wettbewerbID') // Join mit Wettbewerb-Tabelle
+        ->orderBy([
+            'wettbewerb.name' => SORT_ASC, // Alphabetische Sortierung der Wettbewerbsnamen
+            'tournament.jahr' => SORT_DESC // Neueste Jahrgänge zuerst
+        ])
         ->asArray()
         ->all();
         
@@ -43,7 +47,15 @@ class SpielerController extends Controller
         $vereinsKarriere = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 0])->orderBy(['von' => SORT_DESC])->all();
         $jugendvereine = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 1])->orderBy(['von' => SORT_DESC])->all();
         
-        $laenderspiele = SpielerLandWettbewerb::find()->where(['spielerID' => $id])->orderBy(['jahr' => SORT_DESC])->all();
+        $laenderspiele = SpielerLandWettbewerb::find()
+        ->alias('slw') // Alias für bessere Lesbarkeit
+        ->leftJoin('tournament t', 't.id = slw.tournamentID') // LEFT JOIN auf Tournament
+        ->where(['slw.spielerID' => $id])
+        ->orderBy([
+            't.jahr' => SORT_DESC, // Sortierung zuerst nach tournament.jahr
+            'slw.jahr' => SORT_DESC // Falls kein Tournament existiert, nach slw.jahr sortieren
+        ])
+        ->all();
         
         
         

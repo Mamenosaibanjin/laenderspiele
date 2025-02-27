@@ -112,7 +112,7 @@ $fields = [
                             </thead>
                             <tbody>
                                 <!-- Leere Zeile für Neuanlage -->
-                                <?= SpielerHelper::renderEditableRowMulti($form, new \app\models\SpielerVereinSaison(), ['von', 'bis', 'verein', 'position', 'buttons'], 'icon-class', [
+                                <?= SpielerHelper::renderEditableRowMulti($form, new \app\models\SpielerVereinSaison(), ['von', 'bis', 'verein', 'position', 'buttonsMitJugend'], 'icon-class', [
                                     'index' => 'new',
                                     'positionen' => $positionen,
                                     'vereine' => $vereine,
@@ -245,7 +245,7 @@ $fields = [
                                 </tr>
                             </thead>
                             <tbody>
-                                <?= SpielerHelper::renderViewRowMulti($laenderspiele, ['wettbewerb', 'land', 'position'], ['index' => 0]); ?>
+                                <?= SpielerHelper::renderViewRowMulti($laenderspiele, ['tournament', 'nation', 'position'], ['index' => 0]); ?>
                             </tbody>
                         </table>
                     <?php endif; ?>
