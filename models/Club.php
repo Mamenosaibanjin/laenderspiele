@@ -215,7 +215,7 @@ class Club extends ActiveRecord
             ]);
         }])
         ->orderBy([
-            'spieler_land_wettbewerb.wettbewerbID' => SORT_ASC,
+            'spieler_land_wettbewerb.tournamentID' => SORT_ASC,
             'spieler_land_wettbewerb.positionID' => SORT_ASC,
             'spieler.name' => SORT_ASC,
         ])

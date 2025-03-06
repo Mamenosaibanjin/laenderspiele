@@ -66,11 +66,13 @@ class Turnier extends ActiveRecord
     {
         return (new \yii\db\Query())
         ->from('spieler_land_wettbewerb slw')
+        ->leftJoin('tournament t', 't.id = slw.tournamentID')
         ->where([
-            'slw.wettbewerbID' => $wettbewerbID,
-            'slw.jahr' => $jahr,
-            'slw.landID' => $clubID,
+            'OR',
+            ['slw.wettbewerbID' => $wettbewerbID, 'slw.jahr' => $jahr], // Falls noch alte Einträge existieren
+            ['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]      // Neue Struktur über tournament-Tabelle
         ])
+        ->andWhere(['slw.landID' => $clubID])
         ->count();
     }
     

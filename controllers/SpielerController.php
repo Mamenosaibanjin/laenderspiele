@@ -28,7 +28,7 @@ class SpielerController extends Controller
         }
         
         // Vereinslisten und weitere Daten laden
-        $vereine = Club::find()->andWhere(['typID' => [3, 4, 5, 6, 7, 8, 9, 10, 13]])->orderBy('name')->all();
+        $vereine = Club::find()->andWhere(['typID' => [3, 4, 5, 7, 8, 9, 10, 13]])->orderBy('name')->all();
         $nationen = Club::find()->andWhere(['typID' => [1, 2, 11, 12]])->orderBy('name')->all();
         $positionen = Position::find()->orderBy('positionKurz')->all();
         $wettbewerbe = Wettbewerb::find()->orderBy('name')->all();
@@ -52,8 +52,8 @@ class SpielerController extends Controller
         ->leftJoin('tournament t', 't.id = slw.tournamentID') // LEFT JOIN auf Tournament
         ->where(['slw.spielerID' => $id])
         ->orderBy([
-            't.jahr' => SORT_DESC, // Sortierung zuerst nach tournament.jahr
-            'slw.jahr' => SORT_DESC // Falls kein Tournament existiert, nach slw.jahr sortieren
+            't.startdatum' => SORT_DESC,
+            't.wettbewerbID' => SORT_DESC // Falls kein Tournament existiert, nach slw.jahr sortieren
         ])
         ->all();
         
@@ -180,7 +180,7 @@ class SpielerController extends Controller
         $term = Yii::$app->request->get('term');
         $spieler = Spieler::find()
         ->select(['id', 'fullname as value']) // 'value' ist erforderlich für jQuery UI
-        ->where(['like', 'name', $term])
+        ->where(['like', 'fullname', $term])
         ->asArray()
         ->all();
         

@@ -324,3 +324,22 @@ a.desc:after {
     max-height: 100%;
     object-fit: contain;
 }
+
+@media (max-width: 768px) { /* Anpassung für mobile Geräte */
+    .multi-row td {
+        display: block; /* Spalten untereinander statt nebeneinander */
+        width: 100%; /* Ganze Breite nutzen */
+        text-align: left; /* Optionale Verbesserung */
+    }
+
+    .multi-row {
+        display: flex;
+        flex-wrap: wrap; /* Zeilen umbrechen */
+    }
+
+    .multi-row td:nth-child(1),
+    .multi-row td:nth-child(3),
+    .multi-row td:nth-child(5) { 
+        flex: 1 1 100%; /* Erste 3 Spalten auf eine eigene Zeile */
+    }
+}

@@ -62,10 +62,17 @@ class Helper
             $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
         }
         
-        $flagHtml = Html::img($flagUrl, [
-            'alt' => $flag[$column],
-            'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
-        ]);
+        if ($key == 'SUI') {
+            $flagHtml = Html::img($flagUrl, [
+                'alt' => $flag[$column],
+                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+            ]); 
+        } else {
+            $flagHtml = Html::img($flagUrl, [
+                'alt' => $flag[$column],
+                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+            ]);
+        }
         
         // Wenn showName true ist, wird der Ländernamen hinzugefügt
         if ($showName) {
