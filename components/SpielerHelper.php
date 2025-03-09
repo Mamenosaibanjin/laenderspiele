@@ -5,6 +5,7 @@ use app\components\Helper;
 use app\models\Tournament;
 use app\models\Wettbewerb;
 use Yii;
+use yii\db\Query;
 use yii\helpers\Html;
 
 class SpielerHelper
@@ -345,8 +346,121 @@ class SpielerHelper
         return Html::tag('tr', $cells);
     }
     
-           
     public static function renderViewRowMulti($karriereDaten, $fields, $options = [])
+    {
+        $rows = ''; // Endgültiger HTML-String
+        $index = $options['index'] ?? 0; // Fallback für Index
+        
+        foreach ($karriereDaten as $daten) {
+            $rowsArray = []; // Speichert Zeiträume für diese Karriere-Zeile
+            $verein = $daten['verein'] ?? null;
+            $vereinId = is_object($verein) ? $verein->id : $verein;
+            $nation = $vereinId ? Helper::getClubNation($vereinId) : null;
+            
+            $vonDatum = !empty($daten['von']) ? Helper::convertToDate($daten['von']) : null;
+            $bisDatum = !empty($daten['bis']) ? Helper::convertToDate($daten['bis']) : null;
+            
+            if (!$vonDatum || !$bisDatum) {
+                continue; // Falls Daten fehlen, überspringen
+            }
+            
+            // 🔍 Flaggenwechsel abrufen
+            $flaggenWechsel = (new Query())
+            ->select(['startdatum', 'key'])
+            ->from('flags')
+            ->where(['key' => $nation])
+            ->andWhere([
+                'AND',
+                ['key' => $nation],
+                ['OR',
+                    ['>=', 'startdatum', $vonDatum],
+                    ['>=', 'enddatum', $vonDatum],
+                    ['enddatum' => null]
+                ],
+                ['OR',
+                    ['<=', 'startdatum', $bisDatum],
+                    ['<=', 'enddatum', $bisDatum],
+                    ['enddatum' => null]
+                ]
+            ])
+            ->orderBy(['startdatum' => SORT_ASC]) // 🔄 Aufsteigend nach Startdatum
+            ->all();
+            
+            // 🏁 Startwert für die Iteration
+            $zeitraumStart = $vonDatum;
+            $wechselZeiten = [];
+            
+            foreach ($flaggenWechsel as $wechsel) {
+                $wechselDatum = $wechsel['startdatum'];
+                
+                if ($wechselDatum <= $zeitraumStart || $wechselDatum > $bisDatum) {
+                    continue; // Nur relevante Wechsel berücksichtigen
+                }
+                
+                $wechselZeiten[] = $wechselDatum;
+            }
+            
+            // Falls es Wechsel gibt, Zeiträume aufteilen
+            if (!empty($wechselZeiten)) {
+                $wechselZeiten[] = $bisDatum; // Letzten Zeitraum beenden
+                
+                foreach ($wechselZeiten as $wechselDatum) {
+                    $flagInfo = Helper::getFlagInfo($nation, $zeitraumStart, false, $wechselDatum);
+                    $rowsArray[] = self::generateTableCells($fields, $zeitraumStart, $wechselDatum, $vereinId, $daten, $flagInfo);
+                    $zeitraumStart = $wechselDatum; // Neuer Startpunkt
+                }
+            } else {
+                // Falls keine Flaggenwechsel, einfach den Originalzeitraum übernehmen
+                $flagInfo = Helper::getFlagInfo($nation, $vonDatum, false, $bisDatum);
+                $rowsArray[] = self::generateTableCells($fields, $vonDatum, $bisDatum, $vereinId, $daten, $flagInfo);
+            }
+            
+            // 🔄 Nur innerhalb dieser Karriere-Zeile umkehren
+            $rowsArray = array_reverse($rowsArray);
+            
+            // 📝 Diese Zeilen in die Hauptausgabe einfügen
+            $rows .= implode('', array_map(fn($cells) => Html::tag('tr', $cells), $rowsArray));
+        }
+        
+        return $rows;
+    }
+    
+    /**
+     * Hilfsfunktion zur Generierung von Tabellenzellen
+     */
+    private static function generateTableCells($fields, $start, $end, $vereinId, $daten, $flagInfo)
+    {
+        $cells = '';
+        foreach ($fields as $field) {
+            switch ($field) {
+                case 'zeitraum':
+                    $value = Helper::formatDate($start) . ' - ' . Helper::formatDate($end);
+                    break;
+                case 'verein':
+                    $value = $vereinId
+                    ? Html::img(Helper::getClubLogoUrl($vereinId), ['alt' => 'Logo', 'style' => 'height: 20px; margin-right: 5px;']) .
+                    Html::a(Html::encode(Helper::getClubName($vereinId)), ['/club/view', 'id' => $vereinId], ['class' => 'text-decoration-none'])
+                    : Yii::t('app', 'Unknown Club');
+                    break;
+                case 'land':
+                    $value = $flagInfo;
+                    break;
+                case 'position':
+                    $position = $daten['position'] ?? null;
+                    $positionId = is_object($position) ? $position->id : $position;
+                    $value = $positionId ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
+                    break;
+                default:
+                    $value = $daten[$field] ?? Yii::t('app', 'Unknown');
+                    break;
+            }
+            $cells .= Html::tag('td', $value);
+        }
+        return $cells;
+    }
+    
+    
+    public static function renderViewRowMultiNation($karriereDaten, $fields, $options = [])
     {
         $rows = '';
         $index = $options['index'] ?? 0; // Fallback für Index
@@ -418,7 +532,7 @@ class SpielerHelper
                                 $wettbewerb = Wettbewerb::findOne($tournament->wettbewerbID);
                                 $wettbewerbName = $wettbewerb ? $wettbewerb->name : Yii::t('app', 'Unknown Tournament');
                                 $jahr = $tournament->jahr ?? Yii::t('app', 'Unknown Year');
-
+                                
                                 // Länderdarstellung mit Mehrfach-Ländern
                                 $laenderKeys = !empty($tournament->land) ? explode('/', $tournament->land) : [];
                                 $landNamen = [];
@@ -450,7 +564,6 @@ class SpielerHelper
         
         return $rows;
     }
-    
     
 }
 ?>

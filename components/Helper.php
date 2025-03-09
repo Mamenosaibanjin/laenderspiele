@@ -23,7 +23,7 @@ class Helper
      * @param string $iocCode Der Ländercode (IOC Code).
      * @return string|null Die URL der Flagge oder null, wenn keine verfügbar ist.
      */
-    public static function getFlagInfo($key, $date = null, $showName = true)
+    public static function getFlagInfo($key, $date = null, $showName = true, $enddate = null)
     {
         $language = Yii::$app->language;
         $column = match ($language) {
@@ -1004,6 +1004,20 @@ class Helper
         ->where(['wettbewerb.id' => $wettbewerbId])
         ->one();
     }
+    
+    public static function convertToDate($input)
+    {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $input)) {
+            return $input; // Bereits im Format YYYY-MM-DD
+        }
+        return substr($input, 0, 4) . '-' . substr($input, 4, 2) . '-01'; // YYYYMM → YYYY-MM-01
+    }
+    
+    public static function formatDate($date)
+    {
+        return date('Y/m', strtotime($date));
+    }
+    
     
 }
 ?>

@@ -245,7 +245,7 @@ $fields = [
                                 </tr>
                             </thead>
                             <tbody>
-                                <?= SpielerHelper::renderViewRowMulti($laenderspiele, ['tournament', 'nation', 'position'], ['index' => 0]); ?>
+                                <?= SpielerHelper::renderViewRowMultiNation($laenderspiele, ['tournament', 'nation', 'position'], ['index' => 0]); ?>
                             </tbody>
                         </table>
                     <?php endif; ?>
