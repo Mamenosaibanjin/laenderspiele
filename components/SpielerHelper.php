@@ -351,6 +351,8 @@ class SpielerHelper
         $rows = ''; // Endgültiger HTML-String
         $index = $options['index'] ?? 0; // Fallback für Index
         
+        $lastKnownBis = null; // Letztes bekanntes 'bis'-Datum
+        
         foreach ($karriereDaten as $daten) {
             $rowsArray = []; // Speichert Zeiträume für diese Karriere-Zeile
             $verein = $daten['verein'] ?? null;
@@ -360,9 +362,18 @@ class SpielerHelper
             $vonDatum = !empty($daten['von']) ? Helper::convertToDate($daten['von']) : null;
             $bisDatum = !empty($daten['bis']) ? Helper::convertToDate($daten['bis']) : null;
             
+            // Fallback-Logik für NULL-Werte
+            $vonDatumShown = $vonDatum;
+            $bisDatumShown = $bisDatum;
+            $vonDatum = self::getFallbackDate($vonDatum, $bisDatum, $lastKnownBis);
+            $bisDatum = self::getFallbackDate($bisDatum, $vonDatum, $lastKnownBis);
+                        
             if (!$vonDatum || !$bisDatum) {
-                continue; // Falls Daten fehlen, überspringen
+                continue; // Falls beide NULL sind, überspringen
             }
+            
+            // Letztes bekanntes 'bis' aktualisieren
+            $lastKnownBis = $bisDatum;
             
             // 🔍 Flaggenwechsel abrufen
             $flaggenWechsel = (new Query())
@@ -412,7 +423,7 @@ class SpielerHelper
             } else {
                 // Falls keine Flaggenwechsel, einfach den Originalzeitraum übernehmen
                 $flagInfo = Helper::getFlagInfo($nation, $vonDatum, false, $bisDatum);
-                $rowsArray[] = self::generateTableCells($fields, $vonDatum, $bisDatum, $vereinId, $daten, $flagInfo);
+                $rowsArray[] = self::generateTableCells($fields, $vonDatumShown, $bisDatumShown, $vereinId, $daten, $flagInfo);
             }
             
             // 🔄 Nur innerhalb dieser Karriere-Zeile umkehren
@@ -425,6 +436,26 @@ class SpielerHelper
         return $rows;
     }
     
+    
+    private static function getFallbackDate($von, $bis, &$lastKnownBis)
+    {
+        if ($von === null && $bis !== null) {
+            $lastKnownBis = $bis;
+            return $bis; // Wenn 'von' fehlt, nutzen wir 'bis'
+        }
+        
+        if ($von !== null && $bis === null) {
+            return $lastKnownBis ?? $von; // Falls 'bis' fehlt, nutzen wir das letzte bekannte 'bis' oder 'von'
+        }
+        
+        if ($von === null && $bis === null) {
+            return $lastKnownBis; // Falls beide fehlen, nehmen wir das letzte bekannte 'bis'
+        }
+        
+        $lastKnownBis = $bis; // 'bis' speichern, um es für spätere fehlende Werte zu nutzen
+        return $von; // Standardfall: 'von' ist gesetzt
+    }
+    
     /**
      * Hilfsfunktion zur Generierung von Tabellenzellen
      */
@@ -434,7 +465,9 @@ class SpielerHelper
         foreach ($fields as $field) {
             switch ($field) {
                 case 'zeitraum':
-                    $value = Helper::formatDate($start) . ' - ' . Helper::formatDate($end);
+                    $formattedStart = $start ? Helper::formatDate($start) : '???';
+                    $formattedEnd = $end ? Helper::formatDate($end) : '???';
+                    $value = "{$formattedStart} - {$formattedEnd}";
                     break;
                 case 'verein':
                     $value = $vereinId
