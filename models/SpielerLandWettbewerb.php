@@ -27,6 +27,8 @@ class SpielerLandWettbewerb extends ActiveRecord
             
             // Entweder `wettbewerbID` oder `tournamentID` muss gesetzt sein, aber nicht beide gleichzeitig
             ['wettbewerbID', 'validateCompetition'],
+            ['landID', 'validateDuplicate'], // Dubletten-Prüfung aktivieren
+            
         ];
     }
     
@@ -66,5 +68,26 @@ class SpielerLandWettbewerb extends ActiveRecord
             $this->addError($attribute, 'Es darf nicht gleichzeitig ein Wettbewerb und ein Turnier gesetzt sein.');
         }
     }
+    
+    public function validateDuplicate($attribute, $params)
+    {
+        $query = self::find()
+        ->where([
+            'spielerID' => $this->spielerID,
+            'landID' => $this->landID,
+            'tournamentID' => $this->tournamentID,
+            'jahr' => $this->jahr,
+        ]);
+        
+        // Falls es sich um einen bestehenden Eintrag handelt, den aktuellen ausschließen
+        if (!$this->isNewRecord) {
+            $query->andWhere(['!=', 'id', $this->id]);
+        }
+        
+        if ($query->exists()) {
+            $this->addError($attribute, 'Eintrag existiert bereits für dieses Turnier oder Jahr.');
+        }
+    }
+    
 }
 ?>

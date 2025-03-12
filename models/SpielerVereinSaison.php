@@ -24,6 +24,7 @@ class SpielerVereinSaison extends ActiveRecord
             [['spielerID', 'vereinID', 'positionID'], 'integer'],
             [['von', 'bis'], 'safe'], // Markiere die Felder als sicher für Eingaben
             [['jugend'], 'boolean'],
+            ['vereinID', 'validateDuplicate'], // Dubletten-Prüfung aktivieren
         ];
     }
     
@@ -55,5 +56,27 @@ class SpielerVereinSaison extends ActiveRecord
     {
         return $this->hasOne(Position::class, ['id' => 'positionID']);
     }
+    
+    public function validateDuplicate($attribute, $params)
+    {
+        $query = self::find()
+        ->where([
+            'spielerID' => $this->spielerID,
+            'vereinID' => $this->vereinID,
+            'von' => $this->von,
+            'bis' => $this->bis,
+            'jugend' => $this->jugend,
+        ]);
+        
+        // Falls es sich um einen bestehenden Eintrag handelt, den aktuellen ausschließen
+        if (!$this->isNewRecord) {
+            $query->andWhere(['!=', 'id', $this->id]);
+        }
+        
+        if ($query->exists()) {
+            $this->addError($attribute, 'Eintrag existiert bereits für diesen Verein in diesem Zeitraum.');
+        }
+    }
+    
 }
 ?>
