@@ -783,15 +783,15 @@ class Helper
     public static function getNationenOptions()
     {
         $language = Yii::$app->language;
-        $column = $language === 'en_US' ? 'land_en' : 'land_de';
+        $column = $language === 'en_US' ? 'name_en' : 'name_de';
         
         return ArrayHelper::map(
-            Nation::find()
-            ->select(['kuerzel', $column])
-            ->from('nation')
-            ->where(['not', ['ISO3166' => null]]) // Nur Nationen mit gültigen Kürzeln
+            Flags::find()
+            ->select(['key', $column])
+            ->from('flags')
+            ->where(['enddatum' => null]) // Nur Nationen aktuell laufender Flagge
             ->orderBy([$column => SORT_ASC])   // Optional: Alphabetische Sortierung
-            ->all(), 'kuerzel', $column);
+            ->all(), 'key', $column);
     }
     
     

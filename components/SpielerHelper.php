@@ -168,8 +168,6 @@ class SpielerHelper
                     $vereinName = $vereinId ? Helper::getClubName($vereinId) . ' (' . Helper::getClubNation($vereinId) . ')' : '';
                     
                     $vereinsDaten = json_encode(array_map(function ($verein) {
-                        
-                        //$land = Helper::getClubNation($verein['id']);  // Dynamisch das Land aus der Helper-Methode holen
                         return [
                             'label' => Html::encode($verein['name']),
                             'value' => $verein['id'],
@@ -181,13 +179,28 @@ class SpielerHelper
                         Html::hiddenInput("SpielerVereinSaison[$index][verein]", $vereinId, [
                             'id' => "hidden-verein-id-$index",
                         ]) .
+                        Html::beginTag('div', ['class' => 'input-group']) .
                         Html::textInput("[$index]vereinName", $vereinName, [
                             'id' => "autocomplete-verein-$index",
                             'class' => 'form-control',
                             'data-vereine' => $vereinsDaten,
                             'placeholder' => Yii::t('app', 'Search for a club'),
-                        ]);
-                        break;
+                        ]) .
+                        ($vereinId
+                            ? Html::tag('span',
+                                Html::a('<i class="fas fa-edit"></i>', ['club/view', 'id' => $vereinId], [
+                                    'target' => '_blank',
+                                    'class' => 'btn btn-outline-secondary',
+                                    'title' => 'Verein bearbeiten',
+                                    'aria-label' => 'Verein bearbeiten'
+                                ]),
+                                ['class' => 'input-group-append']
+                                )
+                            : ''
+                            ) .
+                            Html::endTag('div');
+                            break;
+                            
                         
                 case 'nation':
                     $nationen = $options['nationen'] ?? [];
