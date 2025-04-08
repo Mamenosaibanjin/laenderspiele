@@ -104,7 +104,7 @@ class SpielerHelper
             case 'nati1':
                 $value = '';
                 foreach (['nati1', 'nati2', 'nati3'] as $field) {
-                    if (!empty($spieler->$field, date('Y-m-d'))) {
+                    if (!empty($spieler->$field)) {
                         $value .= Helper::getFlagInfo($spieler->$field, date('Y-m-d')) . "<br>";
                     }
                 }
