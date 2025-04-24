@@ -82,6 +82,11 @@ document.addEventListener('scroll', function () {
                         ]
                         : [
                             'label' => Yii::$app->user->identity->username,
+                            'linkOptions' => [
+                                'data-bs-toggle' => 'modal',
+                                'data-bs-target' => '#loginModal',
+                                'class' => 'btn btn-turnier nav-link nav-link-login',
+                            ],
                             'items' => [
                                 [
                                     'label' => 'Logout',
@@ -141,16 +146,18 @@ document.addEventListener('scroll', function () {
 
 
     <!-- Zeile 3: Turnier- und Statistik-Dropdowns -->
-    <div class="container-fluid py-2 bg-light">
-        <div class="d-flex">
-        
-        	<?php  $turnier = Helper::getCurrentTurnierParams(); ?>
-            
-            <div class="dropdown">
-                <?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
-            </div>
+   	<?php  $turnier = Helper::getCurrentTurnierParams();
+   	
+   	if (!empty($turnier) && isset($turnier['wettbewerbID'], $turnier['jahr'])): ?>
+   	
+<div class="container-fluid py-2 bg-light">
+    <div class="d-flex align-items-center justify-content-center" style="min-height: 60px;">
+        <div class="dropdown">
+            <?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
         </div>
     </div>
+</div>
+    <?php endif; ?>
 </header>
 
 
@@ -178,12 +185,17 @@ document.addEventListener('scroll', function () {
         </div>
 
         <!-- MITTE: Dropdowns -->
+
+	   	<?php if (!empty($turnier) && isset($turnier['wettbewerbID'], $turnier['jahr'])): ?>
+
         <div class="d-flex">
 
             <div class="dropdown">
 				<?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
             </div>
         </div>
+        
+        <?php endif; ?>
 
         <!-- RECHTS: Suchfeld + Login -->
         <div class="d-flex align-items-center">
@@ -210,6 +222,11 @@ document.addEventListener('scroll', function () {
                             ]
                             : [
                                 'label' => Yii::$app->user->identity->username,
+                                'linkOptions' => [
+                                    'data-bs-toggle' => 'modal',
+                                    'data-bs-target' => '#loginModal',
+                                    'class' => 'btn btn-turnier nav-link nav-link-login',
+                                ],
                                 'items' => [
                                     [
                                         'label' => 'Logout',

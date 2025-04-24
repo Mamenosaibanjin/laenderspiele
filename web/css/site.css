@@ -234,6 +234,10 @@ a.desc:after {
     border: 1px solid #ddd;
 }
 
+.dropdown-item.active, .dropdown-item:active {
+	background-color: #1C75AC !important;
+}
+
 /* === Fonts === */
 .text-blue {
     color: #1C75AC !important;

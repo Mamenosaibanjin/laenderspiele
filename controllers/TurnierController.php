@@ -2,8 +2,12 @@
 namespace app\controllers;
 
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
+use app\models\Spiel;
+use app\models\Tournament;
 use app\models\Turnier;
+use app\models\Runde;
 use app\models\Wettbewerb;
 use app\components\Helper; // Falls Helper für getTurniername() genutzt wird
 use yii\web\Response;
@@ -61,4 +65,38 @@ class TurnierController extends Controller
         
         return $clubs;
     }
+    
+    public function actionErgebnisse($wettbewerbID, $jahr)
+    {
+        $turnier = Tournament::find()->where(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr])->one();
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        // Alle Runden des Turniers (z.B. Gruppenphasen, KO-Runden)
+        $runden = Runde::find()
+        ->where(['turnierID' => $turnier->id])
+        ->orderBy(['typ' => SORT_ASC, 'gruppenname' => SORT_ASC, 'name' => SORT_ASC])
+        ->all();
+        
+        // Auswahl (optional: später via GET-Parameter steuerbar)
+        $runde = $runden[0] ?? null;
+        $spiele = [];
+        
+        if ($runde) {
+            $spiele = Spiel::find()
+            ->where(['rundeID' => $runde->id])
+            ->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC])
+            ->all();
+        }
+        
+        return $this->render('ergebnisse', [
+            'turnier' => $turnier,
+            'runden' => $runden,
+            'runde' => $runde,
+            'spiele' => $spiele,
+        ]);
+    }
+    
 }

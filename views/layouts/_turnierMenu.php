@@ -1,7 +1,6 @@
 <?php
 use yii\bootstrap5\Nav;
-
-/** @var array $turnier */
+use yii\helpers\Url;
 
 echo Nav::widget([
     'options' => ['class' => 'navbar-nav flex-row'],
@@ -10,24 +9,24 @@ echo Nav::widget([
             'label' => 'Turnier',
             'linkOptions' => ['class' => 'btn btn-turnier dropdown-toggle', 'data-bs-toggle' => 'dropdown'],
             'items' => [
-                ['label' => 'Übersicht', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Ergebnisse / Tabelle', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/ergebnisse"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Spielplan', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/spielplan"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Teilnehmer', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/teilnehmer"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Spieler', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/spieler"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Torjäger', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/torjaeger"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Stadien', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/stadien"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Schiedsrichter', 'url' => ["/turnier/{$turnier['wettbewerbID']}/{$turnier['jahr']}/schiedsrichter"], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Übersicht', 'url' => ['turnier/index', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Ergebnisse / Tabelle', 'url' => ['turnier/ergebnisse', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Spielplan', 'url' => ['turnier/spielplan', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Teilnehmer', 'url' => ['turnier/teilnehmer', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Spieler', 'url' => ['turnier/spieler', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Torjäger', 'url' => ['turnier/torjaeger', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Stadien', 'url' => ['turnier/stadien', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Schiedsrichter', 'url' => ['turnier/schiedsrichter', 'wettbewerbID' => $turnier['wettbewerbID'], 'jahr' => $turnier['jahr']], 'linkOptions' => ['class' => 'dropdown-item']],
             ],
         ],
         [
             'label' => 'Statistik',
             'linkOptions' => ['class' => 'btn btn-turnier dropdown-toggle', 'data-bs-toggle' => 'dropdown'],
             'items' => [
-                ['label' => 'Archiv', 'url' => ["/turnier/{$turnier['wettbewerbID']}/archiv"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Statistik', 'url' => ["/turnier/{$turnier['wettbewerbID']}/statistik"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Alle Sieger', 'url' => ["/turnier/{$turnier['wettbewerbID']}/alle-sieger"], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Torschützenkönige', 'url' => ["/turnier/{$turnier['wettbewerbID']}/torschuetzenkoenige"], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Archiv', 'url' => ['turnier/archiv', 'wettbewerbID' => $turnier['wettbewerbID']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Statistik', 'url' => ['turnier/statistik', 'wettbewerbID' => $turnier['wettbewerbID']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Alle Sieger', 'url' => ['turnier/alle-sieger', 'wettbewerbID' => $turnier['wettbewerbID']], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Torschützenkönige', 'url' => ['turnier/torschuetzenkoenige', 'wettbewerbID' => $turnier['wettbewerbID']], 'linkOptions' => ['class' => 'dropdown-item']],
             ],
         ],
     ]

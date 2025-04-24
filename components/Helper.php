@@ -65,12 +65,12 @@ class Helper
         if ($key == 'SUI') {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: 2px;'
             ]); 
         } else {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: middle;'
+                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: 2px;'
             ]);
         }
         
@@ -607,11 +607,16 @@ class Helper
     public static function getCurrentTurnierParams(): ?array
     {
         $params = Yii::$app->controller->actionParams ?? [];
-        
+
         if (isset($params['wettbewerbID'], $params['jahr'])) {
             return [
                 'wettbewerbID' => (int)$params['wettbewerbID'],
                 'jahr' => (int)$params['jahr'],
+            ];
+        } elseif (isset($params['turnier'], $params['year'])) {
+            return [
+                'wettbewerbID' => (int)$params['turnier'],
+                'jahr' => (int)$params['year'],
             ];
         }
         
