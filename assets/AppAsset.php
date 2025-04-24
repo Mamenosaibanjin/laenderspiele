@@ -26,17 +26,16 @@ class AppAsset extends AssetBundle
         'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
         'https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap',
         'https://keshikan.net/fonts-e.html',
-        'css/site.css',
         'css/widgets.css',
         'css/spielbericht.css',
         'css/spieler.css',
-        'css/site.css',
         'https://fonts.googleapis.com/css2?family=Material+Icons&display=swap',
         'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',
         'https://cdn.jsdelivr.net/npm/awesomplete@1.1.5/awesomplete.min.css',
         'https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css',
         'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css',
         'https://cdn.jsdelivr.net/npm/spectrum-colorpicker2/dist/spectrum.min.css',
+        'css/site.css',
     ];
     public $js = [
         'https://code.jquery.com/ui/1.13.2/jquery-ui.min.js',

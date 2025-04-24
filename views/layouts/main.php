@@ -53,90 +53,177 @@ document.addEventListener('scroll', function () {
 <body class="d-flex flex-column h-100">
 <?php $this->beginBody() ?>
 
-<header id="header">
-    <div class="logo-container text-center">
-        <?= Html::a(
-            Html::img(Yii::getAlias('@web/assets/img/logo_header.png'), [
-                'alt' => 'Logo',
-                'id' => 'header-logo',
-                'class' => 'img-fluid',
-            ]),
-            Yii::$app->homeUrl
-        ) ?>
-    </div>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
+<header id="main-header" class="bg-light text-white">
+    <!-- Zeile 1: Logo, Titel, Login -->
+    <div class="container-fluid header-container">
+        <div class="d-flex align-items-center logo-container">
+            <?= Html::a(
+                Html::img('@web/assets/img/logo_header.png', [
+                    'alt' => 'Logo',
+                    'id' => 'main-logo',
+                    'class' => 'me-3 logo-img',
+                ]),
+                Yii::$app->homeUrl
+            ) ?>
+        </div>
+        <div class="login-container">
             <?= Nav::widget([
                 'options' => ['class' => 'navbar-nav'],
                 'items' => [
-                    ['label' => 'Home', 'url' => ['/site/index']],
-                    [
-                        'label' => 'Wettbewerbe Männer:',
-                        'items' => array_merge(
-                            array_map(function($turnier) {
-                                return [
-                                    'label' => $turnier['name'] . ' ' . $turnier['jahr'], // Anzeige des Turniers
-                                    'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
-                                ];
-                            }, Helper::getTurniere('M'))
-                            ),
+                    Yii::$app->user->isGuest
+                        ? [
+                            'label' => 'Login',
+                            'url' => '#',
+                            'linkOptions' => [
+                                'data-bs-toggle' => 'modal',
+                                'data-bs-target' => '#loginModal',
+                                'class' => 'btn btn-turnier nav-link nav-link-login',
                             ],
-                            [
-                                'label' => 'Wettbewerbe Frauen:',
-                                'items' => array_merge(
-                                    array_map(function($turnier) {
-                                        return [
-                                            'label' => $turnier['name'] . ' ' . $turnier['jahr'], // Anzeige des Turniers
-                                            'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
-                                        ];
-                                    }, Helper::getTurniere('W'))
-                                    ),
-                                    ],
-                                    
-                                    ],
-            ]) ?>
-            
-            <form class="d-flex ms-auto" action="<?= Url::to(['/search/index']) ?>" method="get">
-                <div class="input-group" style="width: 15%; position: absolute; top: 10px; right: 15px;">
-                    <input class="form-control me-2" type="search" placeholder="Suche" aria-label="Suche" name="q" style="margin-right: 0 !important;">
-                    <span class="input-group-text"><i class="fa fa-search"></i></span>
-                </div>
-                <button class="btn btn-outline-light" type="submit" style="display: none;"></button>
-            </form>
-	        <div class="d-flex justify-content-end align-items-center" style="position: fixed; top: 10px; right: 45px;">
-            <?= Nav::widget([
-    'options' => ['class' => 'navbar-nav ms-3'], // Navigation-Optionen
-    'items' => [
-        Yii::$app->user->isGuest 
-            ? [
-                'label' => 'Login',
-                'url' => '#',
-                'linkOptions' => [
-                    'data-bs-toggle' => 'modal',
-                    'data-bs-target' => '#loginModal', // ID des Modals
-                    'class' => 'nav-link',
+                        ]
+                        : [
+                            'label' => Yii::$app->user->identity->username,
+                            'items' => [
+                                [
+                                    'label' => 'Logout',
+                                    'url' => ['/site/logout'],
+                                    'linkOptions' => ['data-method' => 'post'],
+                                ],
+                            ],
+                        ],
                 ],
-            ]
-            : [
-                'label' => Yii::$app->user->identity->username,
+            ]) ?>
+        </div>
+    </div>
+
+     <!-- Zeile 2: Home, Männer/Women Turniere + Suche -->
+    <div class="container-fluid py-2 border-bottom d-flex justify-content-between align-items-center bg-secondary header-container">
+        <div class="d-flex">
+            <?= Nav::widget([
+                'options' => ['class' => 'navbar-nav flex-row'],
                 'items' => [
                     [
-                        'label' => 'Logout', 
-                        'url' => ['/site/logout'], 
-                        'linkOptions' => ['data-method' => 'post'],
+                        'label' => 'Home',
+                        'url' => ['/site/index'],
+                        'linkOptions' => ['class' => 'btn btn-wettbewerbe nav-link nav-link-home']
+                    ],
+                    [
+                        'label' => 'Wettbewerbe Männer',
+                        'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
+                        'items' => array_map(function ($turnier) {
+                            return [
+                                'label' => $turnier['name'] . ' ' . $turnier['jahr'],
+                                'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
+                            ];
+                        }, Helper::getTurniere('M')),
+                    ],
+                    [
+                        'label' => 'Wettbewerbe Frauen',
+                        'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
+                        'items' => array_map(function ($turnier) {
+                            return [
+                                'label' => $turnier['name'] . ' ' . $turnier['jahr'],
+                                'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
+                            ];
+                        }, Helper::getTurniere('W')),
                     ],
                 ],
-                // Benutzerdefiniertes Dropdown-Rendering
-                'dropDownOptions' => [
-                    'class' => 'dropdown-menu custom-dropdown', // Klasse für Dropdown
-                ],
-            ],
-    ],
-    'dropdownClass' => 'yii\bootstrap5\Dropdown', // Verwenden von Bootstrap 5 Dropdown
-]) ?>
+            ]) ?>
+        </div>
+    
+        <!-- Suchleiste rechts mit integriertem Icon -->
+        <form class="input-group search-container" action="<?= Url::to(['/search/index']) ?>" method="get">
+            <input type="search" class="form-control" name="q" placeholder="Suche" aria-label="Suche">
+            <button class="btn btn-search" type="submit">
+                <i class="fa fa-search"></i>
+            </button>
+        </form>
+    </div>
+
+
+    <!-- Zeile 3: Turnier- und Statistik-Dropdowns -->
+    <div class="container-fluid py-2 bg-light">
+        <div class="d-flex">
+        
+        	<?php  $turnier = Helper::getCurrentTurnierParams(); ?>
+            
+            <div class="dropdown">
+                <?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
             </div>
+        </div>
+    </div>
+</header>
+
+
+<header id="sticky-header" class="bg-light text-white d-none fixed-top shadow-sm" style="z-index: 1030; transition: opacity 0.4s ease;">
+    <div class="py-2 d-flex justify-content-between align-items-center">
+        
+        <!-- LINKS: Logo + Wettbewerbsname -->
+        <div class="d-flex align-items-center">
+            <?= Html::a(
+                Html::img('@web/assets/img/logo_short.png', [
+                    'alt' => 'Logo',
+                    'style' => 'height: 30px;',
+                    'class' => 'me-2',
+                ]),
+                Yii::$app->homeUrl
+            ) ?>
+            <?php
+                $turnier = Helper::getCurrentTurnierParams();
+                if ($turnier): ?>
+                    <span class="text-blue fw-bold">
+                        <?= Helper::getTurniernameFullname($turnier['wettbewerbID'], $turnier['jahr']) ?>
+                    </span>
+                <?php endif; ?>
+
+        </div>
+
+        <!-- MITTE: Dropdowns -->
+        <div class="d-flex">
+
+            <div class="dropdown">
+				<?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
             </div>
-        </nav>
+        </div>
+
+        <!-- RECHTS: Suchfeld + Login -->
+        <div class="d-flex align-items-center">
+            <form class="d-flex me-2" action="<?= Url::to(['/search/index']) ?>" method="get">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" placeholder="Suche" name="q">
+                    <button class="btn btn-search" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
+
+            <div class="login-container">
+                <?= Nav::widget([
+                    'options' => ['class' => 'navbar-nav'],
+                    'items' => [
+                        Yii::$app->user->isGuest
+                            ? [
+                                'label' => 'Login',
+                                'url' => '#',
+                                'linkOptions' => [
+                                    'data-bs-toggle' => 'modal',
+                                    'data-bs-target' => '#loginModal',
+                                    'class' => 'btn btn-turnier nav-link nav-link-login',
+                                ],
+                            ]
+                            : [
+                                'label' => Yii::$app->user->identity->username,
+                                'items' => [
+                                    [
+                                        'label' => 'Logout',
+                                        'url' => ['/site/logout'],
+                                        'linkOptions' => ['data-method' => 'post'],
+                                    ],
+                                ],
+                            ],
+                    ],
+                ]) ?>
+            </div>
+        </div>
+
+    </div>
 </header>
                     
 <main id="main" class="flex-shrink-0" role="main">
@@ -201,7 +288,23 @@ document.addEventListener('scroll', function () {
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const stickyHeader = document.getElementById('sticky-header');
+    const mainHeader = document.getElementById('main-header');
+    const offset = mainHeader.offsetHeight;
 
+    window.addEventListener('scroll', function () {
+        if (window.scrollY > offset) {
+            stickyHeader.classList.add('visible', 'd-block');
+            stickyHeader.classList.remove('d-none');
+        } else {
+            stickyHeader.classList.remove('visible', 'd-block');
+            stickyHeader.classList.add('d-none');
+        }
+    });
+});
+</script>
 <?php $this->endBody() ?>
 </body>
 </html>

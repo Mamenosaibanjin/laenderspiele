@@ -10,7 +10,7 @@ use yii\web\Response;
 
 class TurnierController extends Controller
 {
-    public function actionView($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
+    public function actionTeilnehmer($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
     {
         // Daten aus der Tabelle "turnier" holen
         $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);

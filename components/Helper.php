@@ -604,6 +604,20 @@ class Helper
         return $query;
     }
     
+    public static function getCurrentTurnierParams(): ?array
+    {
+        $params = Yii::$app->controller->actionParams ?? [];
+        
+        if (isset($params['wettbewerbID'], $params['jahr'])) {
+            return [
+                'wettbewerbID' => (int)$params['wettbewerbID'],
+                'jahr' => (int)$params['jahr'],
+            ];
+        }
+        
+        return null;
+    }
+    
     public static function getTurniernameFullname($turnier, $jahr)
     {
         
