@@ -366,6 +366,21 @@ a.desc:after {
     align-items: flex-start;
 }
 
+.no-caret {
+	border-radius: 50% !important;
+    width: 40px;
+    height: 40px;
+    padding: 0 !important;
+    text-align: center;
+    line-height: 40px; /* für vertikale Zentrierung */
+    border: 1px solid grey;
+}
+
+.no-caret::after {
+    display: none !important;
+}
+
+
 /* === Karten-Header === */
 .card-header {
     color: #1C75AC;

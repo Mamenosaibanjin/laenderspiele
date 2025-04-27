@@ -66,9 +66,9 @@ document.addEventListener('scroll', function () {
                 Yii::$app->homeUrl
             ) ?>
         </div>
-        <div class="login-container">
+        <div class="login-container position-relative">
             <?= Nav::widget([
-                'options' => ['class' => 'navbar-nav'],
+                'options' => ['class' => 'navbar-nav','style' => 'margin-right: 20px;'],
                 'items' => [
                     Yii::$app->user->isGuest
                         ? [
@@ -83,9 +83,13 @@ document.addEventListener('scroll', function () {
                         : [
                             'label' => Yii::$app->user->identity->username,
                             'linkOptions' => [
-                                'data-bs-toggle' => 'modal',
-                                'data-bs-target' => '#loginModal',
-                                'class' => 'btn btn-turnier nav-link nav-link-login',
+                                'data-bs-toggle' => 'dropdown',
+                                'class' => 'btn btn-turnier nav-link nav-link-login dropdown-toggle',
+                                'aria-expanded' => 'false',
+                            ],
+                            'dropdownOptions' => [
+                                'class' => 'dropdown-menu dropdown-menu-end',
+                                'style' => 'z-index: 1055;', // Stellt sicher, dass das Menü über allem liegt
                             ],
                             'items' => [
                                 [
@@ -98,6 +102,7 @@ document.addEventListener('scroll', function () {
                 ],
             ]) ?>
         </div>
+
     </div>
 
      <!-- Zeile 2: Home, Männer/Women Turniere + Suche -->
@@ -146,9 +151,9 @@ document.addEventListener('scroll', function () {
 
 
     <!-- Zeile 3: Turnier- und Statistik-Dropdowns -->
-   	<?php  $turnier = Helper::getCurrentTurnierParams();
+   	<?php  $turnier = Helper::getCurrentTurnier();
    	
-   	if (!empty($turnier) && isset($turnier['wettbewerbID'], $turnier['jahr'])): ?>
+   	if ($turnier !== null): ?>
    	
 <div class="container-fluid py-2 bg-light">
     <div class="d-flex align-items-center justify-content-center" style="min-height: 60px;">
@@ -175,10 +180,10 @@ document.addEventListener('scroll', function () {
                 Yii::$app->homeUrl
             ) ?>
             <?php
-                $turnier = Helper::getCurrentTurnierParams();
-                if ($turnier): ?>
-                    <span class="text-blue fw-bold">
-                        <?= Helper::getTurniernameFullname($turnier['wettbewerbID'], $turnier['jahr']) ?>
+                $turnier = Helper::getCurrentTurnier();
+                if ($turnier !== null): ?>
+                	<span class="text-blue fw-bold">
+                        <?= Helper::getTurniernameFullname($turnier->wettbewerbID) ?>
                     </span>
                 <?php endif; ?>
 
@@ -186,12 +191,11 @@ document.addEventListener('scroll', function () {
 
         <!-- MITTE: Dropdowns -->
 
-	   	<?php if (!empty($turnier) && isset($turnier['wettbewerbID'], $turnier['jahr'])): ?>
-
+		<?php if (!empty($turnier) && ($tournament = $turnier) !== null): ?>
+        
         <div class="d-flex">
-
             <div class="dropdown">
-				<?= $this->render('//layouts/_turnierMenu', ['turnier' => $turnier]) ?>
+				<?= $this->render('//layouts/_turnierMenu', ['turnier' => $tournament]) ?>
             </div>
         </div>
         
@@ -199,13 +203,6 @@ document.addEventListener('scroll', function () {
 
         <!-- RECHTS: Suchfeld + Login -->
         <div class="d-flex align-items-center">
-            <form class="d-flex me-2" action="<?= Url::to(['/search/index']) ?>" method="get">
-                <div class="input-group input-group-sm">
-                    <input class="form-control" type="search" placeholder="Suche" name="q">
-                    <button class="btn btn-search" type="submit"><i class="fa fa-search"></i></button>
-                </div>
-            </form>
-
             <div class="login-container">
                 <?= Nav::widget([
                     'options' => ['class' => 'navbar-nav'],
@@ -221,11 +218,15 @@ document.addEventListener('scroll', function () {
                                 ],
                             ]
                             : [
-                                'label' => Yii::$app->user->identity->username,
+                                'label' => Html::encode(substr(Yii::$app->user->identity->username,0,1)),
                                 'linkOptions' => [
-                                    'data-bs-toggle' => 'modal',
-                                    'data-bs-target' => '#loginModal',
-                                    'class' => 'btn btn-turnier nav-link nav-link-login',
+                                    'data-bs-toggle' => 'dropdown',
+                                    'class' => 'btn btn-turnier nav-link nav-link-login no-caret',
+                                    'aria-expanded' => 'false',
+                                ],
+                                'dropdownOptions' => [
+                                    'class' => 'dropdown-menu dropdown-menu-end',
+                                    'style' => 'z-index: 1055;', // Stellt sicher, dass das Menü über allem liegt
                                 ],
                                 'items' => [
                                     [
@@ -238,7 +239,14 @@ document.addEventListener('scroll', function () {
                     ],
                 ]) ?>
             </div>
+             <form class="d-flex me-2" action="<?= Url::to(['/search/index']) ?>" method="get">
+                <div class="input-group input-group-sm">
+                    <input class="form-control" type="search" placeholder="Suche" name="q">
+                    <button class="btn btn-search" type="submit"><i class="fa fa-search"></i></button>
+                </div>
+            </form>
         </div>
+                   
 
     </div>
 </header>

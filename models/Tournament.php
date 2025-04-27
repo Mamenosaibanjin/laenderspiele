@@ -15,7 +15,7 @@ class Tournament extends \yii\db\ActiveRecord
         return [
             [['wettbewerbID', 'jahr', 'land', 'startdatum'], 'required'],
             [['parentTournamentID'], 'integer'],
-            [['startdatum'], 'date', 'format' => 'php:Y-m-d'],
+            [['startdatum', 'enddatum'], 'date', 'format' => 'php:Y-m-d'],
             [['wettbewerbID'], 'exist', 'skipOnError' => true, 'targetClass' => Wettbewerb::class, 'targetAttribute' => ['wettbewerbID' => 'id']],
             [['parentTournamentID'], 'exist', 'skipOnError' => true, 'targetClass' => Tournament::class, 'targetAttribute' => ['parentTournamentID' => 'id']],
         ];

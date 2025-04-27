@@ -79,12 +79,16 @@ $config = [
                 'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
                 'index' => 'index/view',
-                'spiele/<wettbewerbID:\d+>/<jahr:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'spiele/view',
-                'spiele/<wettbewerbID:\d+>/<jahr:\d+>' => 'spiele/view', // Fallback für minimale Parameter
+                
+                'spiele/<tournamentID:\d+>/<gruppe:\w*>/<runde:\d*>/<spieltag:\d*>' => 'spiele/view',
+                'spiele/<tournamentID:\d+>' => 'spiele/view', // Fallback für minimale Parameter
+                
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
-                'turnier/<wettbewerbID:\d+>/<jahr:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
-                'turnier/<wettbewerbID:\d+>/<jahr:\d+>/ergebnisse' => 'turnier/ergebnisse',
-                'turnier/<wettbewerbID:\d+>/<jahr:\d+>/<action:(ergebnisse|spielplan|teilnehmer|spieler|torjaeger|stadien|schiedsrichter)>' => 'turnier/<action>',
+                
+                'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
+                'turnier/<tournamentID:\d+>/ergebnisse' => 'turnier/ergebnisse',
+                'turnier/<tournamentID:\d+>/<action:(ergebnisse|spielplan|teilnehmer|spieler|torjaeger|stadien|schiedsrichter)>' => 'turnier/<action>',
+                
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',
                 'turnier/search' => 'turnier/search',
                 'site/login' => 'site/login',

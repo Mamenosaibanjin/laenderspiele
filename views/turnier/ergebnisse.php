@@ -1,5 +1,7 @@
 <?php
 use app\components\Helper;
+use app\models\Spiel;
+use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Nav;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -61,7 +63,11 @@ foreach ($laenderKeys as $key) {
         <div class="card-body">
             
 
-            <!-- Spielübersicht -->
+        <?php if (!Yii::$app->user->isGuest): ?>
+
+        <?php else: ?>
+        
+            <!-- Normale Tabelle ohne Eingabe -->
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -74,6 +80,11 @@ foreach ($laenderKeys as $key) {
                     </tr>
                 </thead>
                 <tbody>
+                	<?php 
+                	$spiele = Spiel::find()
+                	->where(['tournamentID' => $turnier->id])
+                	->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC])
+                	->all();?>
                     <?php foreach ($spiele as $spiel): ?>
                         <tr>
                             <td><?= Yii::$app->formatter->asDate($spiel->datum) ?></td>
@@ -86,6 +97,9 @@ foreach ($laenderKeys as $key) {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+        
+        <?php endif; ?>
+
         </div>
     </div>
 

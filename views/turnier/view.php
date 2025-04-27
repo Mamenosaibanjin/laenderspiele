@@ -7,7 +7,7 @@ use app\components\Helper;
 /** @var string $turniername */
 /** @var int $jahr */
 
-$this->title = "Turnier - $turniername $jahr";
+$this->title = "Turnier - " . $turniername . ' ' . $jahr;
 
 ?>
 <div class="verein-page row">

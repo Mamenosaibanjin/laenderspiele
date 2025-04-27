@@ -14,35 +14,37 @@ use yii\web\Response;
 
 class TurnierController extends Controller
 {
-    public function actionTeilnehmer($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
+    public function actionTeilnehmer($tournamentID, $gruppe = null, $runde = null, $spieltag = null)
     {
         // Daten aus der Tabelle "turnier" holen
-        $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);
-        $turniername = Helper::getTurniername($wettbewerbID); // Wettbewerbsname holen
-        
-        $turnierjahr = $jahr . '-01-01';
-                
+        $spiele = Turnier::findTurniere($tournamentID, $gruppe, $runde, $spieltag);
+        $turniername = Helper::getTurniername($tournamentID); // Wettbewerbsname holen
+               
         // Teilnehmer abrufen
-        $clubs = Turnier::findTeilnehmer($wettbewerbID, $jahr);
+        $clubs = Turnier::findTeilnehmer($tournamentID);
         
         // Anzahl der Tore sowie Platzverweise für die Turnierübersicht        
-        $anzahlTore = Turnier::countTore($wettbewerbID, $jahr);
-        $anzahlPlatzverweise = Turnier::countPlatzverweise($wettbewerbID, $jahr);
+        $anzahlTore = Turnier::countTore($tournamentID);
+        $anzahlPlatzverweise = Turnier::countPlatzverweise($tournamentID);
         
         // Spieleranzahl ergänzen
         foreach ($clubs as &$club) {
-            $club['spieleranzahl'] = Turnier::countSpieler($wettbewerbID, $jahr, $club['id']) ?: '-----';
+            $club['spieleranzahl'] = Turnier::countSpieler($tournamentID, $club['id']) ?: '-----';
         }
         unset($club);
         
-        $model = Turnier::findOne(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr]);
-        $topScorers = $model->getTopScorers($wettbewerbID, $jahr);
+        $model = Turnier::findOne($tournamentID);
+        $topScorers = $model->getTopScorers($tournamentID);
+        
+        $jahr = Helper::getTurnierJahr($tournamentID);
+        $wettbewerbID = Helper::getWettbewerbID($tournamentID);
+        $turnierjahr = Helper::getTurnierStartdatum($tournamentID);
         
         return $this->render('view', [
             'spiele' => $spiele,
+            'jahr' => $jahr, // 
+            'wettbewerbID' => $wettbewerbID, // 
             'turniername' => $turniername,
-            'jahr' => $jahr,
-            'wettbewerbID' => $wettbewerbID,
             'clubs' => $clubs, // Teilnehmer und Spieleranzahl an das View übergeben
             'anzahlTore' => $anzahlTore,
             'anzahlPlatzverweise' => $anzahlPlatzverweise,
@@ -66,9 +68,9 @@ class TurnierController extends Controller
         return $clubs;
     }
     
-    public function actionErgebnisse($wettbewerbID, $jahr)
+    public function actionErgebnisse($tournamentID)
     {
-        $turnier = Tournament::find()->where(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr])->one();
+        $turnier = Tournament::findOne($tournamentID);
         
         if (!$turnier) {
             throw new NotFoundHttpException('Turnier nicht gefunden.');

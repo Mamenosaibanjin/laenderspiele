@@ -16,44 +16,56 @@ class Turnier extends ActiveRecord
     public function rules()
     {
         return [
-            [['jahr', 'wettbewerbID', 'spielID', 'spieltag', 'runde'], 'integer'], // Zahlenwerte
-            [['datum'], 'date', 'format' => 'php:Y-m-d'], // Datumswerte
-            [['zeit'], 'time', 'format' => 'php:H:i'], // Zeit
-            [['gruppe'], 'string', 'max' => 15], // Kürzere Texte
-            [['beschriftung'], 'string', 'max' => 255], // Beschriftung
-            [['aktiv', 'tore'], 'boolean', 'trueValue' => 1, 'falseValue' => 0], // Booleans
-            [['wettbewerbID'], 'exist', 'targetClass' => Wettbewerb::class, 'targetAttribute' => 'id'], // Prüfung auf Wettbewerb
-            [['spielID'], 'exist', 'targetClass' => Spiel::class, 'targetAttribute' => 'id'], // Prüfung auf Spiel
+            [['tournamentID', 'spielID', 'spieltag', 'runde'], 'integer'],
+            [['datum'], 'date', 'format' => 'php:Y-m-d'],
+            [['zeit'], 'time', 'format' => 'php:H:i'],
+            [['gruppe'], 'string', 'max' => 15],
+            [['beschriftung'], 'string', 'max' => 255],
+            [['aktiv', 'tore'], 'boolean', 'trueValue' => 1, 'falseValue' => 0],
+            [['jahr', 'wettbewerbID'], 'safe'],
+            
+            // Neue Referenzprüfung
+            [['tournamentID'], 'exist', 'targetClass' => \app\models\Tournament::class, 'targetAttribute' => 'ID'],
+            [['spielID'], 'exist', 'targetClass' => \app\models\Spiel::class, 'targetAttribute' => 'id'],
         ];
     }
     
-    public static function findTurniere($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
+    
+    public static function findTurniere($tournamentID, $gruppe = null, $runde = null, $spieltag = null)
     {
         $query = self::find()
-        ->where(['wettbewerbID' => $wettbewerbID, 'jahr' => $jahr])
-        ->andFilterWhere(['gruppe' => $gruppe])
-        ->andFilterWhere(['runde' => $runde])
-        ->andFilterWhere(['spieltag' => $spieltag])
-        ->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC]);
+        ->alias('s')
+        ->select([
+            's.*',                  // alle Spalten aus der turnier-Tabelle
+            't.wettbewerbID',
+            't.jahr'
+        ])
+        ->innerJoin(['t' => 'tournament'], 's.tournamentID = t.ID')
+        ->where(['s.tournamentID' => $tournamentID])
+        ->andFilterWhere(['s.gruppe' => $gruppe])
+        ->andFilterWhere(['s.runde' => $runde])
+        ->andFilterWhere(['s.spieltag' => $spieltag])
+        ->orderBy(['s.datum' => SORT_ASC, 's.zeit' => SORT_ASC]);
         
-        return $query->all();
+        return $query->asArray()->all(); // wichtig: asArray(), damit zusätzliche Felder direkt im Array landen
     }
     
-    public static function findTeilnehmer($wettbewerbID, $jahr)
+    
+    public static function findTeilnehmer($tournamentID)
     {
         $subQuery1 = (new \yii\db\Query())
         ->select(['c.id', 'c.name', 'c.land'])
         ->from('turnier t')
         ->innerJoin('spiele s', 't.spielID = s.ID')
         ->innerJoin('clubs c', 's.club1ID = c.ID')
-        ->where(['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]);
+        ->where(['t.tournamentID' => $tournamentID]);
         
         $subQuery2 = (new \yii\db\Query())
         ->select(['c.id', 'c.name', 'c.land'])
         ->from('turnier t')
         ->innerJoin('spiele s', 't.spielID = s.ID')
         ->innerJoin('clubs c', 's.club2ID = c.ID')
-        ->where(['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]);
+        ->where(['t.tournamentID' => $tournamentID]);
         
         $query = (new \yii\db\Query())
         ->from(['unionQuery' => $subQuery1->union($subQuery2)])
@@ -62,15 +74,15 @@ class Turnier extends ActiveRecord
         return $query->all();
     }
     
-    public static function countSpieler($wettbewerbID, $jahr, $clubID)
+    public static function countSpieler($tournamentID, $clubID)
     {
         return (new \yii\db\Query())
         ->from('spieler_land_wettbewerb slw')
         ->leftJoin('tournament t', 't.id = slw.tournamentID')
         ->where([
             'OR',
-            ['slw.wettbewerbID' => $wettbewerbID, 'slw.jahr' => $jahr], // Falls noch alte Einträge existieren
-            ['t.wettbewerbID' => $wettbewerbID, 't.jahr' => $jahr]      // Neue Struktur über tournament-Tabelle
+            ['slw.tournamentID' => $tournamentID], // Falls noch alte Einträge existieren
+            ['t.id' => $tournamentID]      // Neue Struktur über tournament-Tabelle
         ])
         ->andWhere(['slw.landID' => $clubID])
         ->count();
@@ -100,33 +112,31 @@ class Turnier extends ActiveRecord
             </div>";
     }
     
-    public static function countTore($wettbewerbID, $jahr): int
+    public static function countTore($tournamentID): int
     {
         return (new \yii\db\Query())
         ->from('games g')
         ->innerJoin('turnier t', 'g.spielID = t.spielID')
         ->where([
-            't.wettbewerbID' => $wettbewerbID,
-            't.jahr' => $jahr,
+            't.tournamentID' => $tournamentID,
         ])
         ->andWhere(['g.aktion' => ['ET', 'TOR', '11m']])
         ->count();
     }
     
-    public static function countPlatzverweise($wettbewerbID, $jahr): int
+    public static function countPlatzverweise($tournamentID): int
     {
         return (new \yii\db\Query())
         ->from('games g')
         ->innerJoin('turnier t', 'g.spielID = t.spielID')
         ->where([
-            't.wettbewerbID' => $wettbewerbID,
-            't.jahr' => $jahr,
+            't.tournamentID' => $tournamentID,
         ])
         ->andWhere(['g.aktion' => ['GRK', 'RK']])
         ->count();
     }
     
-    public function getTopScorers($wettbewerbID, $jahr, $limit = 20)
+    public function getTopScorers($tournamentID, $limit = 20)
     {
         return Spieler::find()
         ->select([
@@ -138,8 +148,7 @@ class Turnier extends ActiveRecord
         ])
         ->joinWith(['games', 'games.spiel.turnier'])
         ->where([
-            'turnier.wettbewerbID' => $wettbewerbID,
-            'turnier.jahr' => $jahr
+            'turnier.tournamentID' => $tournamentID
         ])
         ->andWhere(['or', ['like', 'games.aktion', 'TOR'], ['like', 'games.aktion', '11m']])
         ->groupBy('spieler.id')

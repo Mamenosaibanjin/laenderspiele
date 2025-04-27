@@ -596,55 +596,86 @@ class Helper
         $column = $language === 'en_US' ? 'name_en' : 'name';
         
         $query = (new \yii\db\Query())
-        ->select([$column, 'land'])
-        ->from(['wettbewerb'])
-        ->where(['ID' => $turnier])
-        ->scalar();
+        ->select(["w.$column", 'w.land'])
+        ->from(['t' => 'tournament'])
+        ->innerJoin(['w' => 'wettbewerb'], 'w.ID = t.wettbewerbID')
+        ->where(['t.ID' => $turnier])
+        ->one();
         
-        return $query;
+        if ($query) {
+            return $query[$column];
+        }
+        
+        return '';
     }
     
-    public static function getCurrentTurnierParams(): ?array
+    public static function getWettbewerbID($tournamentID)
+    {
+        $tournament = \app\models\Tournament::findOne($tournamentID);
+        return $tournament ? $tournament->wettbewerbID : null;
+    }
+    
+    public static function getTurnierJahr($tournamentID)
+    {
+        $tournament = \app\models\Tournament::findOne($tournamentID);
+        return $tournament ? $tournament->jahr : null;
+    }
+    
+    public static function getTurnierStartdatum($tournamentID)
+    {
+        $tournament = \app\models\Tournament::findOne($tournamentID);
+        if (!$tournament) {
+            return null;
+        }
+        
+        $startdatumRaw = $tournament->startdatum;
+        
+        if (strlen($startdatumRaw) === 6) {
+            return substr($startdatumRaw, 0, 4) . '-' . substr($startdatumRaw, 4, 2) . '-01';
+        }
+        
+        return $startdatumRaw;
+    }
+    
+    public static function getCurrentTurnier(): ?\app\models\Tournament
     {
         $params = Yii::$app->controller->actionParams ?? [];
-
-        if (isset($params['wettbewerbID'], $params['jahr'])) {
-            return [
-                'wettbewerbID' => (int)$params['wettbewerbID'],
-                'jahr' => (int)$params['jahr'],
-            ];
-        } elseif (isset($params['turnier'], $params['year'])) {
-            return [
-                'wettbewerbID' => (int)$params['turnier'],
-                'jahr' => (int)$params['year'],
-            ];
+        
+        if (isset($params['tournamentID'])) {
+            return \app\models\Tournament::findOne((int)$params['tournamentID']);
         }
         
         return null;
     }
     
-    public static function getTurniernameFullname($turnier, $jahr)
+    public static function getTurniernameFullname($tournamentID): ?string
     {
-        
         $language = Yii::$app->language;
         $column = $language === 'en_US' ? 'name_en' : 'name';
         
-        
-        $query = (new \yii\db\Query())
-        ->select([$column, 'land'])
-        ->from(['wettbewerb'])
-        ->where(['ID' => $turnier])
-        ->one(); // Ändere scalar() zu one()
-        
-        if ($query) {
-            $turniername = $query[$column] . " " . $jahr;
-            if ($turnier >= 500) :
-                $turniername .= "/" . ($jahr+1);
-            endif;
-            return $turniername;
+        // Turnier laden
+        $tournament = \app\models\Tournament::findOne($tournamentID);
+        if (!$tournament) {
+            return null;
         }
         
-        return null; // Fallback, falls kein Datensatz gefunden wird
+        // Wettbewerb laden (über ActiveRecord)
+        $wettbewerb = \app\models\Wettbewerb::findOne($tournament->wettbewerbID);
+        if (!$wettbewerb) {
+            return null;
+        }
+        
+        // Jahr aus Startdatum extrahieren
+        $jahr = (int)substr((string)$tournament->startdatum, 0, 4);
+        
+        // Turniername zusammensetzen
+        $turniername = $wettbewerb->$column . " " . $jahr;
+        
+        if ($tournament->wettbewerbID >= 500) {
+            $turniername .= "/" . ($jahr + 1);
+        }
+        
+        return $turniername;
     }
     
     
