@@ -658,19 +658,19 @@ class Helper
         if (!$tournament) {
             return null;
         }
-        
+
         // Wettbewerb laden (über ActiveRecord)
         $wettbewerb = \app\models\Wettbewerb::findOne($tournament->wettbewerbID);
         if (!$wettbewerb) {
             return null;
         }
-        
+
         // Jahr aus Startdatum extrahieren
         $jahr = (int)substr((string)$tournament->startdatum, 0, 4);
         
         // Turniername zusammensetzen
         $turniername = $wettbewerb->$column . " " . $jahr;
-        
+
         if ($tournament->wettbewerbID >= 500) {
             $turniername .= "/" . ($jahr + 1);
         }
@@ -678,6 +678,21 @@ class Helper
         return $turniername;
     }
     
+    public static function getKaderJahr($tournament, $tournamentID): string
+    {
+        if (is_object($tournament) && isset($tournament->wettbewerbID)) {
+            return (string)Helper::getTurniernameFullname($tournament->id);
+        }
+        
+        $jahr = (int)$tournamentID;
+        return ($jahr - 1) . '/' . $jahr;
+    }
+    
+    public static function isNationalTeam($club)
+    {
+        // Annahme: Typ 1 = Herren-Nationalteam, Typ 2 = Frauen-Nationalteam
+        return in_array($club->typID, [1, 2, 11, 12]);
+    }
     
     // Funktion, um das passende SVG für die Aktion zu generieren
     public static function getActionSvg($aktion) {

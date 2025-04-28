@@ -183,7 +183,7 @@ document.addEventListener('scroll', function () {
                 $turnier = Helper::getCurrentTurnier();
                 if ($turnier !== null): ?>
                 	<span class="text-blue fw-bold">
-                        <?= Helper::getTurniernameFullname($turnier->wettbewerbID) ?>
+                        <?= Helper::getTurniernameFullname($turnier->id) ?>
                     </span>
                 <?php endif; ?>
 

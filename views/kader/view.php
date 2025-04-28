@@ -1,10 +1,6 @@
 <?php
 use yii\helpers\Html;
 use app\components\Helper;
-use yii\helpers\Url;
-use yii\web\JsExpression;
-use yii\widgets\ActiveForm;
-
 
 // Positionen-Mapping
 $positionMapping = [
@@ -17,6 +13,9 @@ $positionMapping = [
     7 => 'Torwart-Trainer',
 ];
 
+// Entscheidung: Nationalmannschaft oder Verein
+$isNationalTeam = in_array($club->typID, [1, 2]);
+
 $currentPositionID = null;
 ?>
 
@@ -24,40 +23,32 @@ $currentPositionID = null;
     <div class="card-header">
         <h3>
             <?= Html::img(Helper::getClubLogoUrl($club->id), ['alt' => Helper::getClubName($club->id), 'style' => 'height: 30px; padding-right: 10px;']) ?>
-            <?= Html::encode(Helper::getClubName($club->id)) ?> - Kader 
-            <?php if ($turnier == ''): ?>
-            	<?= Html::encode($jahr . '/' . ($jahr + 1)); ?>
-			<?php else: ?>
-            	<?= Html::encode(Helper::getTurniername($turnier) . ' ' . $jahr); ?>
-			<?php endif; ?>            	
+            <?= Html::encode(Helper::getClubName($club->id)) ?> - Kader <?= Html::encode(Helper::getKaderJahr($tournament, $tournamentID)) ?>
+
         </h3>
     </div>
+
     <div class="card-body">
         <table class="table">
             <thead>
                 <tr>
                     <th>Spieler</th>
                     <th>Geburtstag</th>
-                    <th>
-                        <?= $turnier == '' ? 'Im Verein seit' : 'Verein(e)' ?>
-                    </th>
-                    <?php if ($turnier == '') :?>
-                    	<th>Vorheriger Club</th>
+                    <th><?= $isNationalTeam ? 'Verein(e)' : 'Im Verein seit' ?></th>
+                    <?php if (!$isNationalTeam): ?>
+                        <th>Vorheriger Club</th>
                     <?php endif; ?>
                 </tr>
             </thead>
+
             <tbody>
-            <?php $counter = 0; ?> 
+                <?php $counter = 0; ?>
                 <?php foreach ($squad as $player): ?>
-			        <?php 
-			             $backgroundStyle = $counter % 2 === 0 ? '#f0f8ff' : '#ffffff';
-			             $counter++;?>
                     <?php
-                    // Bestimme die aktuelle PositionID
-                    $relation = $turnier == '' ? $player->vereinSaison : $player->landWettbewerb;
+                    $backgroundStyle = $counter++ % 2 === 0 ? '#f0f8ff' : '#ffffff';
+                    $relation = $isNationalTeam ? $player->landWettbewerb : $player->vereinSaison;
                     $positionID = $relation[0]->positionID ?? 0;
-                    
-                    // Neue Position? Überschrift setzen
+
                     if ($currentPositionID !== $positionID) {
                         $currentPositionID = $positionID;
                         $positionName = $positionMapping[$positionID] ?? 'Unbekannt';
@@ -65,106 +56,72 @@ $currentPositionID = null;
                     }
                     ?>
                     <tr>
-                        <td style="background-color: <?= $backgroundStyle; ?> !important; width: <?= $turnier == '' ? '30%' : '40%'?>;">
-                            <?php if (($turnier == '') OR ($positionID > 4)) :?>
-                            	<?php if (!empty($player->nati1)): ?>
-                                	<?= Helper::getFlagInfo($player->nati1, null, false) ?>
-	                            <?php endif; ?>
+                        <!-- Spielername -->
+                        <td style="background-color: <?= $backgroundStyle ?>; width: <?= $isNationalTeam ? '40%' : '30%' ?>;">
+                            <?php if (!$isNationalTeam || $positionID > 4): ?>
+                                <?= !empty($player->nati1) ? Helper::getFlagInfo($player->nati1, null, false) : '' ?>
                             <?php endif; ?>
-                            <?= Html::a(Html::encode(($player->vorname . ($player->vorname ? ' ' : '')) . $player->name), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
+                            <?= Html::a(Html::encode(trim($player->vorname . ' ' . $player->name)), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
                         </td>
-                        <td style="background-color: <?= $backgroundStyle; ?> !important; width: 20%;"><?= Yii::$app->formatter->asDate($player->geburtstag, 'php:d.m.Y') ?></td>
-                        <?php if ($turnier == ''): ?>
-                        	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 20%;"><?= Html::encode(Helper::getImVereinSeit($player, $club->id, $jahr)) ?></td>
-                        <?php else: ?>
-                        	<td style="background-color: <?= $backgroundStyle; ?> !important; width: 40%;">
-                        		<?php
-                        		if ($positionID <= 4) {
-                        		    
-                        		    $tournamentID = null;
-                        		    
-                        		    // Prüfen, ob der Spieler eine Beziehung zu "landWettbewerb" hat
-                        		    if (!empty($player->landWettbewerb) && isset($player->landWettbewerb[0]->tournamentID)) {
-                        		        $tournamentID = $player->landWettbewerb[0]->tournamentID;
-                        		    }
-                        		    
-                        		    $vereine = Helper::getClubsAtTurnier($player->id, $tournamentID, $jahr);
-    
-                            		// Nur wenn $vereine ein Array ist, iterieren
-                            		if (!empty($vereine)) {
-                            		    foreach ($vereine as $clubID) {
-                            		        $clubName = Helper::getClubName($clubID);
-                            		        
-                            		        echo "<div style='padding: 5px 0;'>";
-                            		        echo Helper::getFlagInfo(Helper::getClubNation($clubID), $jahr . '-07-01', false);
-                                	        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
-                            		        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
-                            		        echo "</div>";
-                            		    }
-                            		} else {
-                            		    echo "unbekannt/vereinslos";
-                            		}
-                        		}
-                        		?>
-                        	</td>
-                        <?php endif; ?>
-						<?php if ($turnier == '') :?>
-                            <td style="background-color: <?= $backgroundStyle; ?> !important; width: 30%;">
-                                <?php if ($positionID <= 4): ?>
-                                    <?php
-                                    // Ermitteln des "Im Verein seit"-Datums für den Spieler
-                                    $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $jahr);
-                                    
-                                    // Wenn ein Datum vorhanden ist, verwandle es in das gewünschte Format (YYYYMM07)
-                                    if (!empty($imVereinSeit)) {
-                                        $month = $imVereinSeit . '07'; // YYYY07
-                                        
-                                        // Verein vor dem aktuellen Saisonstart ermitteln
-                                        $vereinVorher = $player->getVereinVorSaison($month);
-    
-                                        // VereinID und Jugend-Status aus dem Ergebnis extrahieren
-                                        $clubID = $vereinVorher['vereinID'] ?? null;
-                                        $isJugend = $vereinVorher['jugend'] ?? null;
-                                        
-                                        if ($clubID) {
-                                            $clubName = Helper::getClubName($clubID);
-                                            
-                                            if ($isJugend) {
-                                                // Jugendverein formatieren
-                                                echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
-                                                echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']) . ' Jugend';
-                                            } else {
-                                                // Normaler Verein
-                                                echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
-                                                echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
-                                            }
-                                        } else {
-                                            echo 'Kein vorheriger Verein gefunden';
-                                        }
+
+                        <!-- Geburtstag -->
+                        <td style="background-color: <?= $backgroundStyle ?>; width: 20%;">
+                            <?= Yii::$app->formatter->asDate($player->geburtstag, 'php:d.m.Y') ?>
+                        </td>
+
+                        <!-- Verein(e) oder "Im Verein seit" -->
+                        <td style="background-color: <?= $backgroundStyle ?>;">
+                            <?php if ($isNationalTeam): ?>
+                                <?php
+                                $tournamentID = $relation[0]->tournamentID ?? null;
+                                $vereine = Helper::getClubsAtTurnier($player->id, $tournamentID, $tournament->jahr);
+                                if (!empty($vereine)) {
+                                    foreach ($vereine as $clubID) {
+                                        $clubName = Helper::getClubName($clubID);
+                                        echo "<div style='padding: 5px 0;'>";
+                                        echo Helper::getFlagInfo(Helper::getClubNation($clubID), $tournament->jahr . '-07-01', false);
+                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
+                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
+                                        echo "</div>";
                                     }
-                                    
-                                    $clubName = Helper::getVorherigerClub($player, $club->id, $jahr);
-                                    $clubID = Helper::getVorherigerClubID($player, $club->id, $jahr);
-    
-                                    if (strpos($clubName, 'eigene') !== false) {
-                                        echo Html::encode($clubName);
+                                } else {
+                                    echo "unbekannt/vereinslos";
+                                }
+                                ?>
+                            <?php else: ?>
+                                <?= Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)) ?>
+                            <?php endif; ?>
+                        </td>
+
+                        <!-- Vorheriger Club (nur Verein) -->
+                        <?php if (!$isNationalTeam): ?>
+                            <td style="background-color: <?= $backgroundStyle ?>;">
+                                <?php
+                                $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $tournament->jahr);
+                                if (!empty($imVereinSeit)) {
+                                    $month = $imVereinSeit . '07';
+                                    $vereinVorher = $player->getVereinVorSaison($month);
+
+                                    $clubID = $vereinVorher['vereinID'] ?? null;
+                                    $isJugend = $vereinVorher['jugend'] ?? null;
+
+                                    if ($clubID) {
+                                        $clubName = Helper::getClubName($clubID);
+                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
+                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
+                                        echo $isJugend ? ' Jugend' : '';
                                     } else {
-                                        if (strpos($clubName, 'Jugend') !== false) {
-                                            $clubNameParts = explode('Jugend', $clubName, 2);
-                                            echo Html::a(Html::encode(trim($clubNameParts[0])), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
-                                            echo ' Jugend' . Html::encode($clubNameParts[1] ?? '');
-                                        } else {
-                                            echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
-                                        }
+                                        echo 'Kein vorheriger Verein gefunden';
                                     }
-                                    ?>
-	                            <?php endif; ?>
-                            <?php endif; ?>
-                        </td>
+                                }
+                                ?>
+                            </td>
+                        <?php endif; ?>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
+
         
 <div id="spieler-zuordnung-container">
     <div class="mb-3">

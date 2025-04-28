@@ -4,38 +4,44 @@ namespace app\controllers;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use Yii;
+use app\components\Helper;
 use app\models\Club;
 use app\models\SpielerLandWettbewerb;
+use app\models\Tournament;
 
 class KaderController extends Controller
 {
-    public function actionView($id, $year, $turnier = null)
+    public function actionView($tournamentID, $id)
     {
         $club = Club::findOne($id);
         if (!$club) {
-            throw new \yii\web\NotFoundHttpException('Der Club wurde nicht gefunden.');
+            throw new NotFoundHttpException('Seite nicht gefunden.');
         }
         
-        if ($turnier !== null) {
-            
-            // Squad für das das Turnier abrufen
-            $squad = $club->getNationalSquad($id, $turnier, $year);
-        } else {    
-#            // Squad für das gegebene Jahr abrufen
-            $squad = $club->getSquad($id, $year);
-        }
+        $tournament = Tournament::findOne($tournamentID);
         
-        $spielerLandWettbewerb = new SpielerLandWettbewerb();
+        if (Helper::isNationalTeam($club)) {
+            if (!$tournament) {
+                throw new NotFoundHttpException('Turnier nicht gefunden.');
+            }
+            $squad = $club->getNationalSquad($club->id, $tournament->wettbewerbID, $tournament->jahr);
+        } else {
+            if (!$tournament) {
+                // Dummy-Objekt erzeugen, damit die View funktioniert
+                $tournament = new Tournament();
+                $tournament->jahr = $tournamentID; // Setze wenigstens das Jahr
+                $tournament->startdatum = $tournamentID . '-07-01'; // Typische Startdatum-Annäherung
+            }
+            $squad = $club->getSquad($club->id, $tournamentID);
+        }
         
         return $this->render('view', [
             'club' => $club,
-            'jahr' => $year,
             'squad' => $squad,
-            'turnier' => $turnier,
-            'spielerLandWettbewerb' => $spielerLandWettbewerb,
-            
+            'tournament' => $tournament,
+            'tournamentID' => $tournamentID,
         ]);
-        
     }
+    
 }
 ?>

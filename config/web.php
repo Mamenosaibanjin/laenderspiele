@@ -75,8 +75,7 @@ $config = [
                 'club/search' => 'club/search', // Neue Regel für die Club-Suche
                 'stadion/new' => 'stadion/new',
                 'stadion/<id:\d+>' => 'stadion/view',
-                'kader/<id:\d+>/<year:\d+>' => 'kader/view',
-                'kader/<id:\d+>/<year:\d+>/<turnier:\d+>' => 'kader/view',
+                'kader/<tournamentID:\d+>/<id:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
                 'index' => 'index/view',
                 

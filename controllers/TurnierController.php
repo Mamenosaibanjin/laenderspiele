@@ -45,6 +45,7 @@ class TurnierController extends Controller
             'jahr' => $jahr, // 
             'wettbewerbID' => $wettbewerbID, // 
             'turniername' => $turniername,
+            'tournamentID' => $tournamentID,
             'clubs' => $clubs, // Teilnehmer und Spieleranzahl an das View übergeben
             'anzahlTore' => $anzahlTore,
             'anzahlPlatzverweise' => $anzahlPlatzverweise,

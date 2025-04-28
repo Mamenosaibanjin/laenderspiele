@@ -40,7 +40,7 @@ $this->title = "Turnier - " . $turniername . ' ' . $jahr;
                                 <?php if ($club['spieleranzahl'] > 0): ?>
                                     <?= Html::a(
                                         "Kader",
-                                        ['/kader/view', 'id' => $club['id'], 'year' => $jahr, 'turnier' => $wettbewerbID],
+                                        ['/kader/view', 'tournamentID' => $tournamentID, 'id' => $club['id']],
                                         ['class' => 'text-decoration-none']
                                     ) ?>
                                     <?= " ({$club['spieleranzahl']} Spieler)" ?>
