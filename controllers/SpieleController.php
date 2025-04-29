@@ -3,6 +3,7 @@ namespace app\controllers;
 
 use yii\web\BadRequestHttpException;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
 use app\models\Spiel;
 use app\models\Turnier;
 use app\models\Wettbewerb;
@@ -38,23 +39,55 @@ class SpieleController extends Controller
             throw new BadRequestHttpException('Ungültige Anfrage');
         }
         
-        public function actionView($wettbewerbID, $jahr, $gruppe = null, $runde = null, $spieltag = null)
+        public function actionView($tournamentID = null, $wettbewerbID = null, $jahr = null, $gruppe = null, $runde = null, $spieltag = null)
         {
             $model = new Turnier();
-    
-            // Daten aus der Tabelle "turnier" holen
-            $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);
-            $turniername = Helper::getTurniername($wettbewerbID); // Wettbewerbsname holen
-            $turnierjahr = $jahr . '-01-01';
+            
+            if ($tournamentID !== null) {
+                // Neuer Weg: Direkt über tournamentID arbeiten
+                $tournament = Turnier::findOne($tournamentID);
+                if (!$tournament) {
+                    throw new NotFoundHttpException('Turnier nicht gefunden.');
+                }
+                // Hole alle Spiele zu diesem Turnier (vielleicht später anpassen, jetzt dummyhaft)
+                $spiele = Turnier::find()
+                ->alias('t')
+                ->joinWith('runde r') // jetzt kommt der JOIN
+                ->where(['t.tournamentID' => $tournament->id])
+                ->orderBy([
+                    'r.typ' => SORT_ASC,
+                    'r.sortierung' => SORT_ASC,
+                    't.datum' => SORT_ASC,
+                    't.zeit' => SORT_ASC,
+                ])
+                ->all();
+                
+                
+                $jahr = Helper::getTurnierJahr($tournamentID);
+                $wettbewerbID = Helper::getWettbewerbID($tournamentID);
+                $turnierjahr = Helper::getTurnierStartdatum($tournamentID);
+                
+                $turniername = Helper::getTurniername($tournament->wettbewerbID);
+                
+            } elseif ($wettbewerbID !== null && $jahr !== null) {
+                // Alter Weg: über wettbewerbID + jahr
+                $spiele = Turnier::findTurniere($wettbewerbID, $jahr, $gruppe, $runde, $spieltag);
+                $turniername = Helper::getTurniername($wettbewerbID);
+                $turnierjahr = $jahr . '-01-01';
+            } else {
+                throw new BadRequestHttpException('Ungültige Parameter.');
+            }
             
             return $this->render('view', [
                 'spiele' => $spiele,
                 'turniername' => $turniername,
+                'tournamentID' => $tournamentID,
                 'jahr' => $jahr,
                 'model' => $model,
                 'turnierjahr' => $turnierjahr,
             ]);
         }
+        
         
         public function actionCreate()
         {

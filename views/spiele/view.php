@@ -13,7 +13,7 @@ $this->registerAssetBundle(BootstrapAsset::class);
 /** @var string $turniername */
 /** @var int $jahr */
 
-$this->title = "Spiele - $turniername $jahr";
+$this->title = "Spiele - " . Html::encode(Helper::getTurniernameFullname($tournamentID));
 ?>
 
 <script>
@@ -247,68 +247,49 @@ document.addEventListener('DOMContentLoaded', function () {
 <div class="card">
     <div class="card-header">
         <h3>
-            Spiele - <?= Html::encode("$turniername - $jahr") ?>
+            Spiele - <?= Html::encode(Helper::getTurniernameFullname($tournamentID)) ?>
         </h3>
     </div>
     <div class="card-body">
         <table class="table">
              <tbody>
                 <?php 
-                $lastDate = null; // Variable für das letzte Datum
-                foreach ($spiele as $spiel): 
-                    $currentDate = $spiel->getFormattedDate(); // Aktuelles Datum
-                ?>
-                    <!-- Neue Zeile bei neuem Datum -->
-                    <?php if ($lastDate !== $currentDate): ?>
-                        <tr class="table-secondary">
-                            <td colspan="5" class="text-left font-weight-bold">
-                                <?= Html::encode($currentDate) ?>
-                            </td>
-                        </tr>
-                        <?php $lastDate = $currentDate; // Aktualisiere das letzte Datum ?>
-                    <?php endif; ?>
-                    
-                    <tr>
-                        <td style="position: relative;">
-                            <!-- Standardanzeige der Zeit -->
-                            <span class="<?= Yii::$app->user->isGuest ? 'view-time' : 'view-time-editable' ?>" data-spiel-id="<?= $spiel->spielID ?>" <?= Yii::$app->user->isGuest ? '' : 'style="cursor: pointer;"' ?>>
-                                <?= Html::encode($spiel->zeit ? Yii::$app->formatter->asTime($spiel->zeit, 'php:H:i') : '-') ?>
-                            </span>
-                    
-                            <!-- Wrapper für editierbares Feld -->
-                            <div class="edit-wrapper" data-spiel-id="<?= $spiel->spielID ?>" style="display: none; position: absolute; top: 0; left: 0; width: 100%; background: white; z-index: 10; padding: 2px; border: 1px solid lightgrey;">
-                                <?php 
-                                $timezone = new \DateTimeZone('Europe/London');  // Setze die gewünschte Zeitzone
-                                $datetime = new \DateTime($spiel->datum . ' ' . $spiel->zeit, new \DateTimeZone('UTC'));  // Eingabezeit in UTC
-                                $datetime->setTimezone($timezone);  // Umwandeln in die gewünschte Zeitzone
-                                $formattedTime = $datetime->format('Y-m-d\TH:i');  // Format für datetime-local
-                                ?>
-                                <input 
-                                    type="datetime-local" 
-                                    class="edit-datetime" 
-                                    data-spiel-id="<?= $spiel->spielID ?>" 
-                                    data-old-date="<?= $spiel->datum ?>" 
-                                    value="<?= Html::encode($formattedTime) ?>"
-                                />
-                            </div>
-                        </td>
-                      	<td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnierjahr, false) ?></td>
-                        <td style="text-align: center; width: 10%;">
-                        	<?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel['spielID']], ['class' => 'text-decoration-none']) ?>
-                        </td>
-                        <td style="width: 50%;"><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnierjahr, false) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
-                        <td>
-                            <?php if (!Yii::$app->user->isGuest): ?>
-                                <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
-                                    'class' => 'btn btn-danger btn-sm delete-game',
-                                    'data-spiel-id' => $spiel->spielID,
-                                    'data-bs-toggle' => 'modal',
-                                    'data-bs-target' => '#deleteModal'
-                                ]) ?>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
+                $letzteRunde = null;
+                
+                foreach ($spiele as $spiel):
+                $aktuelleRunde = $spiel->runde->name ?? 'Unbekannte Runde';
+                
+                // Neue Überschrift bei Wechsel der Runde
+                if ($letzteRunde !== $aktuelleRunde): ?>
+        <tr class="table-primary">
+            <td colspan="5" class="text-left font-weight-bold">
+                <?= Html::encode($aktuelleRunde) ?>
+            </td>
+        </tr>
+        <?php $letzteRunde = $aktuelleRunde;
+    endif;
+
+    // Spielzeile wie gehabt...
+?>
+<tr>
+    <td><?= Html::encode($spiel->getFormattedDate()) ?> <?= Html::encode(Yii::$app->formatter->asTime($spiel->zeit, 'php:H:i')) ?></td>
+    <td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnierjahr, false) ?></td>
+    <td style="text-align: center; width: 10%;">
+        <?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel['spielID']], ['class' => 'text-decoration-none']) ?>
+    </td>
+    <td style="width: 50%;"><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnierjahr, false) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
+    <td>
+        <?php if (!Yii::$app->user->isGuest): ?>
+            <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
+                'class' => 'btn btn-danger btn-sm delete-game',
+                'data-spiel-id' => $spiel->spielID,
+                'data-bs-toggle' => 'modal',
+                'data-bs-target' => '#deleteModal'
+            ]) ?>
+        <?php endif; ?>
+    </td>
+</tr>
+<?php endforeach; ?>
             </tbody>
         </table>
 

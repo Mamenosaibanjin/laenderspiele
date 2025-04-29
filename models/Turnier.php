@@ -16,7 +16,7 @@ class Turnier extends ActiveRecord
     public function rules()
     {
         return [
-            [['tournamentID', 'spielID', 'spieltag', 'runde'], 'integer'],
+            [['tournamentID', 'spielID', 'spieltag'], 'integer'],
             [['datum'], 'date', 'format' => 'php:Y-m-d'],
             [['zeit'], 'time', 'format' => 'php:H:i'],
             [['gruppe'], 'string', 'max' => 15],
@@ -31,7 +31,7 @@ class Turnier extends ActiveRecord
     }
     
     
-    public static function findTurniere($tournamentID, $gruppe = null, $runde = null, $spieltag = null)
+    public static function findTurniere($tournamentID, $gruppe = null, $spieltag = null)
     {
         $query = self::find()
         ->alias('s')
@@ -43,7 +43,6 @@ class Turnier extends ActiveRecord
         ->innerJoin(['t' => 'tournament'], 's.tournamentID = t.ID')
         ->where(['s.tournamentID' => $tournamentID])
         ->andFilterWhere(['s.gruppe' => $gruppe])
-        ->andFilterWhere(['s.runde' => $runde])
         ->andFilterWhere(['s.spieltag' => $spieltag])
         ->orderBy(['s.datum' => SORT_ASC, 's.zeit' => SORT_ASC]);
         
@@ -191,5 +190,11 @@ class Turnier extends ActiveRecord
         return $this->hasOne(Club::class, ['id' => 'club2ID'])
         ->via('spiel');
     }
+    
+    public function getRunde()
+    {
+        return $this->hasOne(Runde::class, ['id' => 'rundeID']);
+    }
+    
 }
 ?>
