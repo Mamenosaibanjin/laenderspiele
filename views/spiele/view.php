@@ -255,41 +255,47 @@ document.addEventListener('DOMContentLoaded', function () {
              <tbody>
                 <?php 
                 $letzteRunde = null;
+                $letzterTag = null;
                 
                 foreach ($spiele as $spiel):
-                $aktuelleRunde = $spiel->runde->name ?? 'Unbekannte Runde';
-                
-                // Neue Überschrift bei Wechsel der Runde
-                if ($letzteRunde !== $aktuelleRunde): ?>
-        <tr class="table-primary">
-            <td colspan="5" class="text-left font-weight-bold">
-                <?= Html::encode($aktuelleRunde) ?>
-            </td>
-        </tr>
-        <?php $letzteRunde = $aktuelleRunde;
-    endif;
-
-    // Spielzeile wie gehabt...
-?>
-<tr>
-    <td><?= Html::encode($spiel->getFormattedDate()) ?> <?= Html::encode(Yii::$app->formatter->asTime($spiel->zeit, 'php:H:i')) ?></td>
-    <td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnierjahr, false) ?></td>
-    <td style="text-align: center; width: 10%;">
-        <?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel['spielID']], ['class' => 'text-decoration-none']) ?>
-    </td>
-    <td style="width: 50%;"><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnierjahr, false) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
-    <td>
-        <?php if (!Yii::$app->user->isGuest): ?>
-            <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
-                'class' => 'btn btn-danger btn-sm delete-game',
-                'data-spiel-id' => $spiel->spielID,
-                'data-bs-toggle' => 'modal',
-                'data-bs-target' => '#deleteModal'
-            ]) ?>
-        <?php endif; ?>
-    </td>
-</tr>
-<?php endforeach; ?>
+                    $aktuelleRunde = $spiel->runde->name ?? 'Unbekannte Runde';
+                    
+                    // Neue Überschrift bei Wechsel der Runde
+                    if ($letzteRunde !== $aktuelleRunde): ?>
+                        <tr class="table-primary">
+                            <td colspan="6" class="text-left font-weight-bold">
+                                <?= Html::encode($aktuelleRunde) ?>
+                            </td>
+                        </tr>
+                        <?php $letzteRunde = $aktuelleRunde;
+                    endif;
+                    ?>
+                    <tr>
+                        <td>
+                        	<?php $aktuellerTag = Yii::$app->formatter->asDate($spiel->datum, 'php:d.m.Y');?>
+                        	<?php if ($letzterTag !== $aktuellerTag):?>
+                        		<?=  $aktuellerTag; ?>
+                        		<?php $letzterTag = $aktuellerTag;
+                        	endif; ?>
+                        </td>
+                        <td><?= Html::encode(Yii::$app->formatter->asTime($spiel->zeit, 'php:H:i')) ?></td>
+                        <td style="text-align: right; width: 30%;"><?= Html::encode($spiel->club1->name ?? 'Unbekannt') ?> <?= Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnierjahr, false) ?></td>
+                        <td style="text-align: center; width: 10%;">
+                            <?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel['spielID']], ['class' => 'text-decoration-none']) ?>
+                        </td>
+                        <td style="width: 50%;"><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnierjahr, false) ?> <?= Html::encode($spiel->club2->name ?? 'Unbekannt') ?></td>
+                        <td>
+                            <?php if (!Yii::$app->user->isGuest): ?>
+                                <?= Html::button('<i class="fa-regular fa-trash-can"></i>', [
+                                    'class' => 'btn btn-danger btn-sm delete-game',
+                                    'data-spiel-id' => $spiel->spielID,
+                                    'data-bs-toggle' => 'modal',
+                                    'data-bs-target' => '#deleteModal'
+                                ]) ?>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
 
