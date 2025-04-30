@@ -61,12 +61,7 @@ foreach ($laenderKeys as $key) {
             <h3 class="mb-0"><?= $flaggen ?> <?= Html::encode($turnier->wettbewerb->name) ?> <?= Html::encode($turnier->jahr) ?></h3>
         </div>
         <div class="card-body">
-            
 
-        <?php if (!Yii::$app->user->isGuest): ?>
-
-        <?php else: ?>
-        
             <!-- Normale Tabelle ohne Eingabe -->
             <table class="table table-striped">
                 <thead>
@@ -80,26 +75,19 @@ foreach ($laenderKeys as $key) {
                     </tr>
                 </thead>
                 <tbody>
-                	<?php 
-                	$spiele = Spiel::find()
-                	->where(['tournamentID' => $turnier->id])
-                	->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC])
-                	->all();?>
                     <?php foreach ($spiele as $spiel): ?>
                         <tr>
                             <td><?= Yii::$app->formatter->asDate($spiel->datum) ?></td>
                             <td><?= Yii::$app->formatter->asTime($spiel->zeit, 'short') ?></td>
-                            <td><?= Html::a($spiel->club1->name, ['club/view', 'id' => $spiel->club1ID]) ?></td>
-                            <td>–</td>
-                            <td><?= Html::a($spiel->club2->name, ['club/view', 'id' => $spiel->club2ID]) ?></td>
-                            <td><?= Html::a($spiel->ergebnis ?? '– : –', ['spiel/view', 'id' => $spiel->id]) ?></td>
+                            <td align="right"><?= Html::a($spiel->spiel->club1->name, ['club/view', 'id' => $spiel->spiel->club1ID], ['class' => 'text-decoration-none']) ?></td>
+                            <td align="center">–</td>
+                            <td><?= Html::a($spiel->spiel->club2->name, ['club/view', 'id' => $spiel->spiel->club2ID], ['class' => 'text-decoration-none']) ?></td>
+                            <td><?= Html::a($spiel->spiel->ergebnis ?? '– : –', ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-        
-        <?php endif; ?>
-
+            
         </div>
     </div>
 

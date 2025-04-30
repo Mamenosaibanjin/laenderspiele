@@ -77,21 +77,79 @@ class TurnierController extends Controller
             throw new NotFoundHttpException('Turnier nicht gefunden.');
         }
         
-        // Alle Runden des Turniers (z.B. Gruppenphasen, KO-Runden)
-        $runden = Runde::find()
-        ->where(['turnierID' => $turnier->id])
-        ->orderBy(['typ' => SORT_ASC, 'gruppenname' => SORT_ASC, 'name' => SORT_ASC])
+        
+        $runden = Turnier::find()
+        ->alias('t')
+        ->joinWith('runde r')  // korrekt, denn Turnier hat 'runde'
+        ->where(['t.tournamentID' => $tournamentID])
+        ->orderBy([
+            'r.typ' => SORT_ASC,
+            'r.name' => SORT_ASC,
+            'r.sortierung' => SORT_ASC
+        ])
+        ->select([
+            'r.id AS id',
+            'r.sortierung',
+            'r.typ',
+            'r.name AS name',
+            't.tournamentID AS tournamentID'
+        ])
+        ->distinct()
         ->all();
         
-        // Auswahl (optional: später via GET-Parameter steuerbar)
-        $runde = $runden[0] ?? null;
-        $spiele = [];
+        // 1. Runden für das Dropdown vorbereiten
+        $runde = Runde::find()
+        ->alias('r')
+        ->innerJoin('turnier t', 't.rundeID = r.id')
+        ->where(['t.tournamentID' => $tournamentID])
+        ->orderBy([
+            'r.typ' => SORT_ASC,
+            'r.sortierung' => SORT_ASC,
+        ])
+        ->limit(1)
+        ->one();
         
+        // 2. Runde wählen: entweder per GET oder automatisch
+        $rundeID = Yii::$app->request->get('rundeID');
+        if ($rundeID) {
+            $runde = Runde::findOne($rundeID);
+        } else {
+            // erste passende Runde automatisch wählen
+            $runde = Turnier::find()
+            ->alias('t')
+            ->joinWith('runde r')
+            ->where(['t.tournamentID' => $tournamentID])
+            ->orderBy([
+                'r.typ' => SORT_ASC,
+                'r.sortierung' => SORT_ASC,
+            ])
+            ->limit(1)
+            ->one();
+        }
+        
+        // 3. Spiele ermitteln
+        $spiele = [];
         if ($runde) {
-            $spiele = Spiel::find()
-            ->where(['rundeID' => $runde->id])
-            ->orderBy(['datum' => SORT_ASC, 'zeit' => SORT_ASC])
+            $spiele = Turnier::find()
+            ->alias('t')
+            ->joinWith([
+                'runde r',
+                'spiel s',
+                'spiel.club1 c1',
+                'spiel.club2 c2',
+            ])
+            ->where([
+                't.tournamentID' => $runde->tournamentID,
+                't.rundeID' => $runde->rundeID
+            ])
+            ->orderBy([
+                'r.typ' => SORT_ASC,
+                'r.sortierung' => SORT_ASC,
+                't.datum' => SORT_ASC,
+                't.zeit' => SORT_ASC,
+            ])
             ->all();
+            
         }
         
         return $this->render('ergebnisse', [
@@ -101,5 +159,6 @@ class TurnierController extends Controller
             'spiele' => $spiele,
         ]);
     }
+    
     
 }
