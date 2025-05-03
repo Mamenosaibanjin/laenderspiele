@@ -70,6 +70,9 @@ $config = [
                 'spieler/save-nation' => 'spieler/save-nation',
                 'spieler/<id:\d+>' => 'spieler/view',
                 'spieler/search' => 'spieler/search',
+
+                'referee/new' => 'referee/new',
+                
                 'club/new' => 'club/new',
                 'club/<id:\d+>' => 'club/view',
                 'club/search' => 'club/search', // Neue Regel für die Club-Suche
