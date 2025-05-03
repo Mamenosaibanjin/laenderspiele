@@ -145,11 +145,11 @@ if ($spiel->extratime) {
 				<div class="spiel-info" style="text-align: left;">
 
                 <!-- Turniername -->
-                <?php if ($spiel->turnier->wettbewerb): ?>
+                <?php if ($spiel->turnier->tournament): ?>
                     <div class="info-row">
                     	<i class="material-icons">emoji_events</i>
                         <span>
-                            <?= Helper::getTurniernameFullname($spiel->turnier->wettbewerb->id, $spiel->turnier->jahr) ?>
+                            <?= Helper::getTurniernameFullname($spiel->turnier->tournament->id, $spiel->turnier->jahr) ?>
                         </span>
                     </div>
                 <?php endif; ?>
@@ -166,35 +166,102 @@ if ($spiel->extratime) {
                     </div>
                 <?php endif; ?>
 
-                <!-- Stadion -->
-                <?php if ($spiel->stadium): ?>
+				<?php if (!Yii::$app->user->isGuest) : ?>
+					<?php
+                        $stadien = \app\models\Stadion::find()->all();
+                        $referees = \app\models\Referee::find()->all();
+                        
+                        $stadiumList = implode(', ', array_map(function($s) {
+                            return Html::encode("{$s->name} ({$s->stadt})") . ' (' . $s->land . ')';
+                        }, $stadien));
+                        
+                        $refereeList = implode(', ', array_map(function($r) {
+                            return Html::encode("{$r->vorname} {$r->name}") . ' (' . $r->nati1 . ')';
+                        }, $referees));
+                        ?>
+					
+					<!-- Stadion -->
                     <div class="info-row">
-	                    <i class="material-icons">stadium</i>
-                        <span>
-                            <?= Helper::getFlagUrl($spiel->stadium->land) ?>
-                            <?= Html::encode($spiel->stadium->name) ?> (<?= Html::encode($spiel->stadium->stadt) ?>)
-                        </span>
+        				<i class="material-icons">stadium</i>
+        				<input type="text"
+                               class="form-control awesomplete"
+                               style="margin-bottom: 5px; font-size: 11px;"
+                               placeholder="Stadion"
+                               value="<?= Html::encode($spiel->stadium?->name ?? '') ?>"
+                               data-id-field="#stadium-id"
+                               data-list="<?= $stadiumList ?>">
+                        <input type="hidden" name="stadiumID" id="stadium-id" value="<?= $spiel->stadiumID ?>">
+					</div>
+                    <div class="info-row">
+                        <button type="button" class="btn btn-primary mt-2" style="margin-bottom: 5px; font-size: 11px; width: 154px; margin-left: 32px;" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/stadion/new', '_blank')">
+                            Neues Stadion
+                        </button>
                     </div>
-                    <?php if ($spiel->zuschauer): ?>
+					                    
+                    <!-- Zuschauer -->
+                    <div class="info-row">
+                    	<i class="material-icons">groups</i>
+                    	<input type="number" class="form-control awesomplete" style="margin-bottom: 5px; font-size: 11px;" name="zuschauer" value="<?= $spiel->zuschauer ?>" placeholder="Zuschauer">
+                    </div>
+                    
+                    <!-- Schiedsrichter -->
+                    <?php $icons = ['sports', 'sports_score', 'sports_score', 'scoreboard'];?>
+                    <?php foreach ([1, 2, 3, 4] as $i): 
+                        $ref = $spiel["referee{$i}"]
+                    ?>
                         <div class="info-row">
-	                    <i class="material-icons">groups</i>
-                            <span><?= number_format($spiel->zuschauer, 0, ',', '.') ?></span>
+                            <i class="material-icons"><?= $icons[$i - 1] ?></i>
+                                <input type="text"
+                                       class="form-control awesomplete"
+		                               style="margin-bottom: 5px; font-size: 11px;"
+                                       placeholder="Schiedsrichter <?= $i ?>"
+                                       value="<?= Html::encode($ref ? "{$ref->vorname} {$ref->name}" : '') ?>"
+                                       data-id-field="#referee-id-<?= $i ?>"
+                                       data-list="<?= $refereeList ?>">
+                                <input type="hidden" name="referee<?= $i ?>ID" id="referee-id-<?= $i ?>" value="<?= $ref?->id ?>">
                         </div>
-                    <?php endif; ?>
-                <?php endif; ?>
+                        
+                    <?php endforeach; ?>
+                    <div class="info-row">
+                        <button type="button" class="btn btn-primary mt-2" style="margin-bottom: 5px; font-size: 11px; width: 154px; margin-left: 32px;" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/referee/new', '_blank')">
+                            Neuer Schiedsrichter
+                        </button>
+                    </div>
+                                        
+				<?php else: ?>
 
-                <!-- Schiedsrichter -->
-                <?php
-                $refs = [$spiel->referee1, $spiel->referee2, $spiel->referee3, $spiel->referee4];
-                $icons = ['sports', 'sports_score', 'sports_score', 'scoreboard'];
-                foreach ($refs as $index => $ref) {
-                    if (!$ref) continue;
-                    echo '<div class="info-row">';
-                    echo '<i class="material-icons">' . $icons[$index] . '</i>';
-                    echo '<span>' . Helper::getFlagUrl($ref->nati1) . ' ' . Html::encode($ref->vorname . ' ' . $ref->name) . '</span>';
-                    echo '</div>';
-                }
-                ?>
+                    <!-- Stadion -->
+                    <?php if ($spiel->stadium): ?>
+                        <div class="info-row">
+    	                    <i class="material-icons">stadium</i>
+                            <span>
+                                <?= Helper::getFlagUrl($spiel->stadium->land) ?>
+                                <?= Html::encode($spiel->stadium->name) ?> (<?= Html::encode($spiel->stadium->stadt) ?>)
+                            </span>
+                        </div>
+                        <?php if ($spiel->zuschauer): ?>
+                            <div class="info-row">
+    	                    <i class="material-icons">groups</i>
+                                <span><?= number_format($spiel->zuschauer, 0, ',', '.') ?></span>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+    
+                    <!-- Schiedsrichter -->
+                    <?php
+                    $refs = [$spiel->referee1, $spiel->referee2, $spiel->referee3, $spiel->referee4];
+                    $icons = ['sports', 'sports_score', 'sports_score', 'scoreboard'];
+                    foreach ($refs as $index => $ref) {
+                        if (!$ref) continue;
+                        echo '<div class="info-row">';
+                        echo '<i class="material-icons">' . $icons[$index] . '</i>';
+                        echo '<span>' . Helper::getFlagUrl($ref->nati1) . ' ' . Html::encode($ref->vorname . ' ' . $ref->name) . '</span>';
+                        echo '</div>';
+                    }
+                    ?>
+                    
+                    <?php endif; ?>
+                    
             	</div>            
             </div>
         </div>

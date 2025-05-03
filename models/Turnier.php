@@ -196,5 +196,10 @@ class Turnier extends ActiveRecord
         return $this->hasOne(Runde::class, ['id' => 'rundeID']);
     }
     
+    public function getTournament()
+    {
+        return $this->hasOne(Tournament::class, ['id' => 'tournamentID']);
+    }
+    
 }
 ?>
