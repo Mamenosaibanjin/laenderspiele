@@ -10,6 +10,7 @@ use app\models\Spieler;
 use app\models\SpielerVereinSaison;
 use app\models\SpielerLandWettbewerb;
 use app\models\Tournament;
+use app\models\Turnier;
 use Yii;
 use http\Url;
 use app\models\Wettbewerb;
@@ -186,43 +187,6 @@ class SpielerController extends Controller
         
         return $spieler;
     }
-
-    public function actionSearchForLineup($spielID, $type)
-    {
-        Yii::$app->response->format = Response::FORMAT_JSON;
-        
-        $term = Yii::$app->request->get('term');
-        
-        // Hole die relevanten Informationen aus der Tabelle 'spiele'
-        $spiel = Spiel::findOne($spielID);
-        
-        if (!$spiel) {
-            return ['error' => 'Spiel nicht gefunden.'];
-        }
-        
-        // Bestimme, welches ClubID-Feld (Heim oder Auswärts) genutzt wird
-        $clubID = ($type === 'H') ? $spiel->club1ID : $spiel->club2ID;
-        
-        // Finde Spieler basierend auf den Bedingungen
-        $spieler = Spieler::find()
-        ->alias('s') // Kürzel für die Tabelle 'spieler'
-        ->select(['s.id', 's.fullname as value']) // Wähle die ID und den Namen des Spielers aus
-        ->innerJoin('spieler_land_wettbewerb slw', 'slw.spielerID = s.id') // Verknüpfe 'spieler_land_wettbewerb'
-        ->innerJoin('turnier t', 't.wettbewerbID = slw.wettbewerbID AND t.jahr = slw.jahr') // Verknüpfe 'turnier'
-        ->where([
-            'or',
-            ['like', 's.name', $term],      // Suche nach Name
-            ['like', 's.vorname', $term],  // Suche nach Vorname
-            ['like', 's.fullname', $term]  // Suche nach Vollname
-        ])// Bedingung für den Namen
-        ->andWhere(['t.spielID' => $spielID]) // Bedingung für turnier.spielID
-        ->andWhere(['slw.landID' => $clubID]) // Bedingung für spieler_land_wettbewerb.landID
-        ->asArray()
-        ->all();
-        
-        return $spieler;
-    }
-    
 
     public function actionSaveDetails()
     {

@@ -1,6 +1,7 @@
 <?php
 use app\components\Helper;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use app\models\Spielbericht;
 
 /* @var $this yii\web\View */
@@ -10,292 +11,26 @@ use app\models\Spielbericht;
 /* @var $aufstellung2 app\models\Aufstellung */
 
 $this->title = 'Spielbericht: ' . Html::encode($spiel->heimClub->name) . ' vs ' . Html::encode($spiel->auswaertsClub->name);
+$heim = $heim ?? true;
+$term = $term ?? '';
 ?>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    // Funktion zur Initialisierung von Awesomplete
-    function initializeAwesomplete(inputId, hiddenInputId, url) {
-        const input = document.getElementById(inputId);
-        const hiddenInput = hiddenInputId ? document.getElementById(hiddenInputId) : null;
-
-        if (input && !input.awesomplete) {
-        
-            const awesomplete = new Awesomplete(input, {
-                minChars: 2,
-                autoFirst: true,
-            });
-
-            input.awesomplete = awesomplete;
-
-            input.addEventListener('input', function () {
-                const term = input.value.trim();
-                const fullUrl = url + '?term=' + encodeURIComponent(term);
-
-                console.log("FullURL: " + fullUrl);
-
-                fetch(fullUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (Array.isArray(data)) {
-                            awesomplete.list = data.map(item => ({
-                                label: item.value, // Spielername
-                                value: item.id,    // Spieler-ID
-                            }));
-                            awesomplete.evaluate();
-                        } else {
-                            console.error('Ungültige Antwort vom Server:', data);
-                        }
-                    })
-                    .catch(error => console.error('Fehler bei der Suche:', error));
-            });
-
-            // Spielername und ID korrekt setzen
-            input.addEventListener('awesomplete-selectcomplete', function (event) {
-                input.value = event.text.label; // Spielername anzeigen
- 				if (hiddenInput) {
- 					hiddenInput.value = event.text.value; // Spieler-ID speichern
- 					}
-           });
-        }
-    }
-
-    // Initialisierung für das Spieler-Suchfeld Heim
-    initializeAwesomplete(
-        'spielerHeimSearch', // ID des Suchfelds
-        null, // Kein Hidden Input erforderlich
-        `<?= \yii\helpers\Url::to(['spieler/search']) ?>`
-    );
-
-    // Initialisierung für das Spieler-Suchfeld Auswärts
-    initializeAwesomplete(
-        'spielerAuswaertsSearch', // ID des Suchfelds
-        null, // Kein Hidden Input erforderlich
-        `<?= \yii\helpers\Url::to(['spieler/search']) ?>`
-    );
-
-    // Initialisierung für die Heim-Mannschaft im Modal
-    const modalHeim = document.getElementById('modal-aufstellung-heim');
-    if (modalHeim) {
-        modalHeim.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const spielID = button.getAttribute('data-spiel-id');
-
-            // Hidden Fields für Heim setzen
-            document.getElementById('hiddenSpielID').value = spielID;
-            document.getElementById('hiddenType').value = 'H';
-
-            for (let i = 1; i <= 11; i++) {
-                initializeAwesomplete(
-                    'SpielerHeim' + i + 'Text',
-                    'SpielerHeim' + i + 'ID',
-                    `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/H`
-                );
-            }
-
-            initializeAwesomplete(
-                'CoachHeimText',
-                'CoachHeimID',
-                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/H`
-            );
-        });
-    }
-
-    // Initialisierung für die Auswärts-Mannschaft im Modal
-    const modalAuswaerts = document.getElementById('modal-aufstellung-auswaerts');
-    if (modalAuswaerts) {
-        modalAuswaerts.addEventListener('show.bs.modal', function (event) {
-            const button = event.relatedTarget;
-            const spielID = button.getAttribute('data-spiel-id');
-
-            // Hidden Fields für Auswärts setzen
-            document.getElementById('hiddenSpielID').value = spielID;
-            document.getElementById('hiddenType').value = 'A';
-
-            for (let i = 1; i <= 11; i++) {
-                initializeAwesomplete(
-                    'SpielerAuswaerts' + i + 'Text',
-                    'SpielerAuswaerts' + i + 'ID',
-                    `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/A`
-                );
-            }
-
-            initializeAwesomplete(
-                'CoachAuswaertsText',
-                'CoachAuswaertsID',
-                `<?= \yii\helpers\Url::to(['spieler/search-for-lineup']) ?>/${spielID}/A`
-            );
-        });
-    }
-
-    // Speichern-Button-Logik für Heim- und Auswärtsteams
-    ['heim', 'auswaerts'].forEach((team) => {
-        const speichernButton = document.getElementById(`btn-speichern-${team}`);
-        if (speichernButton) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    
-            speichernButton.addEventListener('click', function (event) {
-                event.preventDefault(); // Standardaktion des Buttons verhindern
-    
-                // Spiel-ID und Typ aus den Hidden Fields holen
-                const spielID = document.getElementById('hiddenSpielID').value;
-                const type = document.getElementById('hiddenType').value;
-    
-                if (!spielID || !type) {
-                    alert('Fehlende Parameter für das Update.');
-                    return;
-                }
-    
-                // Daten für das Update sammeln
-                const data = {
-                    spielID: spielID,
-                    type: type,
-                    team: team, // Heim oder Auswärts
-                    spieler: [],
-                };
-    
-                for (let i = 1; i <= 11; i++) {
-                    const id = `Spieler${team.charAt(0).toUpperCase() + team.slice(1)}${i}ID`; // Keine führenden Nullen
-                    console.log(`Überprüfe ID: ${id}`); // Debugging
-                    const spielerIDElement = document.getElementById(id);
-                    if (spielerIDElement) {
-                        console.log(`Gefunden: ${id}, Wert: ${spielerIDElement.value}`);
-                        const spielerID = spielerIDElement.value.padStart(2, '0'); // Führende Nullen bei Bedarf für die Datenbank
-                        data.spieler.push({ [`spieler${i}ID`]: spielerID });
-                    } else {
-                        console.warn(`Element mit ID ${id} nicht gefunden`);
-                    }
-                }
-    
-                const coachIDElement = document.getElementById(`Coach${team.charAt(0).toUpperCase() + team.slice(1)}ID`);
-                if (coachIDElement) {
-                    console.log(`Coach-ID gefunden: ${coachIDElement.id}, Wert: ${coachIDElement.value}`);
-                    data.coachID = coachIDElement.value;
-                } else {
-                    console.warn(`Coach-ID für ${team} nicht gefunden`);
-                }
-    
-                // POST-Anfrage für das Update
-                fetch(`<?= \yii\helpers\Url::to(['spielbericht/update-lineup']) ?>`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-Token': csrfToken, // CSRF-Token mitsenden
-                    },
-                    body: JSON.stringify(data),
-                })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            // Weiterleitung nach dem erfolgreichen Update
-                            window.location.href = `http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spielbericht/${spielID}`;
-                        } else {
-                            alert(`Fehler beim Speichern der Aufstellung für ${team}.`);
-                        }
-                    })
-                    .catch(error => {
-                        console.error(`Fehler beim Update für ${team}:`, error);
-                        alert('Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.');
-                    });
-            });
-        }
-    });
-
-
-});
-
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('spielerHeimSearch'); // ID des Suchfelds
-    const bearbeitenButton = document.getElementById('btn-spieler-bearbeiten');
-    let selectedSpielerID = null;
-
-    if (searchInput) {
-    // Awesomplete initialisieren, falls noch nicht vorhanden
-    if (!searchInput.awesomplete) {
-        const awesomplete = new Awesomplete(searchInput, {
-            minChars: 2,
-            autoFirst: false, // Benutzer muss explizit auswählen
-            replace: function (suggestion) {
-                // Spielername ins Feld schreiben
-                this.input.value = suggestion.label;
-            },
-        });
-        searchInput.awesomplete = awesomplete;
-    }
-
-    // Event-Listener für Eingaben
-    searchInput.addEventListener('input', function () {
-        const term = searchInput.value.trim();
-        if (term.length < 2) {
-            bearbeitenButton.textContent = "Neuer Spieler"; // Standardtext
-            bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
-            bearbeitenButton.disabled = false;
-            selectedSpielerID = null;
-            return;
-        }
-
-        // Anfrage an den Server für die Suche
-        fetch(`<?= \yii\helpers\Url::to(['spieler/search']) ?>?term=${encodeURIComponent(term)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (Array.isArray(data) && data.length > 0) {
-                    // Liste der Optionen an Awesomplete übergeben
-                    searchInput.awesomplete.list = data.map(item => ({
-                        label: item.value, // Spielername
-                        value: item.id,    // Spieler-ID
-                    }));
-                } else {
-                    // Keine Ergebnisse gefunden
-                    searchInput.awesomplete.list = []; // Leere Liste
-                    bearbeitenButton.textContent = "Neuer Spieler";
-                    bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
-                    bearbeitenButton.disabled = false;
-                    selectedSpielerID = null;
-                }
-            })
-            .catch(error => {
-                console.error('Fehler bei der Suche:', error);
-                searchInput.awesomplete.list = []; // Keine Liste anzeigen
-                bearbeitenButton.textContent = "Neuer Spieler";
-                bearbeitenButton.setAttribute('onclick', "window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')");
-                bearbeitenButton.disabled = false;
-                selectedSpielerID = null;
-            });
-    });
-
-    // Event-Listener für Awesomplete-Auswahl
-    searchInput.addEventListener('awesomplete-selectcomplete', function (event) {
-        // Spieler-ID des ausgewählten Eintrags speichern
-        selectedSpielerID = event.text.value;
-        searchInput.value = event.text.label; // Spielername ins Textfeld schreiben
-
-        // Button für Bearbeiten aktivieren
-        bearbeitenButton.textContent = "Spieler bearbeiten";
-        bearbeitenButton.setAttribute('onclick', `window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/${selectedSpielerID}', '_blank')`);
-        bearbeitenButton.disabled = false;
-    });
+<?php
+$verlaengerung = '';
+if ($spiel->extratime) {
+    $verlaengerung = '<div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">n.V.</div>';
+} elseif ($spiel->penalty) {
+    $verlaengerung = '<div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">i.E.</div>';
+} else {
+    $verlaengerung = '';
 }
-
-
-    // Spieler bearbeiten oder erstellen (Fallback für den Button)
-    bearbeitenButton.addEventListener('click', function () {
-        if (!selectedSpielerID) {
-            // Neuen Spieler erstellen
-            window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank');
-        }
-    });
-});
-</script>
+?>
 
 <div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
-		<?= '('. Html::encode($spiel->turnier->getErgebnis()) . ')'?>
-		<?php if ($spiel->extratime): ?>
-            <div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">n.V.</div>
-        <?php elseif ($spiel->penalty): ?>
-            <div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">i.E.</div>
-        <?php endif; ?>
+    		<?= '('. Html::encode($spiel->turnier->getErgebnis()) . ')'?>
+            <?= $verlaengerung; ?>
 		</h3>
 	</div>
     <div class="card-body">
@@ -307,11 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <?php //echo "<pre>";var_dump($spiel);echo "</pre>";exit;?>
             <div class="col-sm-4 digital-scoreboard" style="font-size: 50px;">
 				<?= $spiel->turnier ? Html::encode($spiel->turnier->getErgebnis()) : 'Kein Ergebnis verfügbar' ?>
-                <?php if ($spiel->extratime): ?>
-                    <div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">n.V.</div>
-                <?php elseif ($spiel->penalty): ?>
-                    <div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">i.E.</div>
-                <?php endif; ?>
+                <?= $verlaengerung; ?>
             </div>
             <div class="col-sm-4 text-center">
                 <?= Html::img(Helper::getClubLogoUrl($spiel->auswaertsClub->id), ['alt' => $spiel->auswaertsClub->name, 'class' => 'team-logo', 'style' => 'height: 100px; padding: 10px;']) ?>
@@ -364,7 +95,9 @@ document.addEventListener('DOMContentLoaded', function () {
             
                 $actionSvg = Helper::getActionSvg($aktion->aktion);
             ?>
-				<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m' || $aktion->aktion == 'ET' || $aktion->aktion == 'RK') :?>
+				<?php $relevanteAktionen = ['TOR', '11m', 'ET', 'RK'];
+                    
+				    if (in_array($aktion->aktion, $relevanteAktionen)):?>
                     <div class="highlight-row">
                         <div class="heimname">
                             <?= ($team === 'heim') ? $spielerName : ' ' ?>
@@ -451,226 +184,51 @@ document.addEventListener('DOMContentLoaded', function () {
                 <?php endif; ?>
 
                 <!-- Schiedsrichter -->
-                <?php if ($spiel->referee1): ?>
-                    <div class="info-row">
-                    <i class="material-icons">sports</i>
-                   	<? //Html::img(Yii::getAlias('@web/assets/img/spielbericht/whistle.png'), ['alt' = 'Datum', 'style' = 'height: 25px;'])  Alternative als PNG ?>
-                        <span>
-                            <?= Helper::getFlagUrl($spiel->referee1->nati1) ?>
-                            <?= Html::encode($spiel->referee1->vorname . ' ' . $spiel->referee1->name) ?>
-                        </span>
-                    </div>
-                    <?php if ($spiel->referee2): ?>
-                        <div class="info-row">
-	                    <i class="material-icons material-icons_logo">sports_score</i>
-                            <span>
-                                 <?= Helper::getFlagUrl($spiel->referee2->nati1) ?>
-                                <?= Html::encode($spiel->referee2->vorname . ' ' . $spiel->referee2->name) ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($spiel->referee3): ?>
-                        <div class="info-row">
-	                    <i class="material-icons">sports_score</i>
-                            <span>
-                                 <?= Helper::getFlagUrl($spiel->referee3->nati1) ?>
-                                <?= Html::encode($spiel->referee3->vorname . ' ' . $spiel->referee3->name) ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                    <?php if ($spiel->referee4): ?>
-                        <div class="info-row">
-	                    <i class="material-icons">scoreboard</i>
-                            <span>
-                                 <?= Helper::getFlagUrl($spiel->referee4->nati1) ?>
-                                <?= Html::encode($spiel->referee4->vorname . ' ' . $spiel->referee4->name) ?>
-                            </span>
-                        </div>
-                    <?php endif; ?>
-                <?php endif; ?>
+                <?php
+                $refs = [$spiel->referee1, $spiel->referee2, $spiel->referee3, $spiel->referee4];
+                $icons = ['sports', 'sports_score', 'sports_score', 'scoreboard'];
+                foreach ($refs as $index => $ref) {
+                    if (!$ref) continue;
+                    echo '<div class="info-row">';
+                    echo '<i class="material-icons">' . $icons[$index] . '</i>';
+                    echo '<span>' . Helper::getFlagUrl($ref->nati1) . ' ' . Html::encode($ref->vorname . ' ' . $ref->name) . '</span>';
+                    echo '</div>';
+                }
+                ?>
             	</div>            
             </div>
         </div>
     </div>
     
     <!-- Widget Aufstellungen -->
-    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2 || !Yii::$app->user->isGuest) : ?>
+    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2) : ?>
     <div class="panel-body" style="padding: 25px 25px 0 25px;">
-        <div style="max-width: 640px; margin: auto;">
+        <div style="max-width: 640px; margin: auto; text-align: center;">
             <div style="float: left; width: 45%;">
-            <div class="highlights-box" style="margin-left: 0; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-bottom-style: dashed;">
-            	<div style="margin-top: -23px;">
-                    <span class="highlights-header">
-                        Heim
-                    </span>
-                </div>
-                
-				<?php 
-				
-				// Hole die aktuelle spielID aus den Parametern
-				$spielID = Yii::$app->request->get('id'); // 'id' muss im Controller definiert sein
-				
-				if (!Yii::$app->user->isGuest && isset($spielID)) : ?>
-				<button id="btn-open-modal"
-                    		type="button" class="btn btn-primary" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-aufstellung-heim" 
-                            data-spiel-id="<?= htmlspecialchars($spielID, ENT_QUOTES, 'UTF-8') ?>" 
-                            data-type="H">
-                        Aufstellung bearbeiten
-                    </button>
-				<?php endif; ?>
-                                
-                <?php if ($spiel->aufstellung1) : ?>
-                <div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-                
-            		<?php foreach (range(1, 11) as $i): ?>
-                        <?php 
-                        $spielerProperty = "spieler{$i}";
-                        $spieler = $spiel->aufstellung1->$spielerProperty ?? null;
-                        ?>
-                        <?php if ($spieler): ?>
-                            <?= Html::a(Html::encode($spieler->vorname . ' ' . $spieler->name), ['spieler/' . $spieler->id], ['class' => 'text-decoration-none']) ?> 
-                            <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
-                            <?php 
-                            if ($aktionen) :
-                                foreach ($aktionen AS $aktion) :
-                                if (isset($aktion['aktion']) &&
-                                    in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
-                                        
-                                        echo Helper::getActionSvg($aktion['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
-                                    }
-                                    
-                                endforeach;
-                            endif;
-                            ?>
-                            <br>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif;?>
-                
-            </div>
             
-            
-            <?php if ($wechselHeim) : ?>
-                <div class="highlights-box" style="margin-left: 0px; padding: 10p; border-radius: 0px; border-top-style: dashed;">
-    				<div class="highlights-content heimname" style="text-align: left; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-                    	<?php foreach ($wechselHeim as $aktion): ?>
-                    	<?php if ($aktion->spieler2) : ?>
-        	                <?= Html::encode(($aktion->spieler2->vorname ? $aktion->spieler2->vorname : '') . ' '  . $aktion->spieler2->name)?>
-        	                <?php $aktionen = Helper::getActionSymbol($spiel->id, $aktion->spieler2->id); ?>
-        	                <?php 
-                                if ($aktionen) :
-                                foreach ($aktionen AS $aktion) :
-                                        if (isset($aktion['aktion']) &&
-                                            in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
-                                                
-                                                echo Helper::getActionSvg($aktion['aktion']) . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
-                                            }
-                                    endforeach;
-                                endif;
-                                ?>
-                                <br>
-                        <?php else: 
-                            echo "unbekannt";
-                            echo Helper::getActionSvg('EIN') . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
-                            echo "<br>";
-                        ?>
-    					<?php endif; ?>
-                    	<?php endforeach; ?>
-    				</div>            
-            	</div>
-            <?php endif; ?>
-        	<div class="highlights-box" style="margin-left: 0px; padding: 10px 20px 0 20px; border-top-left-radius: 0px; border-top-right-radius: 0px;">
-				<div class="highlights-content heimname" style="text-align: left; width: 100% !important; font-weight: bold;">
-                	<?php if ($trainer = $spiel->aufstellung1->coach ?? null): ?>
-            	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
-                	<?php endif; ?>
-				</div>            
-        	</div>
+            	<?=  \app\components\widgets\AufstellungWidget::widget([
+				'spiel' => $spiel,
+				'heim' => true,
+				'wechsel' => $wechselHeim,
+				]) ?>
+        	
         	</div><div style="float: left; width: 10%;">&nbsp;
+        	
         	</div><div style="float: left; width: 45%;">
-        	<div class="highlights-box" style="margin-right: 0px; padding-right: 20px; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px;">
-        
-            	<div style="margin-top: -23px;">
-                    <span class="highlights-header">
-                        Auswärts
-                    </span>
-                </div>
-                
-                <?php
-                if (!Yii::$app->user->isGuest && isset($spielID)) : ?>
-				<button id="btn-open-modal"
-                    		type="button" class="btn btn-primary" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#modal-aufstellung-auswaerts" 
-                            data-spiel-id="<?= htmlspecialchars($spielID, ENT_QUOTES, 'UTF-8') ?>" 
-                            data-type="A">
-                        Aufstellung bearbeiten
-                    </button>
-				<?php endif; ?>
-                
-                
-				<div class="highlights-content auswaertsname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
             
-            		<?php foreach (range(1, 11) as $i): ?>
-                        <?php 
-                        $spielerProperty = "spieler{$i}";
-                        $spieler = $spiel->aufstellung2->$spielerProperty ?? null;
-                        ?>
-                        <?php if ($spieler): ?>
-                            <?php $aktionen = Helper::getActionSymbol($spiel->id, $spieler->id);?> 
-                            <?php
-                            if ($aktionen) :
-                                foreach ($aktionen AS $aktion) :
-                                
-                                if (isset($aktion['aktion']) &&
-                                    in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS'])) {
-                                        
-                                        echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px; padding-left: 5px;">' . $aktion['minute'] . '\'</span>' . Helper::getActionSvg($aktion['aktion']);
-                                    }
-                            
-                                endforeach;
-                            endif;
-                            ?>
-                            <?= Html::encode($spieler->vorname . ' ' . $spieler->name) ?>
-                            <br>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </div>
-        	</div>
-            <div class="highlights-box" style="margin-left: 0px; padding: 10p; border-radius: 0px; border-top-style: dashed;">
-				<div class="highlights-content heimname" style="text-align: right; line-height: 2.3; padding: 8px 0 0 13px; width: 100% !important;">
-                	<?php foreach ($wechselAuswaerts as $aktion): ?>
-                		<?php if ($aktion->spieler2) :?>
-    	                <?php $aktionen = Helper::getActionSymbol($spiel->id, $aktion->spieler2->id); ?>
-    	                <?php 
-                            if ($aktionen) :
-                                if (isset($aktion['aktion']) && in_array($aktion['aktion'], ['TOR', '11mX', '11m', 'ET', 'RK', 'GRK', 'GK', 'AUS', 'EIN'])) {
-                                    echo '<span style="font-size: 9px; position: relative; top: -5px; left: -2px; padding-left: 5px;">' . $aktion['minute'] . '\'</span>' . Helper::getActionSvg($aktion['aktion']);
-                                }
-                            endif;
-                            ?>
-    	                <?= Html::encode(($aktion->spieler2->vorname ? $aktion->spieler2->vorname : '') . ' '  . $aktion->spieler2->name)?>
-                            <br>
-                        <?php else: 
-                            echo "unbekannt";
-                            echo Helper::getActionSvg('EIN') . '<span style="font-size: 9px; position: relative; top: -5px; left: 2px; padding-right: 5px;">' . $aktion['minute'] . '\'</span>';
-                            echo "<br>";
-                        ?>
-                        <?php endif; ?>
-                	<?php endforeach; ?>
-				</div>            
-        	</div>
-        	<div class="highlights-box" style="margin-left: 0px; padding: 10px 20px 0 20px; border-top-left-radius: 0px; border-top-right-radius: 0px;">
-				<div class="highlights-content auswaertsname" style="text-align: right; width: 100% !important; font-weight: bold;">
-                	<?php if ($trainer = $spiel->aufstellung2->coach ?? null): ?>
-            	        <p>Trainer: <?= Html::encode($trainer->vorname . ' ' . $trainer->name) ?></p>
-                	<?php endif; ?>
-				</div>            
-        	</div>
-        	</div>
+            	<?=  \app\components\widgets\AufstellungWidget::widget([
+                    'spiel' => $spiel,
+                    'heim' => false,
+                    'wechsel' => $wechselAuswaerts,
+                ]) ?>
+  			
+  			</div>               
+            
+            <?php if (!Yii::$app->user->isGuest) :?>
+            	<button type="button" class="btn btn-secondary aufstellung-speichern" style="margin-top: 20px;">
+            		Aufstellungen speichern
+        		</button>
+        	<?php endif; ?>
         </div>
     </div>
     <?php endif; ?>
@@ -805,106 +363,90 @@ document.addEventListener('DOMContentLoaded', function () {
     <?php endif; ?>
 </div>
 
-<!-- Modal für Aufstellung - Heim -->
-<div class="modal fade" id="modal-aufstellung-heim" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAufstellungLabel">Aufstellung bearbeiten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
-                    <?= Html::hiddenInput('spielID', '', ['id' => 'hiddenSpielID']) ?>
-    				<?= Html::hiddenInput('type', '', ['id' => 'hiddenType']) ?>
+<?php
+$spielID = (int)$spiel->id;
+$clubID = $heim ? (int)$spiel->club1->id : (int)$spiel->club2->id;
+$urlTemplate = Url::to(['aufstellung/spieler-suche'], true);
+$urlTemplateSave = Url::to(['aufstellung/speichern'], true);
 
-                    <?php for ($i = 1; $i <= 11; $i++): ?>
-                        <div class="mb-3">
-                            <?= Html::textInput('spieler[' . $i . ']', $aufstellung1->{'spieler' . $i}->fullname ?? '', [
-                                'class' => 'form-control player-search',
-                                'id' => 'SpielerHeim' . $i . 'Text', 
-                                'placeholder' => 'Spieler ' . $i,
-                                'data-player-id' => $aufstellung1->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
-                            ]) ?>
-                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung1->{'spieler' . $i}->id ?? '', ['id' => 'SpielerHeim' . $i . 'ID']) ?>
-                        </div>
-                    <?php endfor; ?>
+$js = <<<JS
+document.querySelectorAll('.awesomplete').forEach(function(input) {
+    const idFieldSelector = input.dataset.idField;
+    let awesomplete = new Awesomplete(input, {
+        minChars: 2,
+        autoFirst: true
+    });
+    let playerData = [];
+    
+    input.addEventListener('input', function() {
+        const form = input.closest('form');
+        const spielID = form.dataset.spielId;
+        const clubID = form.dataset.clubId;
+        const term = encodeURIComponent(input.value);
+        
+        const fetchUrl = "{$urlTemplate}" + "?spielID=" + spielID + "&clubID=" + clubID + "&term=" + term;
+        
+        fetch(fetchUrl)
+            .then(res => res.json())
+            .then(data => {
+                playerData = data;
+                awesomplete.list = data.map(d => d.name);
+            });
+    });
+    
+    input.addEventListener("awesomplete-selectcomplete", function(evt) {
+        const player = playerData.find(p => p.name === evt.text.value);
+        if (player) {
+            document.querySelector(idFieldSelector).value = player.id;
+        }
+    });
+});
+document.querySelectorAll('.aufstellung-speichern').forEach(function(button) {
+    button.addEventListener('click', function() {
+        const form = button.closest('form');
+        const formData = new FormData(form);
+        const spieler = {};
+        const trainerID = formData.get('trainer') || null;
+        const type = form.dataset.type;
+        const spielID = form.dataset.spielId;
 
-                    <div class="mb-3">
-                        <?= Html::textInput('coach', $aufstellung1->{'coach'}->fullname ?? '', [
-                            'class' => 'form-control player-search', 
-                            'id' => 'CoachHeimText', 
-                            'placeholder' => 'Trainer',
-                            'data-player-id' => $aufstellung1->{'coach'}->id ?? '' ,
-                        ]) ?>
-                        <?= Html::hiddenInput('CoachID', $aufstellung1->{'coach'}->id ?? '', ['id' => 'CoachHeimID']) ?> <b>Trainer</b>
-                    </div>
+        for (let pair of formData.entries()) {
+            if (pair[0].startsWith('spieler[')) {
+                const key = pair[0].match(/spieler\[(.*?)\]/)[1];
+                spieler[key] = pair[1];
+            }
+        }
 
-                    <!-- Button für Spielerzuordnung Modal -->
-                    <div id="spieler-zuordnung-container">
-                        <!-- Spieler zuordnen Suchzeile -->
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="spielerHeimSearch" placeholder="Spieler suchen...">
-                            <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
-                                neuer Spieler
-                            </button>
-                        </div>
-                    </div>
-                <button type="button" class="btn btn-primary" id="btn-speichern-heim">Speichern</button>
-                
-            </div>
-        </div>
-    </div>
-</div>
+        fetch('{$urlTemplateSave}' , {
+            method: 'POST',
+            headers: {
+                'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                spielID: spielID,
+                type: type,
+                spieler: spieler,
+                trainer: trainerID,
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert('Aufstellung erfolgreich gespeichert.');
+            } else {
+                alert('Fehler beim Speichern: ' + JSON.stringify(data.errors));
+            }
+        })
+        .catch(err => {
+            alert('Technischer Fehler: ' + err);
+        });
+    });
+});
 
-<!-- Modal für Aufstellung - Auswärts -->
-<div class="modal fade" id="modal-aufstellung-auswaerts" tabindex="-1" aria-labelledby="modalAufstellungLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalAufstellungLabel">Aufstellung bearbeiten</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->getCsrfToken()) ?>
-                    <?= Html::hiddenInput('spielID', '', ['id' => 'hiddenSpielID']) ?>
-    				<?= Html::hiddenInput('type', '', ['id' => 'hiddenType']) ?>
+JS;
 
-                    <?php for ($i = 1; $i <= 11; $i++): ?>
-                        <div class="mb-3">
-                            <?= Html::textInput('spieler[' . $i . ']', $aufstellung2->{'spieler' . $i}->fullname ?? '', [
-                                'class' => 'form-control player-search',
-                                'id' => 'SpielerAuswaerts' . $i . 'Text', 
-                                'placeholder' => 'Spieler ' . $i,
-                                'data-player-id' => $aufstellung2->{'spieler' . $i}->id ?? '', // Optional: Die gespeicherte ID als Data-Attribut
-                            ]) ?>
-                            <?= Html::hiddenInput('Spieler[' . $i . ']ID', $aufstellung2->{'spieler' . $i}->id ?? '', ['id' => 'SpielerAuswaerts' . $i . 'ID']) ?>
-                        </div>
-                    <?php endfor; ?>
+$this->registerJs($js);
 
-                    <div class="mb-3">
-                        <?= Html::textInput('coach', $aufstellung2->{'coach'}->fullname ?? '', [
-                            'class' => 'form-control player-search', 
-                            'id' => 'CoachAuswaertsText', 
-                            'placeholder' => 'Trainer',
-                            'data-player-id' => $aufstellung2->{'coach'}->id ?? '' ,
-                        ]) ?>
-                        <?= Html::hiddenInput('CoachID', $aufstellung2->{'coach'}->id ?? '', ['id' => 'CoachAuswaertsID']) ?> <b>Trainer</b>
-                    </div>
-
-                    <!-- Button für Spielerzuordnung Modal -->
-                    <div id="spieler-zuordnung-container">
-                        <!-- Spieler zuordnen Suchzeile -->
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="spielerAuswaertsSearch" placeholder="Spieler suchen...">
-                            <button type="button" class="btn btn-primary mt-2" id="btn-spieler-bearbeiten" onclick="window.open('http://localhost/projects/laenderspiele2.0/yii2-app-basic/web/spieler/new', '_blank')">
-                                neuer Spieler
-                            </button>
-                        </div>
-                    </div>
-                <button type="button" class="btn btn-primary" id="btn-speichern-auswaerts">Speichern</button>
-                
-            </div>
-        </div>
-    </div>
-</div>
+?>

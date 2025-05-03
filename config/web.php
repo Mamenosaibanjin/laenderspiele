@@ -83,6 +83,8 @@ $config = [
                 'spiele/<tournamentID:\d+>' => 'spiele/view', // Fallback für minimale Parameter
                 
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
+                'aufstellung/spieler-suche' => 'aufstellung/spieler-suche',
+                'aufstellung/speichern' => 'aufstellung/speichern',
                 
                 'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
                 'turnier/<tournamentID:\d+>/ergebnisse' => 'turnier/ergebnisse',
