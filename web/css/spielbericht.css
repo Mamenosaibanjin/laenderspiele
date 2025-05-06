@@ -1,3 +1,58 @@
+.spielinfo-box {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin: 15px 0;
+  border-left: 4px solid #1C75AC;
+}
+
+.spielinfo-box h4 {
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.spielinfo-box h4 i {
+  margin-right: 6px;
+  color: #555;
+}
+
+
+.autocomplete-input {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 14px;
+    margin: 5px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.info-row {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.info-row i.material-icons {
+    font-size: 20px;
+    color: #555;
+}
+
+.btn {
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+}
+
+#btn-referee-bearbeiten,
+#btn-stadion-bearbeiten {
+    margin-left: 0;
+    width: 100%;
+    font-size: 13px;
+}
 .highlights-box {
     border: 1px solid #ccc; /* Rahmenfarbe */
     border-radius: 8px; /* Abgerundete Ecken */

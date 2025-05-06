@@ -155,4 +155,58 @@ class SpielberichtController extends Controller
         return $this->asJson(['success' => false, 'message' => 'Ungültige Anfrage']);
     }
     
+    public function actionSpeichernInfo()
+    {
+        $request = Yii::$app->request;
+        $spielID = $request->post('spielID');
+        
+        $spiel = \app\models\Spiel::findOne($spielID);
+        
+        if (!$spiel) {
+            Yii::$app->session->setFlash('error', 'Spiel nicht gefunden.');
+            return $this->redirect(['spielbericht/index']);
+        }
+        $spiel->tore1 = $request->post('tore1');
+        $spiel->tore2 = $request->post('tore2');
+        $spiel->stadiumID = $request->post('stadiumID');
+        $spiel->zuschauer = $request->post('zuschauer');
+        $spiel->referee1ID = $request->post('referee1ID');
+        $spiel->referee2ID = $request->post('referee2ID');
+        $spiel->referee3ID = $request->post('referee3ID');
+        $spiel->referee4ID = $request->post('referee4ID');
+        
+        // Extratime / Penalty-Handling
+        $extra = $request->post('extratimeoptions');
+        // Extratime/Penalty Option verarbeiten
+        switch ($extra ?? 'regular') {
+            case 'extratime':
+                $spiel->extratime = 1;
+                $spiel->penalty = 0;
+                break;
+            case 'penalty':
+                $spiel->extratime = 0;
+                $spiel->penalty = 1;
+                break;
+            default: // 'regular' oder leer/falsch
+                $spiel->extratime = 0;
+                $spiel->penalty = 0;
+                break;
+        }
+        
+        if ($spiel->save()) {
+            Yii::$app->session->setFlash('success', 'Spielinformationen erfolgreich gespeichert.');
+        } else {
+            $fehlerMeldungen = [];
+            foreach ($spiel->errors as $attribute => $messages) {
+                foreach ($messages as $message) {
+                    $fehlerMeldungen[] = "{$attribute}: {$message}";
+                }
+            }
+            $fehlermeldungText = implode("<br>", $fehlerMeldungen);
+            Yii::$app->session->setFlash('error', 'Fehler beim Speichern:<br>' . $fehlermeldungText);
+        }
+        
+        return $this->redirect(['spielbericht/view', 'id' => $spiel->id]);
+    }
+    
 }

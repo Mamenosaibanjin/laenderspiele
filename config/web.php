@@ -72,12 +72,15 @@ $config = [
                 'spieler/search' => 'spieler/search',
 
                 'referee/new' => 'referee/new',
+                'referee/search' => 'referee/search',
                 
                 'club/new' => 'club/new',
                 'club/<id:\d+>' => 'club/view',
                 'club/search' => 'club/search', // Neue Regel für die Club-Suche
                 'stadion/new' => 'stadion/new',
                 'stadion/<id:\d+>' => 'stadion/view',
+                'stadion/search' => 'stadion/search',
+                
                 'kader/<tournamentID:\d+>/<id:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
                 'index' => 'index/view',
@@ -86,6 +89,7 @@ $config = [
                 'spiele/<tournamentID:\d+>' => 'spiele/view', // Fallback für minimale Parameter
                 
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
+                'spielbericht/speichern-info' => 'spielbericht/speichern-info',  // Spielbericht-Ansicht
                 'aufstellung/spieler-suche' => 'aufstellung/spieler-suche',
                 'aufstellung/speichern' => 'aufstellung/speichern',
                 

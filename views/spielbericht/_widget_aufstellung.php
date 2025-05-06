@@ -25,7 +25,6 @@ $spielID = $spiel->id;
 
     <div class="highlights-content">
 
-    <form class="aufstellung-form" data-club-id="<?= $clubID ?>" data-spiel-id="<?= $spielID ?>" data-type="<?= $type ?>">
         <?php foreach (range(1, 11) as $i): ?>
             <?php
             $spielerProperty = "spieler{$i}";
@@ -35,7 +34,7 @@ $spielID = $spiel->id;
 	            <div class="form-group mb-2">
             	    <input type="text"
                 	       class="form-control awesomplete"
-                  	       placeholder="Spieler <?= $i ?>"
+    	              	       placeholder="Spieler <?= $i ?>"
                    	       value="<?= Html::encode($spieler ? $spieler->fullname : '') ?>"
                    	       data-id-field="#spieler-id-<?= $type ?>-<?= $i ?>">
                 	<input type="hidden"
@@ -67,16 +66,5 @@ $spielID = $spiel->id;
 				<b>Trainer:</b> <?= Html::a(Html::encode(trim($aufstellung->coach->vorname . ' ' . $aufstellung->coach->name)), ['/spieler/view', 'id' => $aufstellung->coach->id], ['class' => 'text-decoration-none']) ?><br>
             </div>
     	<?php endif;?>
-    	
-        <?php if (!Yii::$app->user->isGuest) :?>
-            <button type="button"
-                    class="btn btn-success aufstellung-speichern"
-                    data-club-id="<?= $clubID ?>">
-                Aufstellung speichern (<?= $heim ? 'Heim' : 'Auswärts' ?>) - inaktiv
-            </button>
-        <?php endif; ?>
-        
-        </form>
-
     </div>
 </div>

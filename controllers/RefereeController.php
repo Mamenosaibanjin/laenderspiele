@@ -39,5 +39,21 @@ class RefereeController extends Controller
         ]);
     }
     
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $term = Yii::$app->request->get('term');
+        $referee = Referee::find()
+        ->select(['id', 'CONCAT(fullname, \' (\', nati1 , \')\')  as value']) // 'value' ist erforderlich für jQuery UI
+        ->where(['like', 'fullname', $term])
+        ->orWhere(['like', 'nati1', $term])
+        ->asArray()
+        ->all();
+        
+        return $referee;
+    }
+    
+    
 }
 ?>

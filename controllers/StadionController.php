@@ -10,6 +10,7 @@ use app\models\Spiel;
 use app\models\Stadion;
 use Yii;
 use yii\web\Response;
+use app\models\Stadiums;
 
 class StadionController extends Controller
 {
@@ -76,6 +77,20 @@ class StadionController extends Controller
                 'klarname' => $stadion['name']
             ];
         }, $stadien);
+    }
+    
+    public function actionSearch()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $term = Yii::$app->request->get('term');
+        $stadium = Stadion::find()
+        ->select(['id', 'CONCAT(name, \', \', stadt , \' (\', land , \')\')  as value']) // 'value' ist erforderlich für jQuery UI
+        ->where(['like', 'name', $term])
+        ->asArray()
+        ->all();
+        
+        return $stadium;
     }
     
 }
