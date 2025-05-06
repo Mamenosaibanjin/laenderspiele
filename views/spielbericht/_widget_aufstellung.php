@@ -7,6 +7,7 @@ use yii\helpers\Url;
 
 $seite = $heim ? 'heimname' : 'auswaertsname';
 $teamName = $heim ? 'Heim' : 'Auswärts';
+$icon = $heim ? 'home' : 'flight';
 $tournamentID = $spiel->turnier->tournamentID ?? null;
 
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css');
@@ -18,10 +19,9 @@ $clubID = $heim ? $spiel->club1->id : $spiel->club2->id;
 $spielID = $spiel->id;
 ?>
     
-<div class="highlights-box">
-    <div style="margin-top: -23px; margin-bottom: 10px;">
-        <span class="highlights-header">Aufstellung (<?= $teamName ?>)</span>
-    </div>
+<div class="spielinfo-box">
+      <h4><i class="material-icons"><?= $icon ?></i> <?= $teamName ?></h4>
+
 
     <div class="highlights-content">
 

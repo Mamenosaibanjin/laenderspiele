@@ -96,8 +96,16 @@ if ($spiel->extratime) {
         'heim' => $heim,
     ]) ?>
     
+    <br><br>
     <!-- Widget Aufstellungen -->
     <form class="aufstellung-form" data-spiel-id="<?= $spiel->id ?>">
+    <div class="highlights-box">
+        	<div style="margin-top: -23px;">
+                <span class="highlights-header">
+                    Aufstellungen
+                </span>
+            </div>
+    
         <div class="alert alert-success" style="display:none; font-size: 11px; margin-top: 5px;" role="alert">
         ✅ Änderungen erfolgreich gespeichert.
     	</div>
@@ -132,6 +140,7 @@ if ($spiel->extratime) {
             </div>
         </div>
 	    <?php endif; ?>
+        </div>
 	</form>
 	
     <!-- Tore-Widget -->

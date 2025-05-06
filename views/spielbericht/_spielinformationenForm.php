@@ -30,9 +30,7 @@ $stadiumList = implode(', ', array_map(function($s) {
                 <?php if ($spiel->turnier->tournament): ?>
                     <div class="info-row">
                         <i class="material-icons">emoji_events</i>
-                        <span>
-                            <?= Helper::getTurniernameFullname($spiel->turnier->tournament->id, $spiel->turnier->jahr) ?>
-                        </span>
+                            <?= Html::input('text', 'namne', Helper::getTurniernameFullname($spiel->turnier->tournament->id, $spiel->turnier->jahr), ['class' => 'form-control', 'readonly' => true, 'disabled' => true]); ?>
                     </div>
                 <?php endif; ?>
 
@@ -40,10 +38,20 @@ $stadiumList = implode(', ', array_map(function($s) {
                 <?php if ($spiel->turnier->datum): ?>
                     <div class="info-row">
                         <i class="material-icons">calendar_month</i>
-                        <span>
-                            <?= Yii::$app->formatter->asDate($spiel->turnier->datum, 'php:d.m.Y') ?>
-                            <?php if ($spiel->turnier->zeit): ?> - <?= Yii::$app->formatter->asTime($spiel->turnier->zeit, 'php:H:i') ?><?php endif; ?>
-                        </span>
+                        
+                        <?= Html::input('text', 'datum', Yii::$app->formatter->asDate($spiel->turnier->datum, 'php:d.m.Y'), [
+                            'class' => 'form-control',
+                            'readonly' => true,
+                            'disabled' => true
+                        ]); ?>
+                    
+                        <?php if ($spiel->turnier->zeit): ?>
+                            <?= Html::input('text', 'zeit', Yii::$app->formatter->asTime($spiel->turnier->zeit, 'php:H:i'), [
+                                'class' => 'form-control',
+                                'readonly' => true,
+                                'disabled' => true
+                            ]); ?>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
                 <!-- Ergebnis -->
