@@ -1,5 +1,6 @@
 <!-- Stadion -->
 <?php use app\components\Helper;
+use yii\helpers\Html;
 
 if ($spiel->stadium): ?>
     <div class="info-row">

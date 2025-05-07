@@ -11,17 +11,17 @@ use yii\widgets\ActiveForm;
 
 <?php if (!empty($highlights) OR 1==1): ?>
     <div class="spielinfo-box">
-        <h4><i class="material-icons">event</i> Highlights</h4>
+        <h4><i class="material-icons">credit_card</i> Highlights</h4>
         <ul class="highlight-list">
             <?php foreach ($highlights as $h): ?>
                 <li class="highlight-entry">
                     <strong><?= Html::encode($h->minute) ?>'</strong> 
                     <?= Html::encode($h->aktion) ?>
                     <?php if ($h->spieler): ?>
-                        – <?= Html::encode($h->spieler->name) ?>
+                        – <?= Html::encode($h->spieler->vorname . ' ' . $h->spieler->name) ?>
                     <?php endif; ?>
                     <?php if ($h->spieler2): ?>
-                        → <?= Html::encode($h->spieler2->name) ?>
+                        → <?= Html::encode($h->spieler2->vorname . ' ' . $h->spieler2->name) ?>
                     <?php endif; ?>
                     <?php if ($h->zusatz): ?>
                         (<?= Html::encode($h->zusatz) ?>)
@@ -39,7 +39,7 @@ use yii\widgets\ActiveForm;
 <?php endif; ?>
 
 <div class="spielinfo-box">
-    <h4><i class="material-icons">event</i> Highlight erfassen</h4>
+    <h4><i class="material-icons">add_card</i> Highlight erfassen</h4>
 
     <?= Html::hiddenInput('spielID', $spiel->id) ?>
 

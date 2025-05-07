@@ -26,13 +26,6 @@ if ($spiel->extratime) {
 }
 ?>
 
-<?php if (Yii::$app->session->hasFlash('success')): ?>
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <?= Yii::$app->session->getFlash('success') ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php endif; ?>
-
 <div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
@@ -75,7 +68,7 @@ if ($spiel->extratime) {
 <?php else: ?>
 <?php if ($highlightAktionen) : ?>
                 <?php
-                $previousScore = [0, 0];
+               /* $previousScore = [0, 0];
                 foreach ($highlightAktionen as $aktion):
                     echo $this->render('_highlightZeile', [
                         'aktion' => $aktion,
@@ -84,7 +77,7 @@ if ($spiel->extratime) {
                     ]);
                     $previousScore = explode(':', $aktion->zusatz);
                 endforeach;
-                ?>
+                */?>
                 <?php else : ?>
                 	keine Highlights
                 <?php endif; ?>
@@ -145,6 +138,8 @@ if ($spiel->extratime) {
 	    <?php endif; ?>
         </div>
 	</form>
+	
+	<?php if (Yii::$app->user->isGuest): ?>
 	
     <!-- Tore-Widget -->
     <?php if ($toreAktionen) :?>
@@ -274,6 +269,7 @@ if ($spiel->extratime) {
         </div>
     </div>	
     <?php endif; ?>
+    <?php endif;?>
 </div>
 
 <script>
