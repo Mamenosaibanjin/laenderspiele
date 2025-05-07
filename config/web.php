@@ -90,7 +90,9 @@ $config = [
                 
                 'spielbericht/<id:\d+>' => 'spielbericht/view',  // Spielbericht-Ansicht
                 'spielbericht/speichern-info' => 'spielbericht/speichern-info',  // Spielbericht-Ansicht
+                
                 'aufstellung/spieler-suche' => 'aufstellung/spieler-suche',
+                'aufstellung/spieler-aufstellung-suche' => 'aufstellung/spieler-aufstellung-suche',
                 'aufstellung/speichern' => 'aufstellung/speichern',
                 
                 'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',

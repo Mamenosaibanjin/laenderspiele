@@ -105,7 +105,7 @@ if ($spiel->extratime) {
         <div class="alert alert-success" style="display:none; font-size: 11px; margin-top: 5px;" role="alert">
         ✅ Änderungen erfolgreich gespeichert.
     	</div>
-    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2) : ?>
+    <?php if ($spiel->aufstellung1 || $spiel->aufstellung2 || !Yii::$app->user->isGuest) : ?>
         <div class="panel-body" style="padding: 25px 25px 0 25px;">
             <div style="max-width: 640px; margin: auto; text-align: center;">
                 <div style="float: left; width: 45%;">
@@ -139,7 +139,7 @@ if ($spiel->extratime) {
         </div>
 	</form>
 	
-	<?php if (Yii::$app->user->isGuest): ?>
+	<?php if (!Yii::$app->user->isGuest): ?>
 	
     <!-- Tore-Widget -->
     <?php if ($toreAktionen) :?>
@@ -275,14 +275,15 @@ if ($spiel->extratime) {
 <script>
 const urlRefereeSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/referee/search';
 const urlSpielerSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/aufstellung/spieler-suche';
+const urlSpielerAufstellungSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/aufstellung/spieler-aufstellung-suche';
 const urlStadionSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/stadion/search';
 const spielID = <?= (int)$spiel->id ?>;   // Serverseitig ersetzen
-const clubID = 116;    // Serverseitig ersetzen
 
 function initAutocompleteAll() {
     document.querySelectorAll('.autocomplete-input').forEach(input => {
         const hiddenInput = document.getElementById(input.dataset.idInput);
 		const fetchType = input.dataset.fetchType?.trim() || 'referee';
+		const clubIDFromInput = input.dataset.clubId;
         const suggestionBox = document.getElementById(input.id + '-suggestions');
 
         let fetchedData = [];
@@ -299,10 +300,9 @@ function initAutocompleteAll() {
                 url = `${urlRefereeSuche}?term=${encodeURIComponent(term)}`;
             } else if (fetchType === 'stadium') {
                 url = `${urlStadionSuche}?term=${encodeURIComponent(term)}`;
-            } else if (fetchType === 'home') {
-                url = `${urlSpielerSuche}?spielID=${spielID}&clubID=${clubID}&term=${encodeURIComponent(term)}`;
-            } else if (fetchType === 'away') {
-                url = `${urlSpielerSuche}?spielID=${spielID}&clubID=${clubID}&term=${encodeURIComponent(term)}`;
+            } else if (fetchType === 'home' || fetchType === 'away') {
+                const club = clubIDFromInput || clubID;
+                url = `${urlSpielerAufstellungSuche}?spielID=${spielID}&clubID=${club}&term=${encodeURIComponent(term)}`;
             } else {
                 // Spieler
                 url = `${urlSpielerSuche}?spielID=${spielID}&term=${encodeURIComponent(term)}`;
@@ -350,8 +350,37 @@ function initAutocompleteAll() {
                 suggestionBox.style.display = 'none';
             }
         });
+        
+        let currentIndex = -1;
+        
+        input.addEventListener('keydown', (e) => {
+            const items = suggestionBox.querySelectorAll('.suggestion-item');
+            if (!items.length) return;
+        
+            if (e.key === 'ArrowDown') {
+                currentIndex = (currentIndex + 1) % items.length;
+                items.forEach(item => item.classList.remove('active'));
+                items[currentIndex].classList.add('active');
+                input.value = items[currentIndex].textContent;
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+                currentIndex = (currentIndex - 1 + items.length) % items.length;
+                items.forEach(item => item.classList.remove('active'));
+                items[currentIndex].classList.add('active');
+                input.value = items[currentIndex].textContent;
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                if (currentIndex >= 0) {
+                    items[currentIndex].click();
+                    e.preventDefault();
+                }
+            }
+		});
+
     });
+
 }
+
 
 // Aufrufen nach DOM-Load:
 document.addEventListener('DOMContentLoaded', initAutocompleteAll);

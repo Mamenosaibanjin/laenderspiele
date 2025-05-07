@@ -28,21 +28,19 @@ class AufstellungController extends Controller
         ->all();
     }
     
-    public function actionAufstellungSpielerSuche($spielID, $clubID, $term)
+    public function actionSpielerAufstellungSuche($spielID, $clubID, $term)
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return (new \yii\db\Query())
-        ->select(['spieler.id', "CONCAT(spieler.vorname, ' ', spieler.name) AS name"])
-        ->from('spieler')
-        ->innerJoin('spieler_land_wettbewerb slw', 'slw.spielerID = spieler.id')
-        ->innerJoin('tournament t', 'slw.tournamentID = t.id')
-        ->innerJoin('turnier tu', 'tu.tournamentID = t.id')
-        ->where(['tu.spielID' => $spielID])
+        ->select(['s.id', "CONCAT(s.vorname, ' ', s.name) AS value"])
+        ->from('turnier t')
+        ->innerJoin('spieler_land_wettbewerb slw', 'slw.tournamentID = t.tournamentID')
+        ->innerJoin('spieler s', 's.id = slw.spielerID')
+        ->where(['t.spielID' => $spielID])
         ->andWhere(['slw.landID' => $clubID])
-        ->andFilterWhere([
-            'or',
-            ['like', 'spieler.name', $term],
-            ['like', 'spieler.vorname', $term],
+        ->andWhere(['or',
+            ['like', 's.name', $term],
+            ['like', 's.vorname', $term],
         ])
         ->limit(10)
         ->all();

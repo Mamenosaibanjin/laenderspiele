@@ -53,6 +53,16 @@ use yii\widgets\ActiveForm;
     </div>
 
     <div class="info-row">
+        <i class="material-icons">person</i>
+        <input type="text" class="autocomplete-input form-control" id="spielerText"
+               data-id-input="spielerID"
+               data-fetch-type="spieler"
+               placeholder="Spieler wählen">
+        <input type="hidden" name="spielerID" id="spielerID">
+        <div class="autocomplete-suggestions" id="spielerText-suggestions"></div>
+    </div>
+
+    <div class="info-row">
         <i class="material-icons">flag</i>
         <select name="aktion" class="form-control" id="aktion-select">
             <option value="">--- bitte wählen ---</option>
@@ -65,16 +75,6 @@ use yii\widgets\ActiveForm;
             <option value="GRK">Gelb-Rote Karte</option>
             <option value="RK">Rote Karte</option>
         </select>
-    </div>
-
-    <div class="info-row">
-        <i class="material-icons">person</i>
-        <input type="text" class="autocomplete-input form-control" id="spielerText"
-               data-id-input="spielerID"
-               data-fetch-type="spieler"
-               placeholder="Spieler wählen">
-        <input type="hidden" name="spielerID" id="spielerID">
-        <div class="autocomplete-suggestions" id="spielerText-suggestions"></div>
     </div>
 
     <div class="info-row" id="zusatz-wrapper-group" style="display: none;">

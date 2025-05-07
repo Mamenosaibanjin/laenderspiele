@@ -155,3 +155,12 @@
     align-items: center;
     justify-content: space-between;
 }
+
+.suggestion-item {
+	text-align: left;
+}
+
+.suggestion-item.active {
+    background-color: #1C75AC;
+    color: white;
+}

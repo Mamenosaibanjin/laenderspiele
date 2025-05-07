@@ -33,14 +33,19 @@ $spielID = $spiel->id;
             <?php if (!Yii::$app->user->isGuest) :?>
 	            <div class="form-group mb-2">
             	    <input type="text"
-                	       class="form-control awesomplete"
-    	              	       placeholder="Spieler <?= $i ?>"
-                   	       value="<?= Html::encode($spieler ? $spieler->fullname : '') ?>"
-                   	       data-id-field="#spieler-id-<?= $type ?>-<?= $i ?>">
-                	<input type="hidden"
+                           class="form-control autocomplete-input"
+                           id="spieler<?= $type ?>Text-<?= $i ?>"
+                           placeholder="Spieler <?= $i ?>"
+                           value="<?= Html::encode($spieler ? $spieler->fullname : '') ?>"
+                           data-id-input="spieler-id-<?= $type ?>-<?= $i ?>"
+                           data-fetch-type="<?= $type === 'H' ? 'home' : 'away' ?>"
+                           data-club-id="<?= $clubID ?>">
+                    <input type="hidden"
                            name="spieler[spieler<?= $i ?>]"
                            id="spieler-id-<?= $type ?>-<?= $i ?>"
                            value="<?= $spieler?->id ?>">
+                    <div class="autocomplete-suggestions" id="spieler<?= $type ?>Text-<?= $i ?>-suggestions"></div>
+
 	            </div>
             <?php else :?>
 	            <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
