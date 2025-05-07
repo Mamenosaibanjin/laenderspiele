@@ -82,7 +82,7 @@ foreach ($laenderKeys as $key) {
                             <td align="right"><?= Html::a($spiel->spiel->club1->name, ['club/view', 'id' => $spiel->spiel->club1ID], ['class' => 'text-decoration-none']) ?></td>
                             <td align="center">–</td>
                             <td><?= Html::a($spiel->spiel->club2->name, ['club/view', 'id' => $spiel->spiel->club2ID], ['class' => 'text-decoration-none']) ?></td>
-                            <td><?= Html::a($spiel->spiel->ergebnis ?? '– : –', ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
+                            <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -97,8 +97,50 @@ foreach ($laenderKeys as $key) {
             <h3 class="mb-0">Tabelle</h3>
         </div>
         <div class="card-body">
-            <!-- Optionaler Platzhalter: Du kannst hier z. B. die Gruppentabelle einfügen -->
-            <p class="text-muted">Hier könnten Gruppentabellen, Statistiken o. Ä. folgen …</p>
+            <?php
+            use app\components\TabellenHelper;
+            
+            $rundeID = 1; // später dynamisch
+            $spieltagMax = 1;
+            $daten = TabellenHelper::berechneTabelle($turnier->id, $rundeID, $spieltagMax);
+            $farben = TabellenHelper::getPlatzfarben($turnier->id, $rundeID);
+            ?>
+            
+            <table class="table table-bordered table-sm text-center">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th style="text-align:left;">Mannschaft</th>
+                        <th>Sp.</th>
+                        <th>S</th>
+                        <th>U</th>
+                        <th>N</th>
+                        <th>Tore</th>
+                        <th>Dif.</th>
+                        <th>Pkt.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php $platz = 1; foreach ($daten as $club): ?>
+                        <?php
+                            $diff = $club['tore'] - $club['gegentore'];
+                            $farbe = $farben[$platz] ?? null;
+                        ?>
+                        <tr style="<?= $farbe ? "background-color: $farbe;" : '' ?>">
+                            <td><?= $platz ?></td>
+                            <td style="text-align:left;"><?= Html::a($club['club']->name, ['club/view', 'id' => $club['club']->id]) ?></td>
+                            <td><?= $club['spiele'] ?></td>
+                            <td><?= $club['siege'] ?></td>
+                            <td><?= $club['remis'] ?></td>
+                            <td><?= $club['niederlagen'] ?></td>
+                            <td><?= $club['tore'] ?>:<?= $club['gegentore'] ?></td>
+                            <td><?= $diff ?></td>
+                            <td><?= $club['punkte'] ?></td>
+                        </tr>
+                    <?php $platz++; endforeach; ?>
+                </tbody>
+            </table>
+
         </div>
     </div>
 </div>
