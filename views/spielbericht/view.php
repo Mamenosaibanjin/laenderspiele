@@ -2,6 +2,7 @@
 use app\components\Helper;
 use yii\helpers\Html;
 use yii\helpers\Url;
+use yii\widgets\ActiveForm;
 use app\models\Spielbericht;
 
 /* @var $this yii\web\View */
@@ -94,17 +95,18 @@ if ($spiel->extratime) {
     
     <br><br>
     <!-- Widget Aufstellungen -->
-    <form class="aufstellung-form" data-spiel-id="<?= $spiel->id ?>">
+    <?php $form = ActiveForm::begin([
+        'action' => ['aufstellung/speichern'],
+        'method' => 'post',
+        'options' => ['class' => 'aufstellung-form']
+    ]) ?>
     <div class="highlights-box">
         	<div style="margin-top: -23px;">
                 <span class="highlights-header">
                     Aufstellungen
                 </span>
             </div>
-    
-        <div class="alert alert-success" style="display:none; font-size: 11px; margin-top: 5px;" role="alert">
-        ✅ Änderungen erfolgreich gespeichert.
-    	</div>
+
     <?php if ($spiel->aufstellung1 || $spiel->aufstellung2 || !Yii::$app->user->isGuest) : ?>
         <div class="panel-body" style="padding: 25px 25px 0 25px;">
             <div style="max-width: 640px; margin: auto; text-align: center;">
@@ -129,15 +131,13 @@ if ($spiel->extratime) {
       			</div>               
                 
                 <?php if (!Yii::$app->user->isGuest) :?>
-                	<button type="button" class="btn btn-secondary aufstellung-speichern" style="margin-top: 20px;">
-                		Aufstellungen speichern
-            		</button>
+    			     <?= Html::submitButton('Aufstellungen speichern', ['class' => 'btn btn-secondary']) ?>
             	<?php endif; ?>
             </div>
         </div>
 	    <?php endif; ?>
         </div>
-	</form>
+	<?php ActiveForm::end() ?>
 	
 	<?php if (!Yii::$app->user->isGuest): ?>
 	

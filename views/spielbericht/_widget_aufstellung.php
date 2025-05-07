@@ -25,6 +25,9 @@ $spielID = $spiel->id;
 
     <div class="highlights-content">
 
+		<input type="hidden" name="spielID" value="<?= $spielID ?>">
+		<input type="hidden" name="clubID-<?= $type ?>" value="<?= $clubID ?>">
+
         <?php foreach (range(1, 11) as $i): ?>
             <?php
             $spielerProperty = "spieler{$i}";
@@ -41,7 +44,7 @@ $spielID = $spiel->id;
                            data-fetch-type="<?= $type === 'H' ? 'home' : 'away' ?>"
                            data-club-id="<?= $clubID ?>">
                     <input type="hidden"
-                           name="spieler[spieler<?= $i ?>]"
+                           name="spieler<?= $type ?>[spieler<?= $i ?>]"
                            id="spieler-id-<?= $type ?>-<?= $i ?>"
                            value="<?= $spieler?->id ?>">
                     <div class="autocomplete-suggestions" id="spieler<?= $type ?>Text-<?= $i ?>-suggestions"></div>
@@ -57,15 +60,20 @@ $spielID = $spiel->id;
         <?php if (!Yii::$app->user->isGuest) :?>
 	        <div class="form-group mb-3">
                 <input type="text"
-                       class="form-control awesomplete"
+                       class="form-control autocomplete-input"
+                       id="trainer<?= $type ?>Text"
                        placeholder="Trainer"
-    				   value="<?= Html::encode($aufstellung?->coach?->fullname ?? '') ?>"
-                       data-id-field="#trainer-id-<?= $type ?>">
+                       value="<?= Html::encode($aufstellung?->coach?->fullname ?? '') ?>"
+                       data-id-input="trainer-id-<?= $type ?>"
+                       data-fetch-type="<?= $type === 'H' ? 'home' : 'away' ?>"
+                       data-club-id="<?= $clubID ?>">
                 <input type="hidden"
-                       name="trainer"
+                       name="trainer<?= $type ?>"
                        id="trainer-id-<?= $type ?>"
                        value="<?= $aufstellung?->coach?->id ?? '' ?>">
+                <div class="autocomplete-suggestions" id="trainer<?= $type ?>Text-suggestions"></div>
             </div>
+
     	<?php else : ?>
             <div class="form-group mb-3" style="text-align: left;padding: 5px 5px 5px 25px;background-color: #e0e0e0;margin: 0px -10px;">
 				<b>Trainer:</b> <?= Html::a(Html::encode(trim($aufstellung->coach->vorname . ' ' . $aufstellung->coach->name)), ['/spieler/view', 'id' => $aufstellung->coach->id], ['class' => 'text-decoration-none']) ?><br>

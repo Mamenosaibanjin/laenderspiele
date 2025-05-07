@@ -160,7 +160,7 @@
 	text-align: left;
 }
 
-.suggestion-item.active {
+.suggestion-item.active, .suggestion-item:hover {
     background-color: #1C75AC;
     color: white;
 }

@@ -48,57 +48,77 @@ class AufstellungController extends Controller
     
     public function actionSpeichern()
     {
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        
-        $request = json_decode(Yii::$app->request->getRawBody(), true);
-        
-        if (!$request) {
-            return ['success' => false, 'message' => 'Ungültiger JSON-Body.'];
+        $request = Yii::$app->request;
+        $post = $request->post();
+        $spielID = (int)($post['spielID'] ?? 0);
+        if (!$spielID) {
+            Yii::$app->session->setFlash('error', 'Keine gültige Spiel-ID');
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
         }
         
-        $spielID = (int)($request['spielID'] ?? 0);
-        $type = $request['type'] ?? '';
-        $spieler = $request['spieler'] ?? [];
-        $trainerID = $request['trainer'] ?? null;
-        
-        // Hole das Spiel anhand der ID
         $spiel = \app\models\Spiel::findOne($spielID);
         if (!$spiel) {
-            return ['success' => false, 'message' => 'Spiel nicht gefunden.'];
+            Yii::$app->session->setFlash('error', 'Spiel nicht gefunden');
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
         }
         
-        // Hole die bestehende Aufstellung anhand des Types
-        if ($type === 'H') {
-            $aufstellung = $spiel->aufstellung1ID ? \app\models\Aufstellung::findOne($spiel->aufstellung1ID) : null;
-        } elseif ($type === 'A') {
-            $aufstellung = $spiel->aufstellung2ID ? \app\models\Aufstellung::findOne($spiel->aufstellung2ID) : null;
-        } else {
-            return ['success' => false, 'message' => 'Ungültiger Typ (nur H oder A erlaubt).'];
-        }
-        
-        // Wenn keine vorhanden, neue anlegen
-        if (!$aufstellung) {
-            $aufstellung = new \app\models\Aufstellung();
-        }
-        
-        foreach ($spieler as $key => $id) {
-            $attr = $key . 'ID'; // z.B. aus "spieler1" wird "spieler1ID"
-            if ($aufstellung->hasAttribute($attr)) {
-                $aufstellung->$attr = $id ?: null;
+        // Helferfunktion zum Speichern einer Aufstellung (DRY-Prinzip)
+        $speichereAufstellung = function($spielerArray, $trainerID, $aufstellungsID = null) {
+            $aufstellung = $aufstellungsID
+            ? \app\models\Aufstellung::findOne($aufstellungsID)
+            : new \app\models\Aufstellung();
+            
+            if (!$aufstellung) {
+                $aufstellung = new \app\models\Aufstellung();
             }
-        }
-        $aufstellung->coachID = $trainerID ?: null;
+            
+            foreach ($spielerArray as $key => $id) {
+                $attr = $key . 'ID';
+                if ($aufstellung->hasAttribute($attr)) {
+                    $aufstellung->$attr = $id ?: null;
+                }
+            }
+            
+            $aufstellung->coachID = $trainerID ?: null;
+            
+            if ($aufstellung->save()) {
+                return $aufstellung->id;
+            }
+            
+            Yii::$app->session->setFlash('error', 'Aufstellung konnte nicht gespeichert werden.');
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
+        };
         
-        if ($aufstellung->save()) {
-            // Aufstellungs-ID im Spiel aktualisieren
-            if ($type === 'H') $spiel->aufstellung1ID = $aufstellung->id;
-            else if ($type === 'A') $spiel->aufstellung2ID = $aufstellung->id;
+        try {
+            // Heimmannschaft
+            $spielerH = $post['spielerH'] ?? [];
+            $trainerH = $post['trainerH'] ?? null;
+            $clubID_H = (int)($post['clubID-H'] ?? 0);
+            $aufstellung1ID = $spiel->aufstellung1ID;
+            
+            $neueAufstellung1ID = $speichereAufstellung($spielerH, $trainerH, $aufstellung1ID);
+            
+            // Auswärtsmannschaft
+            $spielerA = $post['spielerA'] ?? [];
+            $trainerA = $post['trainerA'] ?? null;
+            $clubID_A = (int)($post['clubID-A'] ?? 0);
+            $aufstellung2ID = $spiel->aufstellung2ID;
+            
+            $neueAufstellung2ID = $speichereAufstellung($spielerA, $trainerA, $aufstellung2ID);
+            
+            // Aufstellungs-IDs im Spielmodell aktualisieren, falls neu
+            $spiel->aufstellung1ID = $neueAufstellung1ID;
+            $spiel->aufstellung2ID = $neueAufstellung2ID;
             $spiel->save(false);
             
-            return ['success' => true];
+            Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+            Yii::$app->session->setFlash('success', 'Aufstellungen wurden gespeichert.');
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
+        } catch (\Throwable $e) {
+            Yii::$app->session->setFlash('error', $e->getMessage());
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
         }
-        
-        return ['success' => false, 'errors' => $aufstellung->errors];
     }
+    
     
 }
