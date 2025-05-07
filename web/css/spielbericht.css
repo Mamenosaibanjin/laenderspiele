@@ -20,6 +20,18 @@
   color: #555;
 }
 
+.info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 1em;
+}
+
+.info-row i.material-icons {
+    font-size: 1.2em;
+    color: #555;
+}
+
 
 .autocomplete-input {
     width: 100%;
@@ -129,4 +141,17 @@
 	top: 7px !important;
 	padding-right: 5px !important;
 	color: #1C75AC;
+}
+
+.highlight-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.highlight-entry {
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }

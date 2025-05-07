@@ -33,13 +33,6 @@ if ($spiel->extratime) {
     </div>
 <?php endif; ?>
 
-<?php if (Yii::$app->session->hasFlash('error')): ?>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <?= Yii::$app->session->getFlash('error') ?>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-<?php endif; ?>
-
 <div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
@@ -72,7 +65,15 @@ if ($spiel->extratime) {
                 </span>
             </div>
             <div class="highlights-content">
-			<?php if ($highlightAktionen) : ?>
+			<?php if (!Yii::$app->user->isGuest): ?>
+    <div class="highlight-form-wrapper" style="margin-top: 20px;">
+        <?= $this->render('_highlightForm', [
+            'spiel' => $spiel,
+            'highlights' => $highlights,
+        ]) ?>
+    </div>
+<?php else: ?>
+<?php if ($highlightAktionen) : ?>
                 <?php
                 $previousScore = [0, 0];
                 foreach ($highlightAktionen as $aktion):
@@ -87,6 +88,8 @@ if ($spiel->extratime) {
                 <?php else : ?>
                 	keine Highlights
                 <?php endif; ?>
+                <?php endif; ?>
+                
             </div>
         </div>
     </div>
@@ -275,10 +278,10 @@ if ($spiel->extratime) {
 
 <script>
 const urlRefereeSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/referee/search';
-const urlSpielerSuche = '/aufstellung/spieler-suche';
+const urlSpielerSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/aufstellung/spieler-suche';
 const urlStadionSuche = '/projects/laenderspiele2.0/yii2-app-basic/web/stadion/search';
-const spielID = 123;   // Serverseitig ersetzen
-const clubID = 456;    // Serverseitig ersetzen
+const spielID = <?= (int)$spiel->id ?>;   // Serverseitig ersetzen
+const clubID = 116;    // Serverseitig ersetzen
 
 function initAutocompleteAll() {
     document.querySelectorAll('.autocomplete-input').forEach(input => {
@@ -300,9 +303,13 @@ function initAutocompleteAll() {
                 url = `${urlRefereeSuche}?term=${encodeURIComponent(term)}`;
             } else if (fetchType === 'stadium') {
                 url = `${urlStadionSuche}?term=${encodeURIComponent(term)}`;
+            } else if (fetchType === 'home') {
+                url = `${urlSpielerSuche}?spielID=${spielID}&clubID=${clubID}&term=${encodeURIComponent(term)}`;
+            } else if (fetchType === 'away') {
+                url = `${urlSpielerSuche}?spielID=${spielID}&clubID=${clubID}&term=${encodeURIComponent(term)}`;
             } else {
                 // Spieler
-                url = `${urlSpielerSuche}?spielID=${spielID}&clubID=${clubID}&term=${encodeURIComponent(term)}`;
+                url = `${urlSpielerSuche}?spielID=${spielID}&term=${encodeURIComponent(term)}`;
             }
 
             try {

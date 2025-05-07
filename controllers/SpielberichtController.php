@@ -22,6 +22,11 @@ class SpielberichtController extends Controller
         $aufstellung1 = $spiel->aufstellung1;
         $aufstellung2 = $spiel->aufstellung2;
         
+        $highlights = Games::find()
+        ->where(['spielID' => $spiel->id])
+        ->orderBy(['minute' => SORT_ASC])
+        ->all();
+        
         $highlightAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
         ->andWhere(['aktion' => ['TOR', '11m', 'ET', 'RK', 'GRK']])
@@ -80,6 +85,8 @@ class SpielberichtController extends Controller
             'besondereAktionen' => $besondereAktionen,
             'wechselHeim' => $wechselHeim,
             'wechselAuswaerts' => $wechselAuswaerts,
+            'highlights' => $highlights,
+            
         ]);
     }
     
@@ -209,4 +216,44 @@ class SpielberichtController extends Controller
         return $this->redirect(['spielbericht/view', 'id' => $spiel->id]);
     }
     
+    public function actionSpeichernHighlight()
+    {
+        $request = Yii::$app->request;
+        
+        $spielID = (int)$request->post('spielID');
+        $minute = (int)$request->post('minute');
+        $aktion = trim($request->post('aktion'));
+        $spielerID = (int)$request->post('spielerID');
+        $zusatz = $request->post('zusatz') ?: null;
+        $spieler2ID = $request->post('spieler2ID') ?: null;
+        
+        $highlight = new Games(); // Games = Highlight-Eintrag
+        
+        $highlight->spielID = $spielID;
+        $highlight->minute = $minute;
+        $highlight->aktion = $aktion;
+        $highlight->spielerID = $spielerID;
+        $highlight->zusatz = $zusatz;
+        $highlight->spieler2ID = $spieler2ID ? (int)$spieler2ID : null;
+        
+        if ($highlight->save()) {
+            Yii::$app->session->setFlash('success', 'Highlight wurde erfolgreich gespeichert.');
+        } else {
+            Yii::$app->session->setFlash('error', 'Fehler beim Speichern: ' . json_encode($highlight->errors));
+            Yii::error($highlight->errors, __METHOD__);
+        }
+        
+        return $this->redirect(['spielbericht/view', 'id' => $spielID]);
+    }
+    
+    public function actionDeleteHighlight($id)
+    {
+        $highlight = Games::findOne($id);
+        if ($highlight !== null) {
+            $spielID = $highlight->spielID;
+            $highlight->delete();
+            return $this->redirect(['spielbericht/view', 'id' => $spielID]);
+        }
+        throw new \yii\web\NotFoundHttpException('Highlight nicht gefunden.');
+    }
 }
