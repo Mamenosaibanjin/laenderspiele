@@ -13,7 +13,7 @@ class TabellenHelper
         $spiele = Turnier::find()
         ->joinWith('spiel') // falls Relation singular heißt
         ->where(['rundeID' => $rundeID])
-        ->andWhere(['<=', 'spieltag', 2])
+        ->andWhere(['<=', 'spieltag', $spieltagMax])
         ->andWhere(['and',
             ['not', ['tore1' => null]],
             ['not', ['tore2' => null]],
@@ -80,7 +80,6 @@ class TabellenHelper
                 $farben[$i] = $m->farbe;
             }
         }
-        
         return $farben;
     }
 }

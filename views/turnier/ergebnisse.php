@@ -100,7 +100,7 @@ foreach ($laenderKeys as $key) {
             <?php
             use app\components\TabellenHelper;
             
-            $rundeID = 1; // später dynamisch
+            $rundeID = Yii::$app->request->get('rundeID'); // später dynamisch
             $spieltagMax = 3;
             $daten = TabellenHelper::berechneTabelle($turnier->id, $rundeID, $spieltagMax);
             $farben = TabellenHelper::getPlatzfarben($turnier->id, $rundeID);
@@ -127,15 +127,15 @@ foreach ($laenderKeys as $key) {
                             $farbe = $farben[$platz] ?? null;
                         ?>
                         <tr style="<?= $farbe ? "background-color: $farbe;" : '' ?>">
-                            <td><?= $platz ?></td>
-                            <td style="text-align:left;"><?= Html::a($club['club']->name, ['club/view', 'id' => $club['club']->id]) ?></td>
-                            <td><?= $club['spiele'] ?></td>
-                            <td><?= $club['siege'] ?></td>
-                            <td><?= $club['remis'] ?></td>
-                            <td><?= $club['niederlagen'] ?></td>
-                            <td><?= $club['tore'] ?>:<?= $club['gegentore'] ?></td>
-                            <td><?= $diff ?></td>
-                            <td><?= $club['punkte'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $platz ?></td>
+                            <td style="text-align:left; <?= $farbe ? "background-color: $farbe;" : '' ?>"><?= Html::a($club['club']->name, ['club/view', 'id' => $club['club']->id], ['class' => 'text-decoration-none']) ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['spiele'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['siege'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['remis'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['niederlagen'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['tore'] ?>:<?= $club['gegentore'] ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $diff ?></td>
+                            <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['punkte'] ?></td>
                         </tr>
                     <?php $platz++; endforeach; ?>
                 </tbody>

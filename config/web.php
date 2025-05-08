@@ -96,7 +96,7 @@ $config = [
                 'aufstellung/speichern' => 'aufstellung/speichern',
                 
                 'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
-                'turnier/<tournamentID:\d+>/ergebnisse' => 'turnier/ergebnisse',
+                'turnier/<tournamentID:\d+>/ergebnisse/<rundeID:\d*>' => 'turnier/ergebnisse',
                 'turnier/<tournamentID:\d+>/<action:(ergebnisse|spielplan|teilnehmer|spieler|torjaeger|stadien|schiedsrichter)>' => 'turnier/<action>',
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',

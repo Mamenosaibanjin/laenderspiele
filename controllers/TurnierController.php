@@ -139,8 +139,8 @@ class TurnierController extends Controller
                 'spiel.club2 c2',
             ])
             ->where([
-                't.tournamentID' => $runde->tournamentID,
-                't.rundeID' => $runde->rundeID
+                't.tournamentID' => $tournamentID,
+                't.rundeID' => $rundeID
             ])
             ->orderBy([
                 'r.typ' => SORT_ASC,
