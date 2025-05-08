@@ -101,7 +101,7 @@ foreach ($laenderKeys as $key) {
             use app\components\TabellenHelper;
             
             $rundeID = 1; // später dynamisch
-            $spieltagMax = 1;
+            $spieltagMax = 3;
             $daten = TabellenHelper::berechneTabelle($turnier->id, $rundeID, $spieltagMax);
             $farben = TabellenHelper::getPlatzfarben($turnier->id, $rundeID);
             ?>

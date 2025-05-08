@@ -11,8 +11,13 @@ class TabellenHelper
     public static function berechneTabelle($turnierID, $rundeID, $spieltagMax = 1)
     {
         $spiele = Turnier::find()
+        ->joinWith('spiel') // falls Relation singular heißt
         ->where(['rundeID' => $rundeID])
-        ->andWhere(['<=', 'spieltag', $spieltagMax])
+        ->andWhere(['<=', 'spieltag', 2])
+        ->andWhere(['and',
+            ['not', ['tore1' => null]],
+            ['not', ['tore2' => null]],
+        ])
         ->all();
         $clubs = [];
 
