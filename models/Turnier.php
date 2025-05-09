@@ -120,6 +120,7 @@ class Turnier extends ActiveRecord
             't.tournamentID' => $tournamentID,
         ])
         ->andWhere(['g.aktion' => ['ET', 'TOR', '11m']])
+        ->andWhere(['<', 'g.minute', 200])
         ->count();
     }
     
@@ -150,6 +151,7 @@ class Turnier extends ActiveRecord
             'turnier.tournamentID' => $tournamentID
         ])
         ->andWhere(['or', ['like', 'games.aktion', 'TOR'], ['like', 'games.aktion', '11m']])
+        ->andWhere(['<', 'games.minute', 200])
         ->groupBy('spieler.id')
         ->orderBy(['tor' => SORT_DESC, 'spieler.name' => SORT_ASC])
         ->limit($limit)

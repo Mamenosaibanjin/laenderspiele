@@ -145,6 +145,23 @@ function createDropdown(options) {
     return select;
 }
 
+function restrictActionsByMinute(minute) {
+    const aktionSelect = document.getElementById('aktion-select');
+    const verboteneAktionen = ['ET', 'AUS', 'TOR'];
+
+    for (const option of aktionSelect.options) {
+        if (verboteneAktionen.includes(option.value)) {
+            option.disabled = (minute >= 200);
+        }
+    }
+
+    // Wenn aktuelle Auswahl deaktiviert wird, auf leere Auswahl zurücksetzen
+    if (aktionSelect.selectedOptions[0]?.disabled) {
+        aktionSelect.value = '';
+        aktionSelect.dispatchEvent(new Event('change'));
+    }
+}
+
 function createInput() {
     const input = document.createElement('input');
     input.type = 'text';
@@ -210,5 +227,14 @@ aktionDropdown.addEventListener('change', function () {
 
     updateZusatzIcon(value);
     updateSpieler2Field(value, null);
+});
+
+const minuteInput = document.querySelector('input[name="minute"]');
+
+minuteInput.addEventListener('input', function () {
+    const minute = parseInt(this.value, 10);
+    if (!isNaN(minute)) {
+        restrictActionsByMinute(minute);
+    }
 });
 </script>

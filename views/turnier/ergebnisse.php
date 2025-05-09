@@ -98,7 +98,21 @@ foreach ($laenderKeys as $key) {
                             </td>
                             <td align="center">–</td>
                             <td><?= $club2Name ?></td>
-                            <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
+
+                            <?php
+                            switch (true) {
+                                case $spiel->spiel->penalty == 1:
+                                    $ergebnisszusatz = ' i.E.';
+                                    break;
+                                case $spiel->spiel->extratime == 1:
+                                    $ergebnisszusatz = ' n.V.';
+                                    break;
+                                default:
+                                    $ergebnisszusatz = '';
+                            }
+                            ?>
+
+                            <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2 . $ergebnisszusatz, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
