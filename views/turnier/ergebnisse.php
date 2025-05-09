@@ -80,9 +80,24 @@ foreach ($laenderKeys as $key) {
                         <tr>
                             <td><?= Yii::$app->formatter->asDate($spiel->datum) ?></td>
                             <td><?= Yii::$app->formatter->asTime($spiel->zeit, 'short') ?></td>
-                            <td align="right"><?= Html::a($spiel->spiel->club1->name, ['club/view', 'id' => $spiel->spiel->club1ID], ['class' => 'text-decoration-none']) ?></td>
+                            <td align="right">
+                                <?php
+                                    $club1Name = Html::a($spiel->spiel->club1->name, ['club/view', 'id' => $spiel->spiel->club1ID], ['class' => 'text-decoration-none']);
+                                    $club2Name = Html::a($spiel->spiel->club2->name, ['club/view', 'id' => $spiel->spiel->club2ID], ['class' => 'text-decoration-none']);
+                        
+                                    // Gewinnerlogik nur bei KO-Runden
+                                    if ($spiel->runde?->typ === 'ko' && is_numeric($spiel->spiel->tore1) && is_numeric($spiel->spiel->tore2)) {
+                                        if ($spiel->spiel->tore1 > $spiel->spiel->tore2) {
+                                            $club1Name = '<strong>' . $club1Name . '</strong>';
+                                        } elseif ($spiel->spiel->tore2 > $spiel->spiel->tore1) {
+                                            $club2Name = '<strong>' . $club2Name . '</strong>';
+                                        }
+                                    }
+                                ?>
+                                <?= $club1Name ?>
+                            </td>
                             <td align="center">–</td>
-                            <td><?= Html::a($spiel->spiel->club2->name, ['club/view', 'id' => $spiel->spiel->club2ID], ['class' => 'text-decoration-none']) ?></td>
+                            <td><?= $club2Name ?></td>
                             <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
                         </tr>
                     <?php endforeach; ?>
