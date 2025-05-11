@@ -658,21 +658,59 @@ class Helper
         if (!$tournament) {
             return null;
         }
-
+        
         // Wettbewerb laden (über ActiveRecord)
         $wettbewerb = \app\models\Wettbewerb::findOne($tournament->wettbewerbID);
         if (!$wettbewerb) {
             return null;
         }
-
+        
         // Jahr aus Startdatum extrahieren
         $jahr = (int)substr((string)$tournament->startdatum, 0, 4);
         
         // Turniername zusammensetzen
         $turniername = $wettbewerb->$column . " " . $jahr;
-
+        
         if ($tournament->wettbewerbID >= 500) {
             $turniername .= "/" . ($jahr + 1);
+        }
+        
+        return $turniername;
+    }
+    
+    public static function getTurniernameFullnameForDropdown($tournamentID): ?string
+    {
+        $language = Yii::$app->language;
+        $column = $language === 'en_US' ? 'name_en' : 'name';
+        
+        // Turnier laden
+        $tournament = \app\models\Tournament::findOne($tournamentID);
+        if (!$tournament) {
+            return null;
+        }
+        
+        // Wettbewerb laden (über ActiveRecord)
+        $wettbewerb = \app\models\Wettbewerb::findOne($tournament->wettbewerbID);
+        if (!$wettbewerb) {
+            return null;
+        }
+        
+        // Jahr aus Startdatum extrahieren
+        $jahr = (int)substr((string)$tournament->startdatum, 0, 4);
+        
+        // Turniername zusammensetzen
+        $turniername = $jahr;
+        
+        if ($tournament->wettbewerbID >= 500) {
+            $turniername .= "/" . ($jahr + 1);
+        } elseif ($tournament->land) {
+            $laenderKeys = !empty($tournament->land) ? explode('/', $tournament->land) : [];
+            $turniername .= " in ";
+            foreach ($laenderKeys as $key) {
+                $turniername .= "/".Helper::getNationname($key);
+            }
+            $turniername = str_replace("in /", "in ", $turniername);
+            
         }
         
         return $turniername;

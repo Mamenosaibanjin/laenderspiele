@@ -1,6 +1,9 @@
 <?php
 use app\components\Helper;
+use app\models\Runde;
 use app\models\Spiel;
+use app\models\Tournament;
+use app\models\Turnier;
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Nav;
 use yii\helpers\Html;
@@ -17,33 +20,84 @@ $this->title = "Ergebnisse – {$turnier->jahr} ({$turnier->wettbewerb->name})";
 
 
 <!-- Runden-Dropdown -->
-            <div class="d-flex">
-            <?= Nav::widget([
-                'options' => ['class' => 'navbar-nav flex-row'],
-                'items' => [
-                    [
-                        'label' => 'Wettbewerbe Männer',
-                        'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
-                        'items' => array_map(function ($turnier) {
-                            return [
-                                'label' => $turnier['name'] . ' ' . $turnier['jahr'],
-                                'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
-                            ];
-                        }, Helper::getTurniere('M')),
-                    ],
-                    [
-                        'label' => 'Wettbewerbe Frauen',
-                        'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
-                        'items' => array_map(function ($turnier) {
-                            return [
-                                'label' => $turnier['name'] . ' ' . $turnier['jahr'],
-                                'url' => ['/turnier/' . $turnier['id'] . '/' . $turnier['jahr'] . '/' . ($turnier['land'] ?? '')],
-                            ];
-                        }, Helper::getTurniere('W')),
-                    ],
-                ],
-            ]) ?>
-        </div>
+<div class="d-flex">
+    <?php 
+    $aktuellesTurnier = Tournament::findOne($turnier->id);
+    $wettbewerbID = $aktuellesTurnier->wettbewerbID;
+
+    $verwandteTurniere = Tournament::find()
+        ->where(['wettbewerbID' => $wettbewerbID])
+        ->orderBy(['jahr' => SORT_ASC])
+        ->all();
+
+    $seite = Yii::$app->request->get('seite') ?? 'ergebnisse';
+    $rundeID = Yii::$app->request->get('runde') ?? null;
+
+    $rundeIDs = Turnier::find()
+        ->select(['rundeID'])
+        ->where(['tournamentID' => $turnier->id])
+        ->column();
+
+    $runden = Runde::find()
+        ->where(['id' => $rundeIDs])
+        ->orderBy(['typ' => SORT_ASC, 'sortierung' => SORT_ASC])
+        ->all();
+
+    $gruppiert = [];
+    foreach ($runden as $runde) {
+        $gruppiert[$runde->typ][] = $runde;
+    }
+
+    // Nav mit beiden Dropdowns
+    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav flex-row'],
+        'items' => [
+
+            // Turnier-Dropdown
+            [
+                'label' => 'Turnierauswahl',
+                'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
+                'items' => array_map(function ($t) use ($turnier, $seite, $rundeID) {
+                    return [
+                        'label' => Helper::getTurniernameFullnameForDropdown($t->id),
+                        'url' => ['/turnier/' . $t->id . '/' . $seite . ($rundeID ? '/' . $rundeID : '')],
+                        'active' => $t->id == $turnier->id,
+                    ];
+                }, $verwandteTurniere),
+                'dropdownOptions' => ['class' => 'scrollable-dropdown'],
+            ],
+
+            // Runden-Dropdown
+            [
+                'label' => 'Runde auswählen',
+                'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
+                'items' => array_reduce(array_keys($gruppiert), function ($carry, $typ) use ($gruppiert, $rundeID, $turnier) {
+
+                    foreach ($gruppiert[$typ] as $runde) {
+                        $carry[] = [
+                            'label' => $runde->name,
+                            'url' => ['/turnier/' . $turnier->id . '/ergebnisse/' . $runde->id],
+                            'active' => $rundeID == $runde->id,
+                        ];
+                    }
+
+                    return $carry;
+                }, []),
+                'dropdownOptions' => ['class' => 'scrollable-dropdown'],
+            ],
+        ],
+    ]);
+    ?>
+</div>
+
+<style>
+/* Custom Scrollable Dropdown Style */
+.scrollable-dropdown {
+    max-height: 200px; /* ca. 5 Einträge */
+    overflow-y: auto;
+}
+</style>
+
 <div class="container mt-3">
 
 <?php 
