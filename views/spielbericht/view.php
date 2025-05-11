@@ -139,7 +139,7 @@ if ($spiel->extratime) {
         </div>
 	<?php ActiveForm::end() ?>
 	
-	<?php if (!Yii::$app->user->isGuest): ?>
+	<?php if (Yii::$app->user->isGuest): ?>
 	
     <!-- Tore-Widget -->
     <?php if ($toreAktionen) :?>
