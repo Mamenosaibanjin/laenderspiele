@@ -2,7 +2,6 @@
   background-color: #f9f9f9;
   border-radius: 8px;
   padding: 12px 16px;
-  margin: 15px 0;
   border-left: 4px solid #1C75AC;
 }
 
@@ -67,13 +66,10 @@
     font-size: 13px;
 }
 .highlights-box {
-    border: 1px solid #ccc; /* Rahmenfarbe */
-    border-radius: 8px; /* Abgerundete Ecken */
     padding: 10px; /* Innenabstand */
     margin: auto; /* Außenabstand */
     background-color: white; /* Hintergrundfarbe */
     max-width: 640px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Schatteneffekt */
     text-align: center;
 }
 
@@ -163,4 +159,36 @@
 .suggestion-item.active, .suggestion-item:hover {
     background-color: #1C75AC;
     color: white;
+}
+
+.aufstellung-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.aufstellung-column {
+    flex: 1 1 300px; /* wächst bis max, min 300px */
+    max-width: 290px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 9px 9px 5px rgba(0,0,0,0.1);
+}
+
+.widget-column {
+    flex: 1 1 640px; /* wächst bis max, min 300px */
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 9px 9px 5px rgba(0,0,0,0.1);
+    margin: auto;
+}
+
+@media (max-width: 768px) {
+    .aufstellung-column {
+        flex: 1 1 100%;
+    }
 }

@@ -6,7 +6,7 @@ use yii\helpers\Url;
 /** @var $heim bool */
 
 $seite = $heim ? 'heimname' : 'auswaertsname';
-$teamName = $heim ? 'Heim' : 'Auswärts';
+$teamName = $heim ? $spiel->club1->name : $spiel->club2->name;
 $icon = $heim ? 'home' : 'flight';
 $tournamentID = $spiel->turnier->tournamentID ?? null;
 

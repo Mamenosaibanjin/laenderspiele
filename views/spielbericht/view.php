@@ -93,7 +93,7 @@ if ($spiel->extratime) {
         'heim' => $heim,
     ]) ?>
     
-    <br><br>
+    <br>
     <!-- Widget Aufstellungen -->
     <?php $form = ActiveForm::begin([
         'action' => ['aufstellung/speichern'],
@@ -101,34 +101,28 @@ if ($spiel->extratime) {
         'options' => ['class' => 'aufstellung-form']
     ]) ?>
     <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Aufstellungen
-                </span>
-            </div>
 
     <?php if ($spiel->aufstellung1 || $spiel->aufstellung2 || !Yii::$app->user->isGuest) : ?>
-        <div class="panel-body" style="padding: 25px 25px 0 25px;">
+        <div class="panel-body">
             <div style="max-width: 640px; margin: auto; text-align: center;">
-                <div style="float: left; width: 45%;">
                 
-                	<?=  \app\components\widgets\AufstellungWidget::widget([
-    				'spiel' => $spiel,
-    				'heim' => true,
-    				'wechsel' => $wechselHeim,
-    				]) ?>
-            	
-            	</div><div style="float: left; width: 10%;">&nbsp;
-            	
-            	</div><div style="float: left; width: 45%;">
-                
-                	<?=  \app\components\widgets\AufstellungWidget::widget([
-                        'spiel' => $spiel,
-                        'heim' => false,
-                        'wechsel' => $wechselAuswaerts,
-                    ]) ?>
-      			
-      			</div>               
+                <div class="aufstellung-wrapper">
+                    <div class="aufstellung-column">
+                        <?= \app\components\widgets\AufstellungWidget::widget([
+                            'spiel' => $spiel,
+                            'heim' => true,
+                            'wechsel' => $wechselHeim,
+                        ]) ?>
+                    </div>
+                    <div class="aufstellung-column">
+                        <?= \app\components\widgets\AufstellungWidget::widget([
+                            'spiel' => $spiel,
+                            'heim' => false,
+                            'wechsel' => $wechselAuswaerts,
+                        ]) ?>
+                    </div>
+                </div>
+                                
                 
                 <?php if (!Yii::$app->user->isGuest) :?>
     			     <?= Html::submitButton('Aufstellungen speichern', ['class' => 'btn btn-secondary']) ?>

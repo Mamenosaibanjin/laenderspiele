@@ -21,10 +21,9 @@ $stadiumList = implode(', ', array_map(function($s) {
         ?>
 
 <div class="panel-body" style="padding: 25px 25px 0 25px;">
-    <div class="highlights-box">
-        <div style="margin-top: -23px;">
-            <span class="highlights-header">Spielinformationen</span>
-        </div>
+	<div class="widget-column">
+	<div class="spielinfo-box">
+    	<h4><i class="material-icons">info</i>Spielinformationen</h4>
         <div class="highlights-content heimname" style="width: 100% !important; text-align: left;">
             <div class="spiel-info" style="text-align: left;">
                 
@@ -38,4 +37,5 @@ $stadiumList = implode(', ', array_map(function($s) {
             </div>
         </div>
     </div>
+</div>
 </div>
