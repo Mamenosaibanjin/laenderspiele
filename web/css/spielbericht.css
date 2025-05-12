@@ -175,6 +175,7 @@
     flex-direction: column;
     justify-content: space-between;
     box-shadow: 9px 9px 5px rgba(0,0,0,0.1);
+    height: 100%;
 }
 
 .widget-column {
