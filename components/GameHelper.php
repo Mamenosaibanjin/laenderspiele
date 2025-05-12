@@ -108,8 +108,9 @@ class GameHelper
             $hochzahl = '';
             
             // Nur für Tore/ETOR/ELF eine hochgestellte Anzahl
+            $hochzahl = '';
             if (in_array($aktion, ['TOR', 'ET', '11m']) && count($minuten) > 1) {
-                $hochzahl = '<sup>' . count($minuten) . '</sup>';
+                $hochzahl = '<span class="action-count-circle">' . count($minuten) . '</span>';
             }
             
             $output .= $icon . $hochzahl;
