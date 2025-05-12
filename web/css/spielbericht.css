@@ -170,7 +170,7 @@
 
 .aufstellung-column {
     flex: 1 1 300px; /* wächst bis max, min 300px */
-    max-width: 290px;
+    max-width: 300px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;

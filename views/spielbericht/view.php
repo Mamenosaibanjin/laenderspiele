@@ -93,7 +93,7 @@ if ($spiel->extratime) {
         'heim' => $heim,
     ]) ?>
     
-    <br>
+    <br><br>
     <!-- Widget Aufstellungen -->
     <?php $form = ActiveForm::begin([
         'action' => ['aufstellung/speichern'],

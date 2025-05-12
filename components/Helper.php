@@ -65,19 +65,23 @@ class Helper
         if ($key == 'SUI') {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: 2px;'
+                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;'
             ]); 
         } else {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: 2px;'
+                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;'
             ]);
         }
         
         // Wenn showName true ist, wird der Ländernamen hinzugefügt
         if ($showName) {
-            $flagHtml .= " " . Html::encode($flag[$column]);
-        }
+            if ($showName == true) {
+                $flagHtml .= " " . Html::encode($flag[$column]);
+            } else {
+                $flagHtml .= " " . Html::encode($showName);
+            }
+        } 
         
         return Html::tag('span', $flagHtml, [
             'style' => 'display: inline-block; vertical-align: middle;'

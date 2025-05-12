@@ -77,5 +77,47 @@ class GameHelper
         
         return ClubHelper::getLocalizedName($opponentClub, $opponentClub->name);
     }
+    
+    public static function getActionLogos($spielerID, $spielID, $isEingewechselt = false)
+    {
+        $aktionen = \app\models\Games::find()
+        ->where(['spielID' => $spielID])
+        ->andWhere(['or',
+            ['spielerID' => $spielerID],
+            $isEingewechselt ? ['spieler2ID' => $spielerID, 'aktion' => 'EIN'] : '0=1'
+        ])
+        ->all();
+        
+        $actionGroups = [];
+        
+        foreach ($aktionen as $aktion) {
+            $key = $aktion->aktion;
+            $minute = $aktion->minute;
+            
+            if (!isset($actionGroups[$key])) {
+                $actionGroups[$key] = [];
+            }
+            
+            $actionGroups[$key][] = $minute;
+        }
+        
+        $output = '';
+        
+        foreach ($actionGroups as $aktion => $minuten) {
+            $icon = Helper::getActionSvg($aktion);
+            $hochzahl = '';
+            
+            // Nur für Tore/ETOR/ELF eine hochgestellte Anzahl
+            if (in_array($aktion, ['TOR', 'ET', '11m']) && count($minuten) > 1) {
+                $hochzahl = '<sup>' . count($minuten) . '</sup>';
+            }
+            
+            $output .= $icon . $hochzahl;
+            $output .= ' <small style="font-size: 0.6rem;"><sup>' . implode(', ', $minuten) . '\'</sup></small> ';
+        }
+        
+        return $output;
+    }
+    
 }
 ?>

@@ -1,4 +1,5 @@
 <?php
+use app\components\Helper;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -7,7 +8,7 @@ use yii\helpers\Url;
 
 $seite = $heim ? 'heimname' : 'auswaertsname';
 $teamName = $heim ? $spiel->club1->name : $spiel->club2->name;
-$icon = $heim ? 'home' : 'flight';
+$teamFlagge = $heim ? $spiel->club1->land : $spiel->club2->land;
 $tournamentID = $spiel->turnier->tournamentID ?? null;
 
 $this->registerCssFile('https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css');
@@ -20,7 +21,7 @@ $spielID = $spiel->id;
 ?>
     
 <div class="spielinfo-box">
-      <h4><i class="material-icons"><?= $icon ?></i> <?= $teamName ?></h4>
+      <h4><?php echo Helper::getFlagInfo($teamFlagge, $spiel->turnier->datum, $teamName, null); ?></h4>
 
 
     <div class="highlights-content">
@@ -52,7 +53,8 @@ $spielID = $spiel->id;
 	            </div>
             <?php else :?>
 	            <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
-					<?= Html::a(Html::encode(trim($spieler->vorname . ' ' . $spieler->name)), ['/spieler/view', 'id' => $spieler->id], ['class' => 'text-decoration-none']) ?><br>
+					<?= Html::a(Html::encode(trim($spieler->vorname . ' ' . $spieler->name)), ['/spieler/view', 'id' => $spieler->id], ['class' => 'text-decoration-none']) ?>
+				<?= \app\components\GameHelper::getActionLogos($spieler->id, $spielID, true) ?><br>
 	            </div>
             <?php endif; ?>
         <?php endforeach; ?>
@@ -79,5 +81,33 @@ $spielID = $spiel->id;
 				<b>Trainer:</b> <?= Html::a(Html::encode(trim($aufstellung->coach->vorname . ' ' . $aufstellung->coach->name)), ['/spieler/view', 'id' => $aufstellung->coach->id], ['class' => 'text-decoration-none']) ?><br>
             </div>
     	<?php endif;?>
+    	
+    	<?php
+        // Nur im Gastbereich anzeigen
+        if (Yii::$app->user->isGuest) {
+            $wechselAktionen = \app\models\Games::find()
+                ->where(['spielID' => $spielID, 'aktion' => 'AUS', 'zusatz' => $type])
+                ->all();
+        }
+        ?>
+        
+        <?php if (!empty($wechselAktionen)): ?>
+             <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
+       		   <b><i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-bottom: 1rem;">swap_horiz</i> Eingewechselt</b>
+       		   </div>
+	           <?php foreach ($wechselAktionen as $aktion): ?>
+	            <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
+	            
+                <?php
+                    $spieler = \app\models\Spieler::findOne($aktion->spieler2ID);
+                    if ($spieler):
+                ?>
+                    <?= Html::a(Html::encode(trim($spieler->vorname . ' ' . $spieler->name)), ['/spieler/view', 'id' => $spieler->id], ['class' => 'text-decoration-none']) ?>
+					<?= \app\components\GameHelper::getActionLogos($spieler->id, $spielID, true) ?><br>
+                <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+		<?php endif; ?>
+    	
     </div>
 </div>
