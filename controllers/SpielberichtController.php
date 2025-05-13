@@ -29,7 +29,7 @@ class SpielberichtController extends Controller
         
         $highlightAktionen = Games::find()
         ->where(['spielID' => $spiel->id])
-        ->andWhere(['aktion' => ['TOR', '11m', '11mX', 'ET', 'RK', 'GRK']])
+        ->andWhere(['aktion' => ['TOR', '11m', 'ET', 'RK', 'GRK']])
         ->andWhere(['<', 'minute', 200]) // Bedingung für Minuten kleiner als 200
         ->orderBy(['minute' => SORT_ASC])
         ->all();

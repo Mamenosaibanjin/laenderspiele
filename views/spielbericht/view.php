@@ -53,11 +53,6 @@ if ($spiel->extratime) {
     </div>
     <div class="panel-body" style="padding: 25px 25px 0 25px;">
         <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Highlights
-                </span>
-            </div>
             <div class="highlights-content">
 			<?php if (!Yii::$app->user->isGuest): ?>
     <div class="highlight-form-wrapper" style="margin-top: 20px;">
