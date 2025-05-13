@@ -89,8 +89,15 @@ class Turnier extends ActiveRecord
     
     public function getErgebnis()
     {
-        if ($this->spiel) {
-            return $this->spiel->tore1 . ' : ' . $this->spiel->tore2;
+     if ($this->spiel) {
+            if ($this->spiel->extratime == 1) {
+                $verlaengerung = ' n.V.';
+            } elseif ($this->spiel->penalty == 1) {
+                $verlaengerung = ' i.E.';
+            } else {
+                $verlaengerung = '';
+            }
+            return $this->spiel->tore1 . ':' . $this->spiel->tore2 . $verlaengerung;
         }
         return '- : -';
     }

@@ -16,22 +16,10 @@ $heim = $heim ?? true;
 $term = $term ?? '';
 ?>
 
-<?php
-$verlaengerung = '';
-if ($spiel->extratime) {
-    $verlaengerung = '<div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">n.V.</div>';
-} elseif ($spiel->penalty) {
-    $verlaengerung = '<div style="padding-left: 20px; font-size: 20px; margin-top: 20px;">i.E.</div>';
-} else {
-    $verlaengerung = '';
-}
-?>
-
 <div class="card" style="padding-bottom: 25px;">
 	<div class="card-header">
 		<h3>Spielbericht <?= Html::encode($spiel->heimClub->name) ?> - <?= Html::encode($spiel->auswaertsClub->name) ?>
     		<?= '('. Html::encode($spiel->turnier->getErgebnis()) . ')'?>
-            <?= $verlaengerung; ?>
 		</h3>
 	</div>
     <div class="card-body">
@@ -43,7 +31,6 @@ if ($spiel->extratime) {
             <?php //echo "<pre>";var_dump($spiel);echo "</pre>";exit;?>
             <div class="col-sm-4 digital-scoreboard" style="font-size: 50px;">
 				<?= $spiel->turnier ? Html::encode($spiel->turnier->getErgebnis()) : 'Kein Ergebnis verfügbar' ?>
-                <?= $verlaengerung; ?>
             </div>
             <div class="col-sm-4 text-center">
                 <?= Html::img(Helper::getClubLogoUrl($spiel->auswaertsClub->id), ['alt' => $spiel->auswaertsClub->name, 'class' => 'team-logo', 'style' => 'height: 100px; padding: 10px;']) ?>

@@ -86,6 +86,7 @@ class GameHelper
             ['spielerID' => $spielerID],
             $isEingewechselt ? ['spieler2ID' => $spielerID, 'aktion' => 'AUS'] : '0=1'
         ])
+        ->andWhere(['<', 'minute', 200])
         ->orderBy('minute')
         ->all();
         
