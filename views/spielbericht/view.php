@@ -67,22 +67,13 @@ if ($spiel->extratime) {
         ]) ?>
     </div>
 <?php else: ?>
-<?php if ($highlightAktionen) : ?>
-                <?php
-               /* $previousScore = [0, 0];
-                foreach ($highlightAktionen as $aktion):
-                    echo $this->render('_highlightZeile', [
-                        'aktion' => $aktion,
-                        'spiel' => $spiel,
-                        'previousScore' => $previousScore
-                    ]);
-                    $previousScore = explode(':', $aktion->zusatz);
-                endforeach;
-                */?>
-                <?php else : ?>
-                	keine Highlights
-                <?php endif; ?>
-                <?php endif; ?>
+    <!-- Highlight-Widget -->
+    <?= $this->render('_highlights', [
+        'spiel' => $spiel, 
+        'highlights' => $highlightAktionen
+    ]) ?>
+
+<?php endif; ?>
                 
             </div>
         </div>
@@ -135,134 +126,37 @@ if ($spiel->extratime) {
 	
 	<?php if (Yii::$app->user->isGuest): ?>
 	
-    <!-- Tore-Widget -->
-    <?php if ($toreAktionen) :?>
-    <div class="panel-body" style="padding: 25px 25px 0 25px;">
-        <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Tore
-                </span>
-            </div>
-            <div class="highlights-content">
-			<?php foreach ($toreAktionen as $aktion): ?>
-    			<?php if ($aktion->aktion == 'TOR' || $aktion->aktion == '11m' || $aktion->aktion == 'ET') :?>
-                    <div class="highlight-row" <?= Html::encode($aktion->minute) == 201 ? 'style="border-top: 1px dashed black; font-size: 12px; font-weight: bolder;"' : ' ' ?>>
-                    	<?= Html::encode($aktion->minute) == 201 ? 'Elfmeterschießen</div><div class="highlight-row">' : ' ' ?>
-                        <div class="minute" style="width: 10%;">
-                        	<?= Html::encode($aktion->minute) < 200 ? Html::encode($aktion->minute) : ' ' ?>
-                        </div>
-    	                <div class="auswaerts" style="width: 10%;"><?= Helper::getActionSvg($aktion->aktion); ?></div>
-    	                <div class="auswaerts" style="width: 10%;"><?= Html::encode($aktion->zusatz); ?></div>
-    	                <div class="auswaertsname" style="width: 70% !important;"><?= ($aktion->spieler ? Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name) : 'unbekannt')?>
-    	                <?php if ($aktion->aktion == '11mX') :?>
-    	                	verschießt
-    	                <?php endif; ?>
-    	                </div>
-                    </div>
-                <?php endif; ?>
-            <?php endforeach; ?>
+        <!-- Tore-Widget -->
+        <?php if ($toreAktionen) :?>
+        <?= $this->render('_tore', [
+            'spiel' => $spiel, 
+            'toreAktionen' => $toreAktionen
+        ]) ?>
+    	<?php endif;?>
             
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-        
-    <!-- Besondere Vorkommnisse-Widget -->
-    <?php if ($besondereAktionen) :?>
-   <div class="panel-body" style="padding: 25px 25px 0 25px;">
-        <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Besondere Vorkommnisse
-                </span>
-            </div>
-            <div class="highlights-content">
-			<?php foreach ($besondereAktionen as $aktion): ?>
-                <div class="highlight-row">
-                    <div class="minute" style="width: 10%;"><?= Html::encode($aktion->minute)?></div>
-	                <div class="auswaerts" style="width: 10%;"><?= Helper::getActionSvg($aktion->aktion); ?></div>
-	                <div class="auswaertsname" style="width: 80% !important;">
-	                <?php if ($aktion->zusatz == 'v') :?>
-	         			<?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?> verschießt Elfmeter
-	         		<?php elseif ($aktion->zusatz == 'p') : ?>
-	         			<?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?> schießt Elfmeter an den Pfosten
-	         		<?php elseif ($aktion->zusatz == 'l') : ?>
-	         			<?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?> schießt Elfmeter an die Latte
-                    <?php elseif ($aktion->zusatz == 'h') : ?>
-                        <?php 
-                            $gegnerTorhueterID = $spiel->getGegnerTorhueter($aktion->spieler->id); 
-                            $gegnerTorhueter = $gegnerTorhueterID ? $spiel->getSpieler($gegnerTorhueterID) : null;
-                        ?>
-                        <?php if ($gegnerTorhueter) : ?>
-                            <?= Html::encode(($gegnerTorhueter->vorname ? mb_substr($gegnerTorhueter->vorname, 0, 1, 'UTF-8') . '.' : '') . ' ' . $gegnerTorhueter->name) ?> hält Elfmeter von <?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' ' . $aktion->spieler->name) ?>
-                        <?php else : ?>
-                            Torhüter der gegnerischen Mannschaft hält Elfmeter von <?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' ' . $aktion->spieler->name) ?>
-                        <?php endif; ?>
-                    <?php endif; ?>
-	                </div>
-                </div>
-            <?php endforeach; ?>                
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-    <!-- Karten-Widget -->
-    <?php if ($kartenAktionen) :?>
-   <div class="panel-body" style="padding: 25px 25px 0 25px;">
-        <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Karten
-                </span>
-            </div>
-            <div class="highlights-content">
-			<?php foreach ($kartenAktionen as $aktion): ?>
-                <div class="highlight-row">
-                    <div class="minute" style="width: 10%;"><?= Html::encode($aktion->minute)?></div>
-	                <div class="auswaerts" style="width: 10%;"><?= Helper::getActionSvg($aktion->aktion); ?></div>
-	                <div class="auswaertsname" style="width: 80% !important;"><?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?></div>
-                </div>
-            <?php endforeach; ?>                
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
-	<!-- Wechsel-Widget -->
-	<?php if ($wechselAktionen) : ?>
-   <div class="panel-body" style="padding: 25px 25px 0 25px;">
-        <div class="highlights-box">
-        	<div style="margin-top: -23px;">
-                <span class="highlights-header">
-                    Wechsel
-                </span>
-            </div>
-            <div class="highlights-content">
-			<?php foreach ($wechselAktionen as $aktion): ?>
-                <div class="highlight-row">
-                    <div class="minute" style="width: 10%;"><?= Html::encode($aktion->minute)?></div>
-	                <div class="auswaerts" style="width: 10%;"><i class="fa fa-exchange" aria-hidden="true"></i></div>
-	                <div class="auswaertsname" style="width: 80% !important; line-height: 19px;">
-	                <?php if ($aktion->spieler) : ?>
-	                <?= Html::encode(($aktion->spieler->vorname ? mb_substr($aktion->spieler->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler->name)?><br>
-	                <?php else : ?>
-	                	unbekannt<br>
-	               	<?php endif; ?>
-	                <?php if ($aktion->spieler2) : ?>
-	                	<?= Html::encode(($aktion->spieler2->vorname ? mb_substr($aktion->spieler2->vorname, 0, 1, 'UTF-8') . '.' : '') . ' '  . $aktion->spieler2->name)?>
-	                <?php else : ?>
-	                	unbekannt
-	                <?php endif; ?>
-	                
-   	                </div>
-                </div>
-            <?php endforeach; ?>                
-            </div>
-        </div>
-    </div>	
-    <?php endif; ?>
+        <!-- Besondere Vorkommnisse-Widget -->
+        <?php if ($besondereAktionen) :?>
+        <?= $this->render('_besondereAktionen', [
+            'spiel' => $spiel, 
+            'besondereAktionen' => $besondereAktionen
+        ]) ?>
+    	<?php endif;?>
+    
+        <!-- Karten-Widget -->
+        <?php if ($kartenAktionen) :?>
+        <?= $this->render('_karten', [
+            'spiel' => $spiel, 
+            'kartenAktionen' => $kartenAktionen
+        ]) ?>
+        <?php endif; ?>
+    
+    	<!-- Wechsel-Widget -->
+    	<?php if ($wechselAktionen) : ?>
+        <?= $this->render('_wechsel', [
+            'spiel' => $spiel, 
+            'wechselAktionen' => $wechselAktionen
+        ]) ?>
+        <?php endif;?>
     <?php endif;?>
 </div>
 

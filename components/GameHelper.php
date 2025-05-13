@@ -84,15 +84,16 @@ class GameHelper
         ->where(['spielID' => $spielID])
         ->andWhere(['or',
             ['spielerID' => $spielerID],
-            $isEingewechselt ? ['spieler2ID' => $spielerID, 'aktion' => 'EIN'] : '0=1'
+            $isEingewechselt ? ['spieler2ID' => $spielerID, 'aktion' => 'AUS'] : '0=1'
         ])
+        ->orderBy('minute')
         ->all();
         
         $actionGroups = [];
         
         foreach ($aktionen as $aktion) {
             $key = $aktion->aktion;
-            $minute = $aktion->minute;
+            $minute = ($aktion->minute > 0) ? $aktion->minute : '';
             
             if (!isset($actionGroups[$key])) {
                 $actionGroups[$key] = [];
@@ -102,9 +103,9 @@ class GameHelper
         }
         
         $output = '';
-        
+            
         foreach ($actionGroups as $aktion => $minuten) {
-            $icon = Helper::getActionSvg($aktion);
+            $icon = ($isEingewechselt AND $aktion == 'AUS') ? Helper::getActionSvg('EIN') : Helper::getActionSvg($aktion);
             $hochzahl = '';
             
             // Nur für Tore/ETOR/ELF eine hochgestellte Anzahl

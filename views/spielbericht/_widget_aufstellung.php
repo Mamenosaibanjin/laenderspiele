@@ -54,7 +54,7 @@ $spielID = $spiel->id;
             <?php else :?>
 	            <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
 					<?= Html::a(Html::encode(trim($spieler->vorname . ' ' . $spieler->name)), ['/spieler/view', 'id' => $spieler->id], ['class' => 'text-decoration-none']) ?>
-				<?= \app\components\GameHelper::getActionLogos($spieler->id, $spielID, true) ?><br>
+				<?= \app\components\GameHelper::getActionLogos($spieler->id, $spielID, false) ?><br>
 	            </div>
             <?php endif; ?>
         <?php endforeach; ?>
@@ -93,7 +93,7 @@ $spielID = $spiel->id;
         
         <?php if (!empty($wechselAktionen)): ?>
              <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
-       		   <b><i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-bottom: 1rem;">swap_horiz</i> Eingewechselt</b>
+       		   <b><i class="material-icons" style="font-size: 16px; vertical-align: middle;">swap_horiz</i> Eingewechselt</b>
        		   </div>
 	           <?php foreach ($wechselAktionen as $aktion): ?>
 	            <div class="form-group mb-2" style="text-align: left; padding-left: 15px;">
