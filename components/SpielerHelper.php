@@ -611,5 +611,59 @@ class SpielerHelper
         return $rows;
     }
     
+    public static function getNationId($spielerID, $tournamentID = null)
+    {
+        $clubID = (new \yii\db\Query())
+        ->select(['landID'])
+        ->from('spieler_land_wettbewerb')
+        ->where(['spielerID' => $spielerID])
+        ->andWhere(['tournamentID' => $tournamentID])
+        ->all();
+        
+        return $clubID[0]['landID'];
+        
+    }
+    
+    public static function getBirthday($spielerId)
+    {
+        $birthday = (new \yii\db\Query())
+        ->select(['geburtstag'])
+        ->from('spieler')
+        ->where(['id' => $spielerId])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        return Helper::getFormattedDate($birthday[0]['geburtstag']);
+        
+    }
+    
+    public static function getHeight($spielerId)
+    {
+        $height = (new \yii\db\Query())
+        ->select(['height'])
+        ->from('spieler')
+        ->where(['id' => $spielerId])   // Optional: Alphabetische Sortierung
+        ->all();
+        
+        if ($height[0]['height']) :
+            return $height[0]['height'] . " cm";
+        else :
+            return '';
+        endif;
+        
+    }
+    
+    public static function getPosition($spielerID, $tournamentID = null)
+    {
+        $position = (new \yii\db\Query())
+        ->select(['positionID'])
+        ->from('spieler_land_wettbewerb')
+        ->where(['spielerID' => $spielerID])
+        ->andWhere(['tournamentID' => $tournamentID])
+        ->all();
+        
+        return Helper::getPosition($position[0]['positionID']);
+        
+    }
+    
 }
 ?>

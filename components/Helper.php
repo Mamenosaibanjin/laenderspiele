@@ -1051,7 +1051,7 @@ class Helper
             'de' => 'd.m.Y',
             'en_US' => 'm/d/Y',
             'en_UK' => 'd/m/Y',
-            default => 'Y-m-d', // Fallback-Format
+            default => 'd.m.Y', // Fallback-Format
         };
         
         return DateTime::createFromFormat('Y-m-d', $date)?->format($dateFormat);

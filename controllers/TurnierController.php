@@ -11,6 +11,7 @@ use app\models\Runde;
 use app\models\Wettbewerb;
 use app\components\Helper; // Falls Helper für getTurniername() genutzt wird
 use yii\web\Response;
+use app\models\SpielerLandWettbewerb;
 
 class TurnierController extends Controller
 {
@@ -192,6 +193,34 @@ class TurnierController extends Controller
         return $this->render('spielplan', [
             'turnier' => $turnier,
             'spiele' => $spiele,
+        ]);
+    }
+    
+    public function actionSpieler($tournamentID)
+    {
+        $turnier = Tournament::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        // Spieler ermitteln
+        $spieler = [];
+        $spieler = SpielerLandWettbewerb::find()
+        ->where([
+            'tournamentID' => $tournamentID,
+        ])
+        ->all();
+
+        $turniername = Helper::getTurniername($tournamentID); // Wettbewerbsname holen
+        $jahr = Helper::getTurnierJahr($tournamentID);
+        
+        return $this->render('spieler', [
+            'turnier' => $turnier,
+            'spieler' => $spieler,
+            'turniername' => $turniername,
+            'tournamentID' => $tournamentID,
+            'jahr' => $jahr,
         ]);
     }
     
