@@ -31,7 +31,8 @@ $this->title = "Ergebnisse – {$turnier->jahr} ({$turnier->wettbewerb->name})";
         ->all();
 
     $seite = Yii::$app->request->get('seite') ?? 'ergebnisse';
-    $rundeID = Yii::$app->request->get('runde') ?? null;
+    
+    $rundeID = Yii::$app->request->get('rundeID') ?? null;
 
     $rundeIDs = Turnier::find()
         ->select(['rundeID'])
@@ -55,7 +56,7 @@ $this->title = "Ergebnisse – {$turnier->jahr} ({$turnier->wettbewerb->name})";
 
             // Turnier-Dropdown
             [
-                'label' => 'Turnierauswahl',
+                'label' => Helper::getTurniernameFullnameForDropdown($turnier->id),
                 'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
                 'items' => array_map(function ($t) use ($turnier, $seite, $rundeID) {
                     return [
@@ -69,7 +70,7 @@ $this->title = "Ergebnisse – {$turnier->jahr} ({$turnier->wettbewerb->name})";
 
             // Runden-Dropdown
             [
-                'label' => 'Runde auswählen',
+                'label' => Helper::getRundename($rundeID),
                 'linkOptions' => ['class' => 'btn btn-wettbewerbe'],
                 'items' => array_reduce(array_keys($gruppiert), function ($carry, $typ) use ($gruppiert, $rundeID, $turnier) {
 

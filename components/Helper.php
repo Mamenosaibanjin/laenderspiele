@@ -593,7 +593,7 @@ class Helper
     public static function getTurniername($turnier)
     {
         if ($turnier == '') :
-            return '';
+        return '';
         endif;
         
         $language = Yii::$app->language;
@@ -608,6 +608,25 @@ class Helper
         
         if ($query) {
             return $query[$column];
+        }
+        
+        return '';
+    }
+    
+    public static function getRundename($runde)
+    {
+        if ($runde == '') :
+        return '';
+        endif;
+        
+        $query = (new \yii\db\Query())
+        ->select(['name'])
+        ->from(['runde'])
+        ->where(['id' => $runde])
+        ->one();
+        
+        if ($query) {
+            return $query['name'];
         }
         
         return '';
