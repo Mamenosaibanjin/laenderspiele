@@ -9,8 +9,7 @@ echo Nav::widget([
             'label' => 'Turnier',
             'linkOptions' => ['class' => 'btn btn-turnier dropdown-toggle', 'data-bs-toggle' => 'dropdown'],
             'items' => [
-                ['label' => 'Übersicht', 'url' => ['turnier/index', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Ergebnisse / Tabelle', 'url' => ['turnier/ergebnisse', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Ergebnisse / Tabelle', 'url' => ['turnier/ergebnisse', 'tournamentID' => $turnier->id, 'rundeID' => '8'], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Spielplan', 'url' => ['turnier/spielplan', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Teilnehmer', 'url' => ['turnier/teilnehmer', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Spieler', 'url' => ['turnier/spieler', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],

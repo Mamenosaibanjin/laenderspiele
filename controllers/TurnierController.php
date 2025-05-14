@@ -160,5 +160,39 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionSpielplan($tournamentID)
+    {
+        $turnier = Tournament::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        // Spiele ermitteln
+        $spiele = [];
+        $spiele = Turnier::find()
+        ->alias('t')
+        ->joinWith([
+            'runde r',
+            'spiel s',
+            'spiel.club1 c1',
+            'spiel.club2 c2',
+        ])
+        ->where([
+            't.tournamentID' => $tournamentID,
+        ])
+        ->orderBy([
+            'r.typ' => SORT_ASC,
+            'r.sortierung' => SORT_ASC,
+            't.datum' => SORT_ASC,
+            't.zeit' => SORT_ASC,
+        ])
+        ->all();
+        
+        return $this->render('spielplan', [
+            'turnier' => $turnier,
+            'spiele' => $spiele,
+        ]);
+    }
     
 }

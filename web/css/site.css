@@ -234,8 +234,18 @@ a.desc:after {
     border: 1px solid #ddd;
 }
 
+.dropdown-item {
+	color: #1C75AC !important;
+}
+
+.dropdown-item:hover {
+	background-color: #1C75AC !important;
+	color: white !important;
+}
+
 .dropdown-item.active, .dropdown-item:active {
 	background-color: #1C75AC !important;
+	color: white !important;
 }
 
 /* === Fonts === */
@@ -412,4 +422,26 @@ a.desc:after {
     .multi-row td:nth-child(5) {
         flex: 1 1 100%;
     }
+}
+
+.header_green {
+	background-color: #8dbd43 !important;
+	color: white !important;
+}
+
+a, a:active {
+	color:  #1C75AC !important;
+}
+
+a:hover {
+	color:  #8dbd43 !important;
+}
+
+li a, li a:hover {
+	color: white !important;
+}
+
+.header_green a {
+	color: white !important;
+	font-weight: bold;
 }
