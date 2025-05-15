@@ -6,6 +6,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
 use app\models\Spiel;
+use app\models\Spieler;
 use app\models\Tournament;
 use app\models\Turnier;
 use app\models\Runde;
@@ -219,16 +220,16 @@ class TurnierController extends Controller
             throw new NotFoundHttpException('Turnier nicht gefunden.');
         }
         
-//        $selectedPositionen = Yii::$app->request->get('positionen', []); // Checkbox-Auswahl
+        //        $selectedPositionen = Yii::$app->request->get('positionen', []); // Checkbox-Auswahl
         
         $query = SpielerLandWettbewerb::find()
-            ->alias('slw')
-            ->where(['tournamentID' => $tournamentID])
-            ->joinWith(['spieler s'])
-            ->joinWith(['land c']);
-            
-            if (!empty($positionsArray)) {
-                $query->andWhere(['slw.positionID' => $positionsArray]);
+        ->alias('slw')
+        ->where(['tournamentID' => $tournamentID])
+        ->joinWith(['spieler s'])
+        ->joinWith(['land c']);
+        
+        if (!empty($positionsArray)) {
+            $query->andWhere(['slw.positionID' => $positionsArray]);
         }
         
         $dataProvider = new ActiveDataProvider([
@@ -280,6 +281,46 @@ class TurnierController extends Controller
             'jahr' => Helper::getTurnierJahr($tournamentID),
             'allePositionen' => $allePositionen,
             'selectedPositionen' => $positionsArray,
+        ]);
+    }
+    
+    public function actionTorjaeger($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        //        $selectedPositionen = Yii::$app->request->get('positionen', []); // Checkbox-Auswahl
+        
+        $topScorers = Spieler::find()
+        ->select([
+            'spieler.nati1',
+            'spieler.id',
+            'spieler.vorname',
+            'spieler.name',
+            'COUNT(CASE WHEN games.aktion LIKE "TOR" OR games.aktion LIKE "11m" THEN 1 END) AS tor',
+            'COUNT(CASE WHEN games.aktion LIKE "11m" THEN 1 END) AS 11m'
+        ])
+        ->joinWith(['games', 'games.spiel.turnier'])
+        ->where([
+            'turnier.tournamentID' => $tournamentID
+        ])
+        ->andWhere(['or', ['=', 'games.aktion', 'TOR'], ['=', 'games.aktion', '11m']])
+        ->andWhere(['<', 'games.minute', 199])
+        ->groupBy('spieler.id')
+        ->orderBy(['tor' => SORT_DESC, 'spieler.name' => SORT_ASC])
+        ->asArray()
+        ->all();
+        
+        return $this->render('torjaeger', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'jahr' => Helper::getTurnierJahr($tournamentID),
+            'wettbewerbID' => Helper::getWettbewerbID($tournamentID),
+            'turnierjahr' => Helper::getTurnierStartdatum($tournamentID),
+            'topScorers' => $topScorers
         ]);
     }
     

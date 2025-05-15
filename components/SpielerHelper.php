@@ -665,5 +665,25 @@ class SpielerHelper
         
     }
     
+    public static function getLandAtTournament($spielerID, $tournamentID)
+    {
+        $land = (new \yii\db\Query())
+        ->select(['landID'])
+        ->from('spieler_land_wettbewerb')
+        ->where(['spielerID' => $spielerID])
+        ->andWhere(['tournamentID' => $tournamentID])
+        ->all();
+                
+        return Html::img(
+                    Helper::getClubLogoUrl($land[0]['landID']), 
+                    ['alt' => 'Logo', 'style' => 'height: 20px; margin-right: 5px;']
+                    ) . " " . 
+                Html::a(
+                    Helper::getClubName($land[0]['landID']),
+                    ['/club/view', 'id' => $land[0]['landID']],
+                    ['class' => 'text-decoration-none']
+                    );
+    }
+    
 }
 ?>
