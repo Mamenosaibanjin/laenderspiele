@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
@@ -196,31 +197,89 @@ class TurnierController extends Controller
         ]);
     }
     
-    public function actionSpieler($tournamentID)
+    public function actionSpieler($tournamentID, $positionen = null, $sort = null, $page = null)
     {
+        // Wenn keine Parameter vorhanden sind → redirect auf die vollständige "Default"-URL
+        if ($positionen === null || $sort === null || $page === null) {
+            $defaultPositionen = '1,2,3,4,5,6,7'; // oder '0' → dann im Code behandeln
+            return $this->redirect([
+                'turnier/spieler',
+                'tournamentID' => $tournamentID,
+                'positionen' => $defaultPositionen,
+                'sort' => 'nach-name',
+                'page' => 1
+            ]);
+        }
+        // Positionen als Array auflösen (z. B. "1,3,5" → [1,3,5])
+        $positionsArray = $positionen ? explode(',', $positionen) : [];
+        
         $turnier = Tournament::findOne($tournamentID);
         
         if (!$turnier) {
             throw new NotFoundHttpException('Turnier nicht gefunden.');
         }
         
-        // Spieler ermitteln
-        $spieler = [];
-        $spieler = SpielerLandWettbewerb::find()
-        ->where([
-            'tournamentID' => $tournamentID,
-        ])
+//        $selectedPositionen = Yii::$app->request->get('positionen', []); // Checkbox-Auswahl
+        
+        $query = SpielerLandWettbewerb::find()
+            ->alias('slw')
+            ->where(['tournamentID' => $tournamentID])
+            ->joinWith(['spieler s'])
+            ->joinWith(['land c']);
+            
+            if (!empty($positionsArray)) {
+                $query->andWhere(['slw.positionID' => $positionsArray]);
+        }
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => ['pageSize' => 25, 'page' => $page - 1],
+            'sort' => [
+                'attributes' => [
+                    'spielerID',
+                    'nach-name' => [
+                        'asc' => ['s.name' => SORT_ASC],
+                        'desc' => ['s.name' => SORT_DESC],
+                        'label' => 'Name'
+                    ],
+                    'nach-geburtstag' => [
+                        'asc' => ['s.geburtstag' => SORT_ASC],
+                        'desc' => ['s.geburtstag' => SORT_DESC],
+                        'label' => 'Geboren'
+                    ],
+                    'nach-mannschaft' => [
+                        'asc' => ['c.name' => SORT_ASC],
+                        'desc' => ['c.name' => SORT_DESC],
+                        'label' => 'Mannschaft'
+                    ],
+                    'nach-groesse' => [
+                        'asc' => ['s.height' => SORT_ASC],
+                        'desc' => ['s.height' => SORT_DESC],
+                        'label' => 'Größe'
+                    ],
+                    'nach-position' => [
+                        'asc' => ['positionID' => SORT_ASC],
+                        'desc' => ['positionID' => SORT_DESC],
+                        'label' => 'Position'
+                    ]
+                ],
+                'defaultOrder' => $sort === 'nach-name' ? ['spielerName' => SORT_ASC] : [],
+            ],
+        ]);
+        
+        // Für Checkboxen: Alle Positionen laden
+        $allePositionen = \app\models\Position::find()
+        ->where(['between', 'id', 1, 7])
+        ->orderBy(['id' => SORT_ASC])
         ->all();
-
-        $turniername = Helper::getTurniername($tournamentID); // Wettbewerbsname holen
-        $jahr = Helper::getTurnierJahr($tournamentID);
         
         return $this->render('spieler', [
-            'turnier' => $turnier,
-            'spieler' => $spieler,
-            'turniername' => $turniername,
+            'dataProvider' => $dataProvider,
             'tournamentID' => $tournamentID,
-            'jahr' => $jahr,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'jahr' => Helper::getTurnierJahr($tournamentID),
+            'allePositionen' => $allePositionen,
+            'selectedPositionen' => $positionsArray,
         ]);
     }
     

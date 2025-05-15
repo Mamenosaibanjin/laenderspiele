@@ -7,6 +7,8 @@ use yii\db\ActiveRecord;
 
 class SpielerLandWettbewerb extends ActiveRecord
 {
+    public $spielerName;
+    
     /**
      * Gibt den Tabellen-Namen zurück.
      */

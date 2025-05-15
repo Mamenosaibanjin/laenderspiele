@@ -105,8 +105,8 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     border: none;
     display: none;
 }
-.pagination{ margin: 0; }
-.pagination li a{
+.pagination-old{ margin: 0; }
+.pagination-old li a{
     color: #999;
     font-size: 14px;
     font-weight: 500;
@@ -120,14 +120,14 @@ div.panel .panel-body .table tbody tr:nth-child(even) td {
     border: none;
     transition: all 0.3s ease 0s;
 }
-.pagination li a:hover,
-.pagination li a:focus,
-.pagination li.active a{
+.pagination-old li a:hover,
+.pagination-old li a:focus,
+.pagination-old li.active a{
     color: #fff;
     background-color: #286090;
 }
-.pagination li:first-child a,
-.pagination li:last-child a{
+.pagination-old li:first-child a,
+.pagination-old li:last-child a{
     border-radius: 50%;
 }
 @media only screen and (max-width:767px){

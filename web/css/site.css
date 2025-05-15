@@ -445,3 +445,31 @@ li a, li a:hover {
 	color: white !important;
 	font-weight: bold;
 }
+
+.pagination li {
+	height: 25px;
+	width: 50px;
+	margin: 5px;
+	border-radius: 0.5rem;
+	background-color: #8dbd43;
+	text-align: center;
+}
+
+.pagination li a {
+	text-decoration: none;
+}
+
+.pagination li:hover,
+.pagination li:focus,
+.pagination li.active{
+    color: #fff;
+    background-color: #286090;
+}
+
+.filter-box-spieler {
+	border: 0.08rem dashed #8dbd43;
+	border-radius: 0.5rem;
+	background-color: #f8f8f8;
+	padding: 15px 20px;
+	margin-bottom: 20px;
+}
