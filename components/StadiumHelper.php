@@ -49,7 +49,7 @@ class StadiumHelper
     public static function getGamesAtTournament($stadionID, $tournamentID) 
     {
         $spiele = (new \yii\db\Query())
-        ->select(['spiele.id', 'spiele.club1ID', 'spiele.club2ID', 'spiele.tore1', 'spiele.tore2', 'spiele.extratime', 'spiele.penalty'])
+        ->select(['turnier.datum', 'turnier.zeit', 'spiele.id', 'spiele.club1ID', 'spiele.club2ID', 'spiele.tore1', 'spiele.tore2', 'spiele.extratime', 'spiele.penalty'])
         ->from('spiele')
         ->innerJoin('turnier', 'turnier.spielID = spiele.id')
         ->where(['spiele.stadiumID' => $stadionID])
@@ -66,16 +66,19 @@ class StadiumHelper
 
             $backgroundStyle = $counter++ % 2 === 0 ? '#f0f8ff;' : '#ffffff;';
             $spieleTabelle .= "<tr>";
+            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 20%;'>";
+            $spieleTabelle .= Helper::getFormattedDate($spiel['datum']) . " - " . Helper::getFormattedTime($spiel['zeit']);
+            $spieleTabelle .= "</td>";
             $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 25%;'>";
             $spieleTabelle .= StadiumHelper::getGespielteGruppe($stadionID, $spiel['id']);
             $spieleTabelle .= "</td>";
-            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 25%; text-align: right;'>";
+            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 20%; text-align: right;'>";
             $spieleTabelle .= Html::a(Helper::getClubName($spiel['club1ID']), ['club/view', 'id' => $spiel['club1ID']], ['class' => 'text-decoration-none']);
             $spieleTabelle ." </td>";
             $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 5%; text-align: center;'>";
             $spieleTabelle .= "-";
             $spieleTabelle .= "</td>";
-            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 25%; text-align: left;'>";
+            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 20%; text-align: left;'>";
             $spieleTabelle .= Html::a(Helper::getClubName($spiel['club2ID']), ['club/view', 'id' => $spiel['club2ID']], ['class' => 'text-decoration-none']);
             $spieleTabelle .= " </td>";
             
@@ -86,7 +89,7 @@ class StadiumHelper
                 $ergebnis .= ' i.E.';
             }
             
-            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 25%; text-align: left;'>";
+            $spieleTabelle .= "<td style='background-color: " . $backgroundStyle . " width: 10%; text-align: left;'>";
             $spieleTabelle .= Html::a($ergebnis, ['spielbericht/view', 'id' => $spiel['id']], ['class' => 'text-decoration-none']);
             $spieleTabelle .=" </td>";
             $spieleTabelle .= "</tr>";
@@ -109,7 +112,11 @@ class StadiumHelper
         ->where(['spielID' => $spielID])
         ->all();
         
-        return $gruppe[0]['name'];
+        if ($gruppe) {
+            return $gruppe[0]['name'];
+        } else {
+            return "";
+        }
     }
 }
 ?>
