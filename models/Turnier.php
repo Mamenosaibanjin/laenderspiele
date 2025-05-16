@@ -166,8 +166,6 @@ class Turnier extends ActiveRecord
         ->all();
     }
     
-    
-    
     public function getFormattedDate()
     {
         return \Yii::$app->formatter->asDate($this->datum, 'php:d.m.Y');

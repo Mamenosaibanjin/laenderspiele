@@ -114,7 +114,7 @@ $this->title = "Turnier - $turniername $jahr";
                         <?php endforeach; ?>
                         <tr>
                         	<td colspan="3" style="padding-top: 25px; border: 0; text-align: right;">
-								<?= Html::a('Zur kompletten Liste', ['/torjaeger/view', 'wettbewerb' => $wettbewerbID, 'jahr' => $jahr], ['class' => 'text-decoration-none']) ?>
+								<?= Html::a('Zur kompletten Liste', ['turnier/' . $tournamentID . '/torjaeger'], ['class' => 'text-decoration-none']) ?>
 							</td>
                        	</tr>
                     </tbody>

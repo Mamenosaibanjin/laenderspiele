@@ -97,7 +97,9 @@ $config = [
                 
                 'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
                 'turnier/<tournamentID:\d+>/ergebnisse/<rundeID:\d*>' => 'turnier/ergebnisse',
+                'turnier/<tournamentID:\d+>/spiele-im-stadion/<stadionID:\d*>' => 'turnier/spiele-im-stadion',
                 'turnier/<tournamentID:\d+>/spieler/<positionen:[0-9,]*>/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/spieler',
+                'turnier/<tournamentID:\d+>/stadien/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/stadien',
                 'turnier/<tournamentID:\d+>/<action:(ergebnisse|spielplan|teilnehmer|spieler|torjaeger|stadien|schiedsrichter)>' => 'turnier/<action>',
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',

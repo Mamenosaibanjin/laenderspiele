@@ -107,14 +107,14 @@ $this->title = "Turnier - " . $turniername . ' ' . $jahr;
                                 <?php if (!empty($scorer['vorname'])): ?>
                                    <?php $spielername = $spielername . ', ' . htmlspecialchars(mb_substr($scorer['vorname'], 0, 1)) . '.'; ?>
                                 <?php endif; ?>
-                            	<?= Html::a($spielername, ['/spieler/view', 'id' => $scorer['id']], ['class' => 'text-decoration-none']) ?>
+                            	<?= Html::a($spielername, ['/spieler/' . $scorer['id']], ['class' => 'text-decoration-none']) ?>
                             </td>
                             <td><?= (int)$scorer['tor']; ?></td>
                         </tr>
                         <?php endforeach; ?>
                         <tr>
                         	<td colspan="3" style="padding-top: 25px; border: 0; text-align: right;">
-								<?= Html::a('Zur kompletten Liste', ['/torjaeger/view', 'wettbewerb' => $wettbewerbID, 'jahr' => $jahr], ['class' => 'text-decoration-none']) ?>
+								<?= Html::a('Zur kompletten Liste', ['/turnier/' . $tournamentID . '/torjaeger/'], ['class' => 'text-decoration-none']) ?>
 							</td>
                        	</tr>
                     </tbody>

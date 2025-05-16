@@ -268,13 +268,15 @@ a.desc:after {
 .btn-turnier:hover,
 .btn-statistik:hover {
     background-color: #4674a7;
+    color: white;
 }
 .btn-wettbewerbe {
     background-color: #4674a7;
     color: white;
 }
 .btn-wettbewerbe:hover {
-    background-color: #8dbd43;
+    color: white;
+	background-color: #8dbd43;
 }
 .btn-login {
     background-color: #8dbd43;
@@ -430,19 +432,19 @@ a.desc:after {
 }
 
 a, a:active {
-	color:  #1C75AC !important;
+	color:  #1C75AC;
 }
 
 a:hover {
-	color:  #8dbd43 !important;
+	color:  #8dbd43;
 }
 
 li a, li a:hover {
-	color: white !important;
+	color: white;
 }
 
 .header_green a {
-	color: white !important;
+	color: white;
 	font-weight: bold;
 }
 

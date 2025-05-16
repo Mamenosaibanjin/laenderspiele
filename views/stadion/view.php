@@ -92,7 +92,7 @@ $this->title = $isEditing
                             [
                                 'attribute' => 'wettbewerb',
                                 'label' => Yii::t('app', 'Competition'),
-                                'value' => fn($model) => Helper::getTurniername($model->turnier->wettbewerb->id ?? '') ?? '',
+                                'value' => fn($model) => Helper::getTurniernameFullname($model->turnier->tournamentID ?? '') ?? '',
                                 'format' => 'raw',
                             ],
                             [
@@ -130,6 +130,7 @@ $this->title = $isEditing
                             [
                                 'attribute' => 'zuschauer',
                                 'label' => Yii::t('app', 'Spectators'),
+                                'format' => 'raw',
                                 'value' => fn($model) => Yii::$app->formatter->asInteger($model->zuschauer),
                                 'enableSorting' => false,
                             ],

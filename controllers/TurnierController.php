@@ -7,6 +7,7 @@ use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
 use app\models\Spiel;
 use app\models\Spieler;
+use app\models\Stadion;
 use app\models\Tournament;
 use app\models\Turnier;
 use app\models\Runde;
@@ -322,6 +323,86 @@ class TurnierController extends Controller
             'turnierjahr' => Helper::getTurnierStartdatum($tournamentID),
             'topScorers' => $topScorers
         ]);
+    }
+    
+    public function actionStadien($tournamentID, $sort = null, $page = null)
+    {
+        // Wenn keine Parameter vorhanden sind → redirect auf die vollständige "Default"-URL
+        if ($sort === null || $page === null) {
+            return $this->redirect([
+                'turnier/stadien',
+                'tournamentID' => $tournamentID,
+                'sort' => 'nach-kapazitaet',
+                'page' => 1
+            ]);
+        }
+        
+        $turnier = Turnier::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $query = Stadion::find()
+        ->alias('st')
+        ->select([
+            'st.id',
+            'st.name',
+            'st.stadt',
+            'st.land',
+            'st.kapazitaet'
+        ])
+        ->innerJoin('spiele s', 's.stadiumID = st.id')
+        ->innerJoin('turnier t', 't.spielID = s.id')
+        ->where(['t.tournamentID' => $tournamentID])
+        ->groupBy('st.id');
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => ['pageSize' => 25],
+            'sort' => [
+                'attributes' => [
+                    'stadiumID',
+                    'nach-name' => [
+                        'asc' => ['st.name' => SORT_ASC],
+                        'desc' => ['st.name' => SORT_DESC],
+                        'label' => 'Name'
+                    ],
+                    'nach-stadt' => [
+                        'asc' => ['st.stadt' => SORT_ASC],
+                        'desc' => ['st.stadt' => SORT_DESC],
+                        'label' => 'Stadt'
+                    ],
+                    'nach-land' => [
+                        'asc' => ['st.land' => SORT_ASC],
+                        'desc' => ['st.land' => SORT_DESC],
+                        'label' => 'Land'
+                    ],
+                    'nach-kapazitaet' => [
+                        'asc' => ['st.kapazitaet' => SORT_ASC],
+                        'desc' => ['st.kapazitaet' => SORT_DESC],
+                        'label' => 'Kapazität'
+                    ]
+                ],
+                'defaultOrder' => $sort === 'nach-kapazitaet' ? ['spielerName' => SORT_ASC] : [],
+            ],
+        ]);
+        
+        return $this->render('stadien', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'jahr' => Helper::getTurnierJahr($tournamentID),
+            'wettbewerbID' => Helper::getWettbewerbID($tournamentID),
+            'turnierjahr' => Helper::getTurnierStartdatum($tournamentID),
+            'dataProvider' => $dataProvider
+        ]);
+    }
+    
+    public function actionSpieleImStadion($stadionID, $tournamentID)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
+        
+        return \app\components\StadiumHelper::getGamesAtTournament($stadionID, $tournamentID);
     }
     
 }
