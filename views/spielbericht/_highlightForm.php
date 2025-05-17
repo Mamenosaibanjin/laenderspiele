@@ -10,6 +10,7 @@ use yii\widgets\ActiveForm;
 ]) ?>
 
 <?php if (!empty($highlights) OR 1==1): ?>
+<div class="widget-column" style="margin-bottom: 50px;">
     <div class="spielinfo-box">
         <h4><i class="material-icons">credit_card</i> Highlights</h4>
         <ul class="highlight-list">
@@ -36,8 +37,10 @@ use yii\widgets\ActiveForm;
             <?php endforeach; ?>
         </ul>
     </div>
+    </div>
 <?php endif; ?>
 
+<div class="widget-column">
 <div class="spielinfo-box">
     <h4><i class="material-icons">add_card</i> Highlight erfassen</h4>
 
@@ -96,6 +99,7 @@ use yii\widgets\ActiveForm;
     <div class="info-row">
         <?= Html::submitButton('Highlight speichern', ['class' => 'btn btn-secondary']) ?>
     </div>
+</div>
 </div>
 
 <?php ActiveForm::end() ?>

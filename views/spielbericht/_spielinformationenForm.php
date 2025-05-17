@@ -21,7 +21,7 @@ $stadiumList = implode(', ', array_map(function($s) {
     'options' => ['class' => 'spielinformationen-form']
 ]) ?>
 
-<div class="spielinfo-box">
+<div style="padding-bottom: 50px;">
     
       <h4><i class="material-icons">fact_check</i> Spieldaten</h4>
 <?= Html::hiddenInput('spielID', $spiel->id) ?>
@@ -74,7 +74,7 @@ $stadiumList = implode(', ', array_map(function($s) {
 </div>
 </div>
 
-<div class="spielinfo-box">
+<div style="padding-bottom: 50px;">
     
       <h4><i class="material-icons">pin_drop</i> Stadion</h4>
     
@@ -112,7 +112,7 @@ $stadiumList = implode(', ', array_map(function($s) {
 
 
 <!-- Schiedsrichter -->
-<div class="spielinfo-box">
+<div>
 
   <h4><i class="material-icons">gavel</i> Schiedsrichter</h4>
     <?php $icons = ['sports', 'sports_score', 'sports_score', 'scoreboard']; ?>
