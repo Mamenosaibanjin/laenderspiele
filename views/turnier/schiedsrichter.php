@@ -50,7 +50,7 @@ $this->title = "Schiedsrichter - $turniername $jahr";
                             'maxButtonCount' => 5,
                         ],
 					    'rowOptions' => function ($model, $key, $index, $grid) {
-					           return ['data-schiedsrichter-id' => $model->id, 'class' => 'schiedsrichter-row'];
+					           return ['data-schiedsrichter-id' => $model->id, 'class' => 'spiele-row'];
 					    },
                         'columns' => [
                             [
@@ -130,8 +130,8 @@ $this->title = "Schiedsrichter - $turniername $jahr";
 <?php             
 $js = <<<JS
 function refreshZebraStripes() {
-    // Nur sichtbare .schiedsrichter-row zählen
-    var visibleRows = $('#schiedsrichter-grid table tbody tr.schiedsrichter-row:visible');
+    // Nur sichtbare .spiele-row zählen
+    var visibleRows = $('#schiedsrichter-grid table tbody tr.spiele-row:visible');
     visibleRows.each(function(index) {
         // Entferne alte Farben
         $(this).removeClass('table-even table-odd');
@@ -167,13 +167,13 @@ $(document).on('click', '.toggle-spiele', function() {
             url: url,
             type: 'GET',
             success: function (response) {
-                let newRow = '<tr id="schiedsrichter-row-' + schiedsrichterId + '" class="schiedsrichter-row">' +
+                let newRow = '<tr id="spiele-row-' + schiedsrichterId + '" class="spiele-row">' +
                              '<td colspan="' + colCount + '">' + response + '</td></tr>';
                 \$row.after(newRow);
                 refreshZebraStripes();
             },
             error: function () {
-                let newRow = '<tr id="schiedsrichter-row-' + schiedsrichterId + '" class="schiedsrichter-row">' +
+                let newRow = '<tr id="spiele-row-' + schiedsrichterId + '" class="spiele-row">' +
                              '<td colspan="' + colCount + '"><div class="text-danger">Fehler beim Laden der Spiele.</div></td></tr>';
                 \$row.after(newRow);
             }

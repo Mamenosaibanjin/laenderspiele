@@ -503,4 +503,11 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionSchiedsrichterSpiele($refereeID, $tournamentID)
+    {
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
+        
+        return \app\components\RefereeHelper::getGamesAtTournament($refereeID, $tournamentID);
+    }
+    
 }
