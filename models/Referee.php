@@ -6,6 +6,11 @@ use yii\db\ActiveRecord;
 
 class Referee extends ActiveRecord
 {
+    public $spiele;
+    public $gk_count;
+    public $grk_count;
+    public $rk_count;
+    
     public static function tableName()
     {
         return 'referee';

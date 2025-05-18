@@ -5,6 +5,7 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
+use app\models\Referee;
 use app\models\Spiel;
 use app\models\Spieler;
 use app\models\Stadion;
@@ -15,6 +16,8 @@ use app\models\Wettbewerb;
 use app\components\Helper; // Falls Helper für getTurniername() genutzt wird
 use yii\web\Response;
 use app\models\SpielerLandWettbewerb;
+use yii\db\Expression;
+
 
 class TurnierController extends Controller
 {
@@ -403,6 +406,101 @@ class TurnierController extends Controller
         \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
         
         return \app\components\StadiumHelper::getGamesAtTournament($stadionID, $tournamentID);
+    }
+    
+    public function actionSchiedsrichter($tournamentID, $sort = null, $page = null)
+    {
+        // Wenn keine Parameter vorhanden sind → redirect auf die vollständige "Default"-URL
+        if ($sort === null || $page === null) {
+            return $this->redirect([
+                'turnier/schiedsrichter',
+                'tournamentID' => $tournamentID,
+                'sort' => 'nach-kapazitaet',
+                'page' => 1
+            ]);
+        }
+        
+        $referee = Turnier::findOne($tournamentID);
+        
+        if (!$referee) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $query = Referee::find()
+        ->alias('r')
+        ->select([
+            'r.id',
+            'r.name',
+            'r.vorname',
+            'r.geburtstag',
+            'r.nati1',
+            new Expression('COUNT(DISTINCT s.id) AS spiele'),
+            new Expression("COUNT(DISTINCT g_gk.id) AS gk_count"),
+            new Expression("COUNT(DISTINCT g_grk.id) AS grk_count"),
+            new Expression("COUNT(DISTINCT g_rk.id) AS rk_count"),
+        ])
+        ->innerJoin(['s' => 'spiele'], 's.referee1ID = r.id')
+        ->innerJoin(['t' => 'turnier'], 't.spielID = s.id')
+        ->leftJoin(['g_gk' => 'games'], "g_gk.spielID = s.id AND g_gk.aktion LIKE 'GK'")
+        ->leftJoin(['g_grk' => 'games'], "g_grk.spielID = s.id AND g_grk.aktion LIKE 'GRK'")
+        ->leftJoin(['g_rk' => 'games'], "g_rk.spielID = s.id AND g_rk.aktion LIKE 'RK'")
+        ->where(['t.tournamentID' => 1])
+        ->groupBy('r.id');
+        
+        $dataProvider = new ActiveDataProvider([
+            'query' => $query,
+            'pagination' => ['pageSize' => 25],
+            'sort' => [
+                'attributes' => [
+                    'refereeID',
+                    'nach-name' => [
+                        'asc' => ['r.name' => SORT_ASC],
+                        'desc' => ['r.name' => SORT_DESC],
+                        'label' => 'Name'
+                    ],
+                    'nach-geburtstag' => [
+                        'asc' => ['r.geburtstag' => SORT_ASC],
+                        'desc' => ['r.geburtstag' => SORT_DESC],
+                        'label' => 'geboren'
+                    ],
+                    'nach-land' => [
+                        'asc' => ['r.nati1' => SORT_ASC],
+                        'desc' => ['r.nati1' => SORT_DESC],
+                        'label' => 'Land'
+                    ],
+                    'nach-spiele' => [
+                        'asc' => ['spiele' => SORT_ASC],
+                        'desc' => ['spiele' => SORT_DESC],
+                        'label' => 'Spiele'
+                    ],
+                    'nach-gelbe-karten' => [
+                        'asc' => ['gk_count' => SORT_ASC],
+                        'desc' => ['gk_count' => SORT_DESC],
+                        'label' => 'GK'
+                    ],
+                    'nach-gelbrote-karten' => [
+                        'asc' => ['grk_count' => SORT_ASC],
+                        'desc' => ['grk_count' => SORT_DESC],
+                        'label' => 'GRK'
+                    ],
+                    'nach-rote-karten' => [
+                        'asc' => ['rk_count' => SORT_ASC],
+                        'desc' => ['rk_count' => SORT_DESC],
+                        'label' => 'RK'
+                    ],
+                ],
+                'defaultOrder' => ['spiele' => SORT_DESC, 'r.name' => SORT_ASC],
+            ],
+        ]);
+        
+        return $this->render('schiedsrichter', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'jahr' => Helper::getTurnierJahr($tournamentID),
+            'wettbewerbID' => Helper::getWettbewerbID($tournamentID),
+            'turnierjahr' => Helper::getTurnierStartdatum($tournamentID),
+            'dataProvider' => $dataProvider
+        ]);
     }
     
 }
