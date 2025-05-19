@@ -12,10 +12,10 @@ echo Nav::widget([
                 ['label' => 'Ergebnisse / Tabelle', 'url' => ['turnier/ergebnisse', 'tournamentID' => $turnier->id, 'rundeID' => '8'], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Spielplan', 'url' => ['turnier/spielplan', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Teilnehmer', 'url' => ['turnier/teilnehmer', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Spieler', 'url' => ['turnier/spieler', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Spieler', 'url' => ['turnier/spieler', 'tournamentID' => $turnier->id, 'positionen' => '1,2,3,4,5,6,7', 'sort' => 'nach-name', 'page' => 1], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Torjäger', 'url' => ['turnier/torjaeger', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Stadien', 'url' => ['turnier/stadien', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Schiedsrichter', 'url' => ['turnier/schiedsrichter', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Stadien', 'url' => ['turnier/stadien', 'tournamentID' => $turnier->id, 'sort' => 'nach-name', 'page' => 1], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Schiedsrichter', 'url' => ['turnier/schiedsrichter', 'tournamentID' => $turnier->id, 'sort' => 'nach-name', 'page' => 1], 'linkOptions' => ['class' => 'dropdown-item']],
             ],
         ],
         [

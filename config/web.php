@@ -100,6 +100,7 @@ $config = [
                 'turnier/<tournamentID:\d+>/spiele-im-stadion/<stadionID:\d*>' => 'turnier/spiele-im-stadion',
                 'turnier/<tournamentID:\d+>/schiedsrichter-spiele/<refereeID:\d*>' => 'turnier/schiedsrichter-spiele',
                 'turnier/<tournamentID:\d+>/spieler/<positionen:[0-9,]*>/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/spieler',
+                'turnier/<tournamentID:\d+>/torjaeger' => 'turnier/torjaeger',
                 'turnier/<tournamentID:\d+>/stadien/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/stadien',
                 'turnier/<tournamentID:\d+>/schiedsrichter/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/schiedsrichter',
                 'turnier/<tournamentID:\d+>/spielplan/<landID:\d*>' => 'turnier/spielplan',
