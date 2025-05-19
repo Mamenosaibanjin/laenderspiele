@@ -415,7 +415,7 @@ class TurnierController extends Controller
             return $this->redirect([
                 'turnier/schiedsrichter',
                 'tournamentID' => $tournamentID,
-                'sort' => 'nach-kapazitaet',
+                'sort' => 'nach-name',
                 'page' => 1
             ]);
         }
@@ -444,7 +444,7 @@ class TurnierController extends Controller
         ->leftJoin(['g_gk' => 'games'], "g_gk.spielID = s.id AND g_gk.aktion LIKE 'GK'")
         ->leftJoin(['g_grk' => 'games'], "g_grk.spielID = s.id AND g_grk.aktion LIKE 'GRK'")
         ->leftJoin(['g_rk' => 'games'], "g_rk.spielID = s.id AND g_rk.aktion LIKE 'RK'")
-        ->where(['t.tournamentID' => 1])
+        ->where(['t.tournamentID' => $tournamentID])
         ->groupBy('r.id');
         
         $dataProvider = new ActiveDataProvider([

@@ -86,21 +86,31 @@ $this->title = "Schiedsrichter - $turniername $jahr";
                             ],
                             [
                                 'attribute' => 'nach-gelbe-karten',
-                                'label' => 'GK',
+                                'label' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="color:rgb(247,216,123); height: 15px; fill: currentColor;">
+    	                			<path d="M8.06 23.98c-.49.1-.89-.2-.99-.59-.5-1.89-4.54-17.02-5.05-18.92-.1-.49.2-.89.6-.99C3.9 3.14 14.2.37 15.49.02c.5-.1.89.2.99.59.51 1.88 4.55 16.93 5.05 18.82.2.49-.1.99-.59 1.09-2.58.69-11.59 3.11-12.88 3.46z"></path>
+    	                		</svg>',
+                                'encodeLabel' => false,
                                 'value' => function ($model) use ($tournamentID) {
                                 return $model->gk_count;
                                 }
                             ],
                             [
                                 'attribute' => 'nach-gelbrote-karten',
-                                'label' => 'GRK',
+                                'label' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" data-sentry-element="Svg" data-sentry-component="TwoCards" data-sentry-source-file="icons.tsx" style="height: 15px;">
+    	                			 <path fill="#F8D94D" d="M6.06 23.98c-.49.1-.89-.2-.99-.59C4.57 21.5.53 6.37.02 4.47c-.1-.49.2-.89.6-.99 0 0 18.912 16.02 18.91 15.95.2.49-.1.99-.59 1.09-2.58.69-11.59 3.11-12.88 3.46z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
+    	                			 <path fill="#C00" d="M.62 3.48C1.9 3.14 12.2.37 13.49.02c.5-.1.89.2.99.59.51 1.88 4.55 16.93 5.05 18.82C19.53 19.587.62 3.48.62 3.48z" data-sentry-element="path" data-sentry-source-file="icons.tsx"></path>
+    	                		</svg>',
+                                'encodeLabel' => false,
                                 'value' => function ($model) use ($tournamentID) {
                                 return $model->grk_count;
                                 }
                             ],
                             [
                                 'attribute' => 'nach-rote-karten',
-                                'label' => 'RK',
+                                'label' => '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="color:#CC0000; height: 15px; fill: currentColor;">
+    	                			<path d="M8.06 23.98c-.49.1-.89-.2-.99-.59-.5-1.89-4.54-17.02-5.05-18.92-.1-.49.2-.89.6-.99C3.9 3.14 14.2.37 15.49.02c.5-.1.89.2.99.59.51 1.88 4.55 16.93 5.05 18.82.2.49-.1.99-.59 1.09-2.58.69-11.59 3.11-12.88 3.46z"></path>
+    	                		</svg>',
+                                'encodeLabel' => false,
                                 'value' => function ($model) use ($tournamentID) {
                                 return $model->rk_count;
                                 }
