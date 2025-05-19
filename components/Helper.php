@@ -227,9 +227,8 @@ class Helper
         
         // Prüfe, ob die Datei existiert
         if (file_exists($filePath)) {
-            return $baseUrl . $clubId . '.gif';
+           return $baseUrl . $clubId . '.gif';
         }
-        
         // Fallback: Standardbild, wenn kein Logo verfügbar
         return \Yii::getAlias('@web/assets/img/vereine/standard.gif');
     }

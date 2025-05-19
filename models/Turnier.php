@@ -73,6 +73,21 @@ class Turnier extends ActiveRecord
         return $query->all();
     }
     
+    public static function findAlleTurniere($tournamentID)
+    {
+        $subquery = Tournament::find()
+        ->select(['wettbewerbID'])
+        ->where(['id' => $tournamentID]);
+        
+        $turniere = Tournament::find()
+        ->select(['id'])
+        ->where(['wettbewerbID' => $subquery])
+        ->orderBy(['jahr' => SORT_DESC])
+        ->asArray();
+        
+        return $turniere->all();
+    }
+    
     public static function countSpieler($tournamentID, $clubID)
     {
         return (new \yii\db\Query())

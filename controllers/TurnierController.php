@@ -518,4 +518,22 @@ class TurnierController extends Controller
         return \app\components\RefereeHelper::getGamesAtTournament($refereeID, $tournamentID);
     }
     
+    public function actionArchiv($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+
+        // Teilnehmer abrufen
+        $turniere = Turnier::findAlleTurniere($tournamentID);
+        
+        return $this->render('archiv', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'turniere' => $turniere
+        ]);
+    }
+    
 }

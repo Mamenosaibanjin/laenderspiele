@@ -103,7 +103,10 @@ $config = [
                 'turnier/<tournamentID:\d+>/stadien/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/stadien',
                 'turnier/<tournamentID:\d+>/schiedsrichter/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/schiedsrichter',
                 'turnier/<tournamentID:\d+>/spielplan/<landID:\d*>' => 'turnier/spielplan',
-                 'turnier/<tournamentID:\d+>/spielplan/' => 'turnier/spielplan',
+                'turnier/<tournamentID:\d+>/spielplan/' => 'turnier/spielplan',
+                'turnier/<tournamentID:\d+>/teilnehmer/' => 'turnier/teilnehmer',
+                
+                'turnier/<tournamentID:\d+>/archiv/' => 'turnier/archiv',
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',
                 'turnier/search' => 'turnier/search',
