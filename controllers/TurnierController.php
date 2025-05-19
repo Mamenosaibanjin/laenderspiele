@@ -167,7 +167,7 @@ class TurnierController extends Controller
         ]);
     }
     
-    public function actionSpielplan($tournamentID)
+    public function actionSpielplan($tournamentID, $landID = null)
     {
         $turnier = Tournament::findOne($tournamentID);
         
@@ -177,7 +177,7 @@ class TurnierController extends Controller
         
         // Spiele ermitteln
         $spiele = [];
-        $spiele = Turnier::find()
+        $query = Turnier::find()
         ->alias('t')
         ->joinWith([
             'runde r',
@@ -193,8 +193,16 @@ class TurnierController extends Controller
             'r.sortierung' => SORT_ASC,
             't.datum' => SORT_ASC,
             't.zeit' => SORT_ASC,
-        ])
-        ->all();
+        ]);
+        if (!empty($landID)) {
+            $query->andWhere([
+                'or',
+                ['c1.id' => $landID],
+                ['c2.id' => $landID],
+            ]);
+        }
+        
+        $spiele = $query->all();
         
         return $this->render('spielplan', [
             'turnier' => $turnier,
