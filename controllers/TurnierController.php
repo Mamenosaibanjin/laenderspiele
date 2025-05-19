@@ -554,4 +554,22 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionAlleTorjaeger($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        // Teilnehmer abrufen
+        $turniere = Turnier::findAlleTurniere($tournamentID, true);
+        
+        return $this->render('alleTorjaeger', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'turniere' => $turniere
+        ]);
+    }
+    
 }

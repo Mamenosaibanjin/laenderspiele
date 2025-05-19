@@ -5,6 +5,7 @@ use app\models\Club;
 use app\models\Spiel;
 use app\models\Turnier;
 use Yii;
+use yii\db\Query;
 
 class TurnierHelper
 {
@@ -67,6 +68,39 @@ class TurnierHelper
         return $siegerListe;
     }
     
+    public static function getTorschuetzenkoenig($tournamentID)
+    {
+        // Subquery: Ermittelt die höchste Anzahl Tore eines Spielers im Turnier
+        $subQuery = (new Query())
+        ->select(['MAX(tore_count)'])
+        ->from([
+            'tore_counts' => (new Query())
+            ->select(['spielerID', 'COUNT(*) AS tore_count'])
+            ->from('games g')
+            ->innerJoin('turnier t', 't.spielID = g.spielID')
+            ->where([
+                't.tournamentID' => $tournamentID,
+            ])
+            ->andWhere(['IN', 'g.aktion', ['TOR', '11m']])
+            ->andWhere(['<', 'g.minute', 200])
+            ->groupBy('g.spielerID')
+        ]);
+        
+        // Hauptquery: Holt alle Spieler mit genau dieser Toranzahl
+        $query = (new Query())
+        ->select(['g.spielerID', 'COUNT(*) AS tore'])
+        ->from('games g')
+        ->innerJoin('turnier t', 't.spielID = g.spielID')
+        ->where([
+            't.tournamentID' => $tournamentID,
+        ])
+        ->andWhere(['IN', 'g.aktion', ['TOR', '11m']])
+        ->andWhere(['<', 'g.minute', 200])
+        ->groupBy('g.spielerID')
+        ->having(['COUNT(*)' => $subQuery]);
+        
+        return $query->all();
+    }
 }
 
 ?>
