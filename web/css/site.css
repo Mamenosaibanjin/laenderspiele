@@ -439,8 +439,12 @@ a:hover {
 	color:  #8dbd43;
 }
 
-li a, li a:hover {
-	color: white;
+li a, li a:active {
+	color: #1C75AC;
+}
+
+li a:hover {
+	color: #8dbd43;
 }
 
 .header_green a {

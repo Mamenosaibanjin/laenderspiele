@@ -85,7 +85,9 @@ $currentPositionID = null;
                                         echo "</div>";
                                     }
                                 } else {
-                                    echo "unbekannt/vereinslos";
+                                    if ($positionID < 5) 
+                                        {echo "unbekannt/vereinslos";
+                                    }
                                 }
                                 ?>
                             <?php else: ?>
