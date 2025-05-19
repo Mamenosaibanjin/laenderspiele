@@ -73,7 +73,7 @@ class Turnier extends ActiveRecord
         return $query->all();
     }
     
-    public static function findAlleTurniere($tournamentID)
+    public static function findAlleTurniere($tournamentID, $finished = false)
     {
         $subquery = Tournament::find()
         ->select(['wettbewerbID'])
@@ -82,10 +82,17 @@ class Turnier extends ActiveRecord
         $turniere = Tournament::find()
         ->select(['id'])
         ->where(['wettbewerbID' => $subquery])
-        ->orderBy(['jahr' => SORT_DESC])
-        ->asArray();
+        ->orderBy(['jahr' => SORT_DESC]);
         
-        return $turniere->all();
+        
+        // Falls nur bereits gestartete Turniere gewünscht sind
+        if ($finished) {
+            $currentDateInt = (int) date('Ym'); // erzeugt z. B. 202405
+            $turniere->andWhere(['<', 'startdatum', $currentDateInt]);
+        }
+        
+        return $turniere->asArray()->all();
+    
     }
     
     public static function countSpieler($tournamentID, $clubID)

@@ -525,11 +525,29 @@ class TurnierController extends Controller
         if (!$turnier) {
             throw new NotFoundHttpException('Turnier nicht gefunden.');
         }
-
+        
         // Teilnehmer abrufen
         $turniere = Turnier::findAlleTurniere($tournamentID);
         
         return $this->render('archiv', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'turniere' => $turniere
+        ]);
+    }
+    
+    public function actionAlleSieger($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        // Teilnehmer abrufen
+        $turniere = Turnier::findAlleTurniere($tournamentID, true);
+        
+        return $this->render('alleSieger', [
             'tournamentID' => $tournamentID,
             'turniername' => Helper::getTurniername($tournamentID),
             'turniere' => $turniere

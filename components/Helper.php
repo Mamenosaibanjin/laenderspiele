@@ -56,7 +56,6 @@ class Helper
         }
         
         $flagUrl = $flag['flag_url'];
-        
         // Falls die URL nicht mit http:// oder https:// beginnt, Prefix ergänzen
         if (!preg_match('~^https?://~', $flagUrl)) {
             $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
@@ -82,7 +81,6 @@ class Helper
                 $flagHtml .= " " . Html::encode($showName);
             }
         } 
-        
         return Html::tag('span', $flagHtml, [
             'style' => 'display: inline-block; vertical-align: middle;'
         ]);
@@ -649,13 +647,11 @@ class Helper
         if (!$tournament) {
             return null;
         }
-        
         $startdatumRaw = $tournament->startdatum;
         
         if (strlen($startdatumRaw) === 6) {
             return substr($startdatumRaw, 0, 4) . '-' . substr($startdatumRaw, 4, 2) . '-01';
         }
-        
         return $startdatumRaw;
     }
     

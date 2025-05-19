@@ -3,6 +3,7 @@ namespace app\components;
 
 use app\models\Club;
 use app\models\Spiel;
+use app\models\Turnier;
 use Yii;
 
 class TurnierHelper
@@ -19,7 +20,7 @@ class TurnierHelper
             't.tournamentID' => $tournamentID,
             't.rundeID' => $rundeID,
         ])
-        ->select('clubs.id')
+        ->select(['clubs.id', 'clubs.land'])
         ->distinct()
         ->one();
         
@@ -38,6 +39,34 @@ class TurnierHelper
         
         return $finale;
     }
+    
+    public static function getRekordsieger($tournamentID)
+    {
+        $turniere = Turnier::findAlleTurniere($tournamentID, true); // nur beendete Turniere
+        $siegerListe = [];
+        
+        foreach ($turniere as $turnier) {
+            $sieger = self::getSieger($turnier['id']);
+            if ($sieger) {
+                $clubID = $sieger->id;
+                if (!isset($siegerListe[$clubID])) {
+                    $siegerListe[$clubID] = [
+                        'clubID' => $clubID,
+                        'land' => $sieger->land,
+                        'siege' => 1,
+                    ];
+                } else {
+                    $siegerListe[$clubID]['siege']++;
+                }
+            }
+        }
+        
+        // Sortieren nach Anzahl Siege DESC
+        usort($siegerListe, fn($a, $b) => $b['siege'] <=> $a['siege']);
+        
+        return $siegerListe;
+    }
+    
 }
 
 ?>
