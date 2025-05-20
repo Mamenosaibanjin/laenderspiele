@@ -409,6 +409,58 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionToreProSaison($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $statistikTore = [];
+        
+        foreach ($alleTurniere as $turnierItem) {
+            $tid = $turnierItem['id'];
+            
+            // Anzahl Spiele
+            $spiele = (new \yii\db\Query())
+            ->from('turnier')
+            ->where(['tournamentID' => $tid])
+            ->count();
+            
+            // Anzahl Tore
+            $tore = (new \yii\db\Query())
+            ->from('games g')
+            ->innerJoin('turnier t', 't.spielID = g.spielID')
+            ->where(['t.tournamentID' => $tid])
+            ->andWhere(['or',
+                ['g.aktion' => 'TOR'],
+                ['g.aktion' => 'ET'],
+                ['and', ['g.aktion' => '11m'], ['<', 'g.minute', 200]]
+            ])
+            ->count();
+            
+            // Berechnung Durchschnitt
+            $durchschnitt = $spiele > 0 ? round($tore / $spiele, 4) : 0;
+            
+            $statistikTore[] = [
+                'tournamentID' => $tid,
+                'spiele' => (int) $spiele,
+                'tore' => (int) $tore,
+                'durchschnitt' => $durchschnitt,
+            ];
+        }
+        
+        // Sortiere nach Durchschnitt absteigend
+        usort($statistikTore, fn($a, $b) => $b['durchschnitt'] <=> $a['durchschnitt']);
+        
+        return $this->render('toreProSaison', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'statistikTore' => $statistikTore
+        ]);
+    }
+    
     public function actionSpieleImStadion($stadionID, $tournamentID)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;

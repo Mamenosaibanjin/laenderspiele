@@ -110,6 +110,7 @@ $config = [
                 'turnier/<tournamentID:\d+>/archiv/' => 'turnier/archiv',
                 'turnier/<tournamentID:\d+>/alle-sieger/' => 'turnier/alle-sieger',
                 'turnier/<tournamentID:\d+>/alle-torjaeger/' => 'turnier/alle-torjaeger',
+                'turnier/<tournamentID:\d+>/statistik/tore-pro-saison' => 'turnier/tore-pro-saison',
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',
                 'turnier/search' => 'turnier/search',
