@@ -17,6 +17,7 @@ use app\components\Helper; // Falls Helper für getTurniername() genutzt wird
 use yii\web\Response;
 use app\models\SpielerLandWettbewerb;
 use yii\db\Expression;
+use yii\db\Query;
 
 
 class TurnierController extends Controller
@@ -458,6 +459,63 @@ class TurnierController extends Controller
             'tournamentID' => $tournamentID,
             'turniername' => Helper::getTurniername($tournamentID),
             'statistikTore' => $statistikTore
+        ]);
+    }
+    
+    public function actionToreProRunde($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $tournamentIDs = array_column($alleTurniere, 'id');
+        
+        // Falls keine Turniere gefunden wurden
+        if (empty($tournamentIDs)) {
+            return $this->render('toreProRunde', [
+                'tournamentID' => $tournamentID,
+                'turniername' => Helper::getTurniername($tournamentID),
+                'statistikRunden' => []
+            ]);
+        }
+        
+        // Hole Statistiken aus der DB (Games + Tore pro Runde)
+        $subQuery = (new Query())
+        ->select([
+            't.tournamentID',
+            't.rundeID',
+            new Expression("
+            COUNT(CASE
+                WHEN g.aktion IN ('TOR', 'ET') OR (g.aktion = '11m' AND g.minute < 200)
+                THEN 1 ELSE NULL END
+            ) AS tore
+        "),
+            'COUNT(DISTINCT t.spielID) AS spiele',
+            new Expression("
+            ROUND(
+                COUNT(CASE
+                    WHEN g.aktion IN ('TOR', 'ET') OR (g.aktion = '11m' AND g.minute < 200)
+                    THEN 1 ELSE NULL END
+                ) * 1.0 / COUNT(DISTINCT t.spielID), 4
+            ) AS durchschnitt
+        ")
+        ])
+        ->from(['t' => 'turnier'])
+        ->leftJoin(['g' => 'games'], 'g.spielID = t.spielID')
+        ->where(['t.tournamentID' => $tournamentIDs]) // array of IDs
+        ->groupBy(['t.tournamentID', 't.rundeID'])
+        ->having(['>', 'spiele', 0])
+        ->orderBy(['durchschnitt' => SORT_DESC])
+        ->limit(50);
+        
+        $statistikRunden = $subQuery->all();
+        
+        return $this->render('toreProRunde', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'statistikTore' => $statistikRunden
         ]);
     }
     
