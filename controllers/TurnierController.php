@@ -477,7 +477,7 @@ class TurnierController extends Controller
             return $this->render('toreProRunde', [
                 'tournamentID' => $tournamentID,
                 'turniername' => Helper::getTurniername($tournamentID),
-                'statistikRunden' => []
+                'statistikTore' => []
             ]);
         }
         
@@ -516,6 +516,61 @@ class TurnierController extends Controller
             'tournamentID' => $tournamentID,
             'turniername' => Helper::getTurniername($tournamentID),
             'statistikTore' => $statistikRunden
+        ]);
+    }
+    
+    public function actionHoechsteSiege($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $tournamentIDs = array_column($alleTurniere, 'id');
+        
+        // Falls keine Turniere gefunden wurden
+        if (empty($tournamentIDs)) {
+            return $this->render('toreProRunde', [
+                'tournamentID' => $tournamentID,
+                'turniername' => Helper::getTurniername($tournamentID),
+                'hoechsteSiege' => []
+            ]);
+        }
+        
+        // Hole die höchsten Siege (nach Tordifferenz)
+        $hoechsteSiege = (new Query())
+        ->select([
+            't.tournamentID',
+            't.rundeID',
+            't.datum',
+            's.id',
+            's.club1ID',
+            's.tore1',
+            's.tore2',
+            's.extratime',
+            's.penalty',
+            's.club2ID',
+            // Tordifferenz
+            'differenz' => new Expression('ABS(s.tore1 - s.tore2)'),
+            // Gesamttore zur sekundären Sortierung
+            'gesamtTore' => new Expression('s.tore1 + s.tore2'),
+        ])
+        ->from(['t' => 'turnier'])
+        ->innerJoin(['s' => 'spiele'], 's.id = t.spielID')
+        ->where(['t.tournamentID' => $tournamentIDs])
+        ->andWhere(['<>', 's.tore1', 's.tore2']) // Nur Siege
+        ->orderBy([
+            'differenz' => SORT_DESC,
+            'gesamtTore' => SORT_DESC
+        ])
+        ->limit(50)
+        ->all();
+        
+        return $this->render('hoechsteSiege', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'hoechsteSiege' => $hoechsteSiege
         ]);
     }
     
