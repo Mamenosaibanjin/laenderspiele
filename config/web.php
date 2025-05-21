@@ -115,6 +115,7 @@ $config = [
                 'turnier/<tournamentID:\d+>/statistik/hoechste-siege' => 'turnier/hoechste-siege',
                 'turnier/<tournamentID:\d+>/statistik/torreichste-spiele' => 'turnier/torreichste-spiele',
                 'turnier/<tournamentID:\d+>/statistik/meiste-tore-eines-spielers' => 'turnier/meiste-tore-eines-spielers',
+                'turnier/<tournamentID:\d+>/statistik/unfairste-spiele' => 'turnier/unfairste-spiele',
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',
                 'turnier/search' => 'turnier/search',

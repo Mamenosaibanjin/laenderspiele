@@ -702,6 +702,83 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionUnfairsteSpiele($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $tournamentIDs = array_column($alleTurniere, 'id');
+        
+        // Falls keine Turniere gefunden wurden
+        if (empty($tournamentIDs)) {
+            return $this->render('toreProRunde', [
+                'tournamentID' => $tournamentID,
+                'turniername' => Helper::getTurniername($tournamentID),
+                'unfairsteSpiele' => []
+            ]);
+        }
+        
+        // Hole die unfairsten Spiele
+        $unfairsteSpiele = (new Query())
+        ->select([
+            't.tournamentID',
+            't.rundeID',
+            't.datum',
+            's.id',
+            's.club1ID',
+            's.club2ID',
+            's.tore1',
+            's.tore2',
+            // Karten-Zählungen
+            'gk' => new Expression("COUNT(CASE WHEN g.aktion = 'GK' THEN 1 ELSE NULL END)"),
+            'grk' => new Expression("COUNT(CASE WHEN g.aktion = 'GRK' THEN 1 ELSE NULL END)"),
+            'rk' => new Expression("COUNT(CASE WHEN g.aktion = 'RK' THEN 1 ELSE NULL END)"),
+            // Gewichtete Punkteberechnung
+            'punkte' => new Expression("
+            SUM(
+                CASE
+                    WHEN g.aktion = 'GK' THEN 1
+                    WHEN g.aktion = 'GRK' THEN 2
+                    WHEN g.aktion = 'RK' THEN 3
+                    ELSE 0
+                END
+            )
+        ")
+        ])
+        ->from(['t' => 'turnier'])
+        ->innerJoin(['s' => 'spiele'], 's.id = t.spielID')
+        ->leftJoin(['g' => 'games'], 'g.spielID = s.id')
+        ->where(['t.tournamentID' => $tournamentIDs])
+        ->groupBy([
+            't.tournamentID',
+            't.rundeID',
+            't.datum',
+            's.id',
+            's.club1ID',
+            's.club2ID',
+            's.tore1',
+            's.tore2',
+        ])
+        ->having(['>', 'punkte', 0]) // Nur Spiele mit mindestens einer Karte
+        ->orderBy([
+            'punkte' => SORT_DESC,
+            'rk' => SORT_DESC,
+            'grk' => SORT_DESC,
+            'gk' => SORT_DESC,
+        ])
+        ->limit(50)
+        ->all();
+        
+        return $this->render('unfairsteSpiele', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'unfairsteSpiele' => $unfairsteSpiele
+        ]);
+    }
+    
     public function actionSpieleImStadion($stadionID, $tournamentID)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
