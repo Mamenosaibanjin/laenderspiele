@@ -574,6 +574,75 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionTorreichsteSpiele($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $tournamentIDs = array_column($alleTurniere, 'id');
+        
+        // Falls keine Turniere gefunden wurden
+        if (empty($tournamentIDs)) {
+            return $this->render('toreProRunde', [
+                'tournamentID' => $tournamentID,
+                'turniername' => Helper::getTurniername($tournamentID),
+                'hoechsteSiege' => []
+            ]);
+        }
+        
+        // Hole die torreichsten Spiele
+        $torreichsteSpiele = (new Query())
+        ->select([
+            't.tournamentID',
+            't.rundeID',
+            't.datum',
+            's.id',
+            's.club1ID',
+            's.tore1',
+            's.tore2',
+            's.extratime',
+            's.penalty',
+            's.club2ID',
+            // Zähle echte Tore aus games-Tabelle
+            'gesamtTore' => new Expression("
+            COUNT(CASE
+                WHEN g.aktion IN ('TOR', 'ET') OR (g.aktion = '11m' AND g.minute < 200)
+                THEN 1 ELSE NULL
+            END)
+        ")
+        ])
+        ->from(['t' => 'turnier'])
+        ->innerJoin(['s' => 'spiele'], 's.id = t.spielID')
+        ->leftJoin(['g' => 'games'], 'g.spielID = s.id')
+        ->where(['t.tournamentID' => $tournamentIDs])
+        ->groupBy([
+            't.tournamentID',
+            't.rundeID',
+            't.datum',
+            's.id',
+            's.club1ID',
+            's.tore1',
+            's.tore2',
+            's.extratime',
+            's.penalty',
+            's.club2ID',
+        ])
+        ->having(['>', 'gesamtTore', 0]) // Nur Spiele mit mindestens 1 regulärem Tor
+        ->orderBy(['gesamtTore' => SORT_DESC])
+        ->limit(50)
+        ->all();
+        
+        
+        return $this->render('torreichsteSpiele', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'torreichsteSpiele' => $torreichsteSpiele
+        ]);
+    }
+    
     public function actionSpieleImStadion($stadionID, $tournamentID)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;
