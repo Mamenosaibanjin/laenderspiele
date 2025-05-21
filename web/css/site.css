@@ -479,3 +479,10 @@ li a:hover {
 	padding: 15px 20px;
 	margin-bottom: 20px;
 }
+
+.dropdown-header {
+	color: white;
+	font-weight: normal;
+	font-style: italic;
+	background-color: #8dbd43;
+}

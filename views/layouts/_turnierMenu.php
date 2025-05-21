@@ -22,10 +22,18 @@ echo Nav::widget([
             'label' => 'Statistik',
             'linkOptions' => ['class' => 'btn btn-turnier dropdown-toggle', 'data-bs-toggle' => 'dropdown'],
             'items' => [
-                ['label' => 'Archiv', 'url' => ['turnier/archiv', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Statistik', 'url' => ['turnier/statistik', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                '<h6 class="dropdown-header">Archiv</h6>',
+                ['label' => 'Übersicht', 'url' => ['turnier/archiv', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
                 ['label' => 'Alle Sieger', 'url' => ['turnier/alle-sieger', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
-                ['label' => 'Torschützenkönige', 'url' => ['turnier/torschuetzenkoenige', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Torschützenkönige', 'url' => ['turnier/alle-torjaeger', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                '<h6 class="dropdown-header">Statistik</h6>',
+                ['label' => 'Tore pro Saison', 'url' => ['turnier/tore-pro-saison', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Tore pro Spielrunde', 'url' => ['turnier/tore-pro-runde', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Die höchsten Siege', 'url' => ['turnier/hoechste-siege', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Die torreichsten Spiele', 'url' => ['turnier/torreichste-spiele', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Die meisten Tore eines Spielers', 'url' => ['turnier/meiste-tore-eines-spielers', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                ['label' => 'Die unfairsten Spiele', 'url' => ['turnier/unfairste-spiele', 'tournamentID' => $turnier->id], 'linkOptions' => ['class' => 'dropdown-item']],
+                
             ],
         ],
     ]
