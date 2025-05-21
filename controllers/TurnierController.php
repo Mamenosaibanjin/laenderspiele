@@ -643,6 +643,65 @@ class TurnierController extends Controller
         ]);
     }
     
+    public function actionMeisteToreEinesSpielers($tournamentID)
+    {
+        $turnier = Turnier::findOne($tournamentID);
+        if (!$turnier) {
+            throw new NotFoundHttpException('Turnier nicht gefunden.');
+        }
+        
+        $alleTurniere = Turnier::findAlleTurniere($tournamentID, true);
+        $tournamentIDs = array_column($alleTurniere, 'id');
+        
+        // Falls keine Turniere gefunden wurden
+        if (empty($tournamentIDs)) {
+            return $this->render('meisteToreEinesSpielers', [
+                'tournamentID' => $tournamentID,
+                'turniername' => Helper::getTurniername($tournamentID),
+                'hoechsteSiege' => []
+            ]);
+        }
+        
+        // Hole die meisten Tore eines Spielers
+        $meisteTore = (new \yii\db\Query())
+        ->select([
+            'g.spielerID',
+            't.datum',
+            't.spielID',
+            's.penalty',
+            's.extratime',
+            's.tore1',
+            's.tore2',
+            'anzahlTore' => new Expression("
+            COUNT(
+                CASE
+                    WHEN g.aktion IN ('TOR', '11m') AND g.minute < 200
+                    THEN 1 ELSE NULL
+                END
+            )
+        "),
+        ])
+        ->from(['g' => 'games'])
+        ->innerJoin(['t' => 'turnier'], 't.spielID = g.spielID')
+        ->innerJoin(['s' => 'spiele'], 's.id = t.spielID')
+        ->where(['t.tournamentID' => $tournamentIDs])
+        ->andWhere([
+            'or',
+            ['g.aktion' => 'TOR'],
+            ['and', ['g.aktion' => '11m'], ['<', 'g.minute', 200]]
+        ])
+        ->groupBy(['g.spielerID', 'g.spielID', 't.datum', 't.spielID'])
+        ->having(['>=', 'anzahlTore', 2])
+        ->orderBy(['anzahlTore' => SORT_DESC])
+        ->all();
+        
+        return $this->render('meisteToreEinesSpielers', [
+            'tournamentID' => $tournamentID,
+            'turniername' => Helper::getTurniername($tournamentID),
+            'meisteTore' => $meisteTore
+        ]);
+    }
+    
     public function actionSpieleImStadion($stadionID, $tournamentID)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_HTML;

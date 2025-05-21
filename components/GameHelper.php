@@ -121,6 +121,6 @@ class GameHelper
         
         return $output;
     }
-    
+        
 }
 ?>
