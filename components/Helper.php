@@ -405,7 +405,7 @@ class Helper
                 
                 if ($entryStart <= $saisonEnde && $entryEnd >= $year . '01') {
                     // Spätesten Transfer in der Saison auswählen
-                    $entryYear = substr($entry->von, 0, 4); // Nur das Jahr des Transfers
+                    $entryYear = $entry->von; // Nur das Jahr des Transfers
                     if ($latestYear === null || $entryYear > $latestYear) {
                         $latestYear = $entryYear;
                     }

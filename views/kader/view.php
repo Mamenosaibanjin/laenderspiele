@@ -91,7 +91,7 @@ $currentPositionID = null;
                                 }
                                 ?>
                             <?php else: ?>
-                                <?= Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)) ?>
+                                <?= substr(Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)),0,4) ?>
                             <?php endif; ?>
                         </td>
 
@@ -101,7 +101,7 @@ $currentPositionID = null;
                                 <?php
                                 $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $tournament->jahr);
                                 if (!empty($imVereinSeit)) {
-                                    $month = $imVereinSeit . '07';
+                                    $month = $imVereinSeit;
                                     $vereinVorher = $player->getVereinVorSaison($month);
 
                                     $clubID = $vereinVorher['vereinID'] ?? null;

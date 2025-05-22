@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use Couchbase\Exception\InvalidArgumentException;
 use yii\db\ActiveRecord;
 
 class Spieler extends ActiveRecord
@@ -66,7 +67,7 @@ class Spieler extends ActiveRecord
     
     public function getVereinVorSaison($month)
     {
-        // Sicherstellen, dass $month ein gültiges Format hat (YYYYMM)
+       // Sicherstellen, dass $month ein gültiges Format hat (YYYYMM)
         if (!preg_match('/^\d{6}$/', $month)) {
             throw new InvalidArgumentException('Das Datum muss im Format YYYYMM übergeben werden.');
         }
