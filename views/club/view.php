@@ -24,8 +24,8 @@ $this->title = $isEditing
 ? ($club->isNewRecord
     ? Yii::t('app', 'Create New Club (#{id})', ['id' => Club::find()->max('id') + 1])
     : Yii::t('app', 'Edit Club: {name}', ['name' => $club->name])): $club->namevoll;
-$currentYear = date('Y');
-?>
+    $currentYear = substr(SquadHelper::getLastSquadYear($club->id),0,4);
+    ?>
 
 <?php 
 $fields = [
@@ -52,9 +52,13 @@ $fields = [
             <div class="card">
                 <div class="card-header">
                 	<h3>
-                	 <?= $club->isNewRecord
-                        ? Yii::t('app', 'Create New Club (#{id})', ['id' => Club::find()->max('id') + 1])
-                        : Yii::t('app', 'Edit Club: {name}', ['name' => $club->namevoll]); ?>
+                    	<?php if (!$isEditing): ?>
+                    		<?= $club->namevoll;?>
+                    	<?php else : ?>
+                             <?= $club->isNewRecord
+                                ? Yii::t('app', 'Create New Club (#{id})', ['id' => Club::find()->max('id') + 1])
+                                : Yii::t('app', 'Edit Club: {name}', ['name' => $club->namevoll]); ?>
+                        <?php endif; ?>
 					</h3>
 				</div>
                 <div class="card-body">
@@ -158,8 +162,8 @@ $fields = [
         $url = '';
         
         if ($squad) :
-            $title = Yii::t('app', 'Season') . ' ' . $currentYear . '/' . ($currentYear + 1);
-            $url = ['/kader/' . $club->id . '/' . $currentYear];
+            $title = Yii::t('app', 'Season') . ' ' . ($currentYear - 1) . '/' . $currentYear;
+            $url = ['/kader/' . $currentYear . '/' . $club->id];
         else :
             $squad = $nationalSquad;
             $lastMatch = Club::getLastMatch($club->id);

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use yii\web\Controller;
+use app\components\SquadHelper;
 use app\models\Club;
 use app\models\Nation;
 use app\models\Stadion;
@@ -26,10 +27,12 @@ class ClubController extends Controller
         $nation = $club->nation; // Annahme: Relation "nation" existiert
         $stadium = $club->stadion; // Annahme: Relation "stadium" existiert
         
+        $currentYear = substr(SquadHelper::getLastSquadYear($club->id),0,4);
+        
         // Spiele und Kader je nach TypID laden
         $recentMatches = in_array($club->typID, [1, 2]) ? $club->getRecentMatches() : null;
         $upcomingMatches = in_array($club->typID, [1, 2]) ? $club->getUpcomingMatches() : null;
-        $squad = in_array($club->typID, [3, 5]) ? $club->getSquad($id) : null;
+        $squad = in_array($club->typID, [3, 5]) ? $club->getSquad($id, $currentYear) : null;
         $nationalSquad = in_array($club->typID, [1, 2]) ? $club->getNationalSquad($id) : null;
         
         // Bearbeitungsmodus: Daten speichern

@@ -87,7 +87,7 @@ class SquadHelper
                 if (!empty($player->nati1)) {
                     echo Helper::renderFlag($player->nati1) . ' ';
                 }
-                echo Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']);
+                echo Html::a(Html::encode($player->name . ($player->vorname ? ', ' . mb_substr($player->vorname, 0, 1, 'UTF-8') . '.' : '')), ['/spieler/' . $player->id], ['class' => 'text-decoration-none']);
                 echo '</li>';
             }
             
@@ -102,5 +102,26 @@ class SquadHelper
         echo '</div>';
         echo '</div>';
     }
+    
+    public static function getLastSquadYear($clubID) {
+        $grenze = new \yii\db\Expression("
+  CASE
+    WHEN MONTH(CURDATE()) <= 6 THEN CONCAT(YEAR(CURDATE()), '06')
+    ELSE CONCAT(YEAR(CURDATE()) + 1, '06')
+  END
+");
+        
+        $eintrag = (new \yii\db\Query())
+        ->select(['bis'])
+        ->from('spieler_verein_saison')
+        ->where(['vereinID' => $clubID])
+        ->andWhere(['<=', 'bis', $grenze])
+        ->orderBy(['bis' => SORT_DESC])
+        ->limit(1)
+        ->scalar();
+    
+        return $eintrag;
+    }
+    
 }
 ?>
