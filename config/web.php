@@ -81,6 +81,8 @@ $config = [
                 'stadion/<id:\d+>' => 'stadion/view',
                 'stadion/search' => 'stadion/search',
                 
+                'search/<query:[^/]+>' => 'search/view',
+                
                 'kader/<tournamentID:\d+>/<id:\d+>' => 'kader/view',
                 'impressum' => 'impressum/view',
                 'index' => 'index/view',

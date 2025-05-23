@@ -459,10 +459,12 @@ li a:hover {
 	border-radius: 0.5rem;
 	background-color: #8dbd43;
 	text-align: center;
+	color: white;
 }
 
 .pagination li a {
 	text-decoration: none;
+	color: white;
 }
 
 .pagination li:hover,

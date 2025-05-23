@@ -141,12 +141,25 @@ document.addEventListener('scroll', function () {
         </div>
     
         <!-- Suchleiste rechts mit integriertem Icon -->
-        <form class="input-group search-container" action="<?= Url::to(['/search/index']) ?>" method="get">
-            <input type="search" class="form-control" name="q" placeholder="Suche" aria-label="Suche">
+        <form class="input-group search-container" id="main-search-form">
+            <input type="search" class="form-control" id="main-search-input" placeholder="Suche" aria-label="Suche">
             <button class="btn btn-search" type="submit">
                 <i class="fa fa-search"></i>
             </button>
         </form>
+        
+        <?php
+        $this->registerJs(<<<JS
+            document.getElementById('main-search-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const query = document.getElementById('main-search-input').value.trim();
+                if (query) {
+                    const encoded = encodeURIComponent(query);
+                    window.location.href = '/projects/laenderspiele2.0/yii2-app-basic/web/search/' + encoded;
+                }
+            });
+        JS);
+        ?>
     </div>
 
 
