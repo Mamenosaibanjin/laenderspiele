@@ -40,6 +40,7 @@ class SearchController extends Controller
             ['like', 'namevoll', $query],
             ['like', 'ort', $query],
         ])
+        ->andWhere(['!=', 'typID', 6])
         ->all();
         
         // Abfrage für Stadien
