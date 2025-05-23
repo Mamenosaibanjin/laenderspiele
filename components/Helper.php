@@ -23,7 +23,7 @@ class Helper
      * @param string $iocCode Der Ländercode (IOC Code).
      * @return string|null Die URL der Flagge oder null, wenn keine verfügbar ist.
      */
-    public static function getFlagInfo($key, $date = null, $showName = true, $enddate = null)
+    public static function getFlagInfo($key, $date = null, $showName = true, $enddate = null, $filter = '')
     {
         $language = Yii::$app->language;
         $column = match ($language) {
@@ -61,15 +61,21 @@ class Helper
             $flagUrl = "https://upload.wikimedia.org/wikipedia/" . ltrim($flagUrl, '/');
         }
         
+        if ($filter == "grey") {
+            $filter = "filter: grayscale(100%); opacity: 0.6;";
+        } else {
+            $filter = "";
+        }
+        
         if ($key == 'SUI') {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;'
+                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;' . $filter
             ]); 
         } else {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
-                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;'
+                'style' => 'width: 30px; height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;' . $filter
             ]);
         }
         
@@ -393,7 +399,7 @@ class Helper
     public static function getImVereinSeit($player, $clubID, $year)
     {
         $vereinSaison = $player->vereinSaison;
-        $latestYear = null; 
+        $latestYear = null;
         
         // Das Saisonende berechnen
         $saisonEnde = intval($year+1 . '06');
@@ -414,6 +420,23 @@ class Helper
         }
         
         return $latestYear;
+    }
+    
+    public static function getVereinVerlassen($player, $clubID, $year)
+    {
+        $vereinSaison = $player->vereinSaison;
+        $latestYear = null;
+        
+// Das Saisonende berechnen
+        $saisonEnde = intval($year . '06');
+        foreach ($vereinSaison as $entry) {
+            if ($entry->vereinID == $clubID) {
+                // Prüfen, ob der Zeitraum gültig ist
+                $entryEnd = intval($entry->bis);                
+            }
+        }
+        
+        return substr($entryEnd, 4, 2) . "/" . substr($entryEnd, 0, 4);
     }
     
     private static function getVorherigerVereinName($currentClubName, $vorherigerVerein)

@@ -148,8 +148,8 @@ class Club extends ActiveRecord
         ->joinWith(['vereinSaison' => function ($query) use ($clubID, $currentYear) {
             $query->alias('spieler_verein_saison')
             ->andWhere(['spieler_verein_saison.vereinID' => $clubID])
-            ->andWhere(['<', 'spieler_verein_saison.von', ($currentYear + 1) . '07'])
-            ->andWhere(['>=', 'spieler_verein_saison.bis', $currentYear . '06']);
+            ->andWhere(['<', 'spieler_verein_saison.von', ($currentYear) . '07'])
+            ->andWhere(['>', 'spieler_verein_saison.bis', $currentYear-1 . '06']);
         }])
         ->where(['spieler_verein_saison.vereinID' => $clubID])
         ->andWhere(['spieler_verein_saison.jugend' => 0])
@@ -157,7 +157,6 @@ class Club extends ActiveRecord
             'spieler_verein_saison.positionID' => SORT_ASC,
             'spieler.name' => SORT_ASC,
         ]);
-
         return $query->all();
     }
     

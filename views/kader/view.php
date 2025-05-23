@@ -45,7 +45,21 @@ $currentPositionID = null;
                 <?php $counter = 0; ?>
                 <?php foreach ($squad as $player): ?>
                     <?php
+                    $seit = substr(Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)),0,4);
                     $backgroundStyle = $counter++ % 2 === 0 ? '#f0f8ff' : '#ffffff';
+                    
+                    if (!$seit) {
+                        $color = " color: #c0c0c0;";
+                        $backgroundStyle = "#f0f0f0;";
+                        $filter = "filter: grayscale(100%);opacity: 0.6;";
+                        $filterName = "grey";
+                    } else {
+                        $color = "";
+                        $backgroundStyle = $backgroundStyle;
+                        $filter = "";
+                        $filterName = "";
+                    }
+                    
                     $relation = $isNationalTeam ? $player->landWettbewerb : $player->vereinSaison;
                     $positionID = $relation[0]->positionID ?? 0;
 
@@ -57,20 +71,20 @@ $currentPositionID = null;
                     ?>
                     <tr>
                         <!-- Spielername -->
-                        <td style="background-color: <?= $backgroundStyle ?>; width: <?= $isNationalTeam ? '40%' : '30%' ?>;">
+                        <td style="background-color: <?= $backgroundStyle ?>; width: <?= $isNationalTeam ? '40%' : '30%' ?>;<?= $color;?>">
                             <?php if (!$isNationalTeam || $positionID > 4): ?>
-                                <?= !empty($player->nati1) ? Helper::getFlagInfo($player->nati1, null, false) : '' ?>
+                                <?= !empty($player->nati1) ? Helper::getFlagInfo($player->nati1, null, false, null, $filterName) : '' ?>
                             <?php endif; ?>
-                            <?= Html::a(Html::encode(trim($player->vorname . ' ' . $player->name)), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none']) ?>
+                            <?= Html::a(Html::encode(trim($player->vorname . ' ' . $player->name)), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none', 'style' => $color]) ?>
                         </td>
 
                         <!-- Geburtstag -->
-                        <td style="background-color: <?= $backgroundStyle ?>; width: 20%;">
+                        <td style="background-color: <?= $backgroundStyle ?>; width: 20%;<?= $color;?>">
                             <?= Yii::$app->formatter->asDate($player->geburtstag, 'php:d.m.Y') ?>
                         </td>
 
                         <!-- Verein(e) oder "Im Verein seit" -->
-                        <td style="background-color: <?= $backgroundStyle ?>;">
+                        <td style="background-color: <?= $backgroundStyle ?>;<?= $color;?>">
                             <?php if ($isNationalTeam): ?>
                                 <?php
                                 $tournamentID = $relation[0]->tournamentID ?? null;
@@ -91,15 +105,22 @@ $currentPositionID = null;
                                 }
                                 ?>
                             <?php else: ?>
-                                <?= substr(Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)),0,4) ?>
+                                <?php 
+                                    if ($seit) :
+                                        echo $seit;
+                                    else : 
+                                        echo "bis " . Html::encode(Helper::getVereinVerlassen($player, $club->id, $tournament->jahr));
+                                    endif;
+                                ?>
                             <?php endif; ?>
                         </td>
 
                         <!-- Vorheriger Club (nur Verein) -->
                         <?php if (!$isNationalTeam): ?>
-                            <td style="background-color: <?= $backgroundStyle ?>;">
+                            <td style="background-color: <?= $backgroundStyle ?>;<?= $color;?>">
                                 <?php
-                                $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $tournament->jahr);
+                                if ($seit) : $jahr = $tournament->jahr; else : $jahr = ($tournament->jahr-1); endif;
+                                $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $jahr);
                                 if (!empty($imVereinSeit)) {
                                     $month = $imVereinSeit;
                                     $vereinVorher = $player->getVereinVorSaison($month);
@@ -109,8 +130,8 @@ $currentPositionID = null;
 
                                     if ($clubID) {
                                         $clubName = Helper::getClubName($clubID);
-                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
-                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
+                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;' . $filter]);
+                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none', 'style' => $color]);
                                         echo $isJugend ? ' Jugend' : '';
                                     } else {
                                         echo 'Kein vorheriger Verein gefunden';
