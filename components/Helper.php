@@ -396,24 +396,34 @@ class Helper
     }
     
     
-    public static function getImVereinSeit($player, $clubID, $year)
+    public static function getImVereinSeit($player, $clubID, $year, $duringSeason = false)
     {
         $vereinSaison = $player->vereinSaison;
         $latestYear = null;
         
         // Das Saisonende berechnen
-        $saisonEnde = intval($year+1 . '06');
+        $saisonEnde = intval($year . '06');
         foreach ($vereinSaison as $entry) {
             if ($entry->vereinID == $clubID) {
                 // Prüfen, ob der Zeitraum gültig ist
                 $entryStart = intval($entry->von);
                 $entryEnd = intval($entry->bis);
-                
-                if ($entryStart <= $saisonEnde && $entryEnd >= $year . '01') {
-                    // Spätesten Transfer in der Saison auswählen
-                    $entryYear = $entry->von; // Nur das Jahr des Transfers
-                    if ($latestYear === null || $entryYear > $latestYear) {
-                        $latestYear = $entryYear;
+
+                if ($duringSeason) {
+                    if ($entryStart <= $saisonEnde && $entryEnd <= $saisonEnde) {
+                        // Spätesten Transfer in der Saison auswählen
+                        $entryYear = $entry->von; // Nur das Jahr des Transfers
+                        if ($latestYear === null || $entryYear > $latestYear) {
+                            $latestYear = $entryYear;
+                        }
+                        }
+                } else {
+                    if ($entryStart <= $saisonEnde && $entryEnd >= $saisonEnde) {
+                        // Spätesten Transfer in der Saison auswählen
+                        $entryYear = $entry->von; // Nur das Jahr des Transfers
+                        if ($latestYear === null || $entryYear > $latestYear) {
+                            $latestYear = $entryYear;
+                        }
                     }
                 }
             }

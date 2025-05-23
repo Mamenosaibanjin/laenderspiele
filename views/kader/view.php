@@ -45,7 +45,8 @@ $currentPositionID = null;
                 <?php $counter = 0; ?>
                 <?php foreach ($squad as $player): ?>
                     <?php
-                    $seit = substr(Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr)),0,4);
+                    $seit = Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr));
+                   
                     $backgroundStyle = $counter++ % 2 === 0 ? '#f0f8ff' : '#ffffff';
                     
                     if (!$seit) {
@@ -106,8 +107,8 @@ $currentPositionID = null;
                                 ?>
                             <?php else: ?>
                                 <?php 
-                                    if ($seit) :
-                                        echo $seit;
+                                if ($seit) :
+                                        echo substr($seit,0,4);
                                     else : 
                                         echo "bis " . Html::encode(Helper::getVereinVerlassen($player, $club->id, $tournament->jahr));
                                     endif;
@@ -118,27 +119,35 @@ $currentPositionID = null;
                         <!-- Vorheriger Club (nur Verein) -->
                         <?php if (!$isNationalTeam): ?>
                             <td style="background-color: <?= $backgroundStyle ?>;<?= $color;?>">
-                                <?php
-                                if ($seit) : $jahr = $tournament->jahr; else : $jahr = ($tournament->jahr-1); endif;
-                                $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $jahr);
-                                if (!empty($imVereinSeit)) {
-                                    $month = $imVereinSeit;
-                                    $vereinVorher = $player->getVereinVorSaison($month);
-
-                                    $clubID = $vereinVorher['vereinID'] ?? null;
-                                    $isJugend = $vereinVorher['jugend'] ?? null;
-
-                                    if ($clubID) {
-                                        $clubName = Helper::getClubName($clubID);
-                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;' . $filter]);
-                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none', 'style' => $color]);
-                                        echo $isJugend ? ' Jugend' : '';
+                                <?php if ($positionID < 5) {?>
+                                    <?php
+                                    if ($seit) : $jahr = $tournament->jahr; else : $jahr = ($tournament->jahr+1); endif;
+                                    
+                                    if ($seit) {
+                                        $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $jahr);
                                     } else {
-                                        echo 'Kein vorheriger Verein gefunden';
+                                        $imVereinSeit = Helper::getImVereinSeit($player, $club->id, $jahr, true);
+                                    }
+                                    
+                                    if (!empty($imVereinSeit)) {
+                                        $month = $imVereinSeit;
+                                        $vereinVorher = $player->getVereinVorSaison($month);
+    
+                                        $clubID = $vereinVorher['vereinID'] ?? null;
+                                        $isJugend = $vereinVorher['jugend'] ?? null;
+    
+                                        if ($clubID) {
+                                            $clubName = Helper::getClubName($clubID);
+                                            echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;' . $filter]);
+                                            echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none', 'style' => $color]);
+                                            echo $isJugend ? ' Jugend' : '';
+                                        } else {
+                                            echo 'Kein vorheriger Verein gefunden';
+                                        }
                                     }
                                 }
                                 ?>
-                            </td>
+                           </td>
                         <?php endif; ?>
                     </tr>
                 <?php endforeach; ?>
