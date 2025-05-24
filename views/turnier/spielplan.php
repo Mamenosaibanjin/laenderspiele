@@ -87,6 +87,7 @@ foreach ($laenderKeys as $key) {
             <table class="table table-striped">
                 <tbody>
                 	<?php $aktuelleRunde = '';?>
+                	<?php $aktuellesDatum = '';?>
                     <?php foreach ($spiele as $spiel): ?>
                     	<?php if ($aktuelleRunde != $spiel->runde->name) :?>
                     		<tr>
@@ -96,34 +97,26 @@ foreach ($laenderKeys as $key) {
                     		</tr>
                   		<?php endif;?>
                         <tr>
-                            <td><?= Yii::$app->formatter->asDate($spiel->datum) ?></td>
+                            <td>
+                            	<?php if ($aktuellesDatum != $spiel->datum) : ?>
+                            		<?= Yii::$app->formatter->asDate($spiel->datum) ?>
+                            	<?php endif;?>
+                            </td>
                             <td><?= Yii::$app->formatter->asTime($spiel->zeit, 'short') ?></td>
                             <td align="right">
                                 <?php
                                     $club1Name = Html::a($spiel->spiel->club1->name, ['club/view', 'id' => $spiel->spiel->club1ID], ['class' => 'text-decoration-none']);
                                     $club2Name = Html::a($spiel->spiel->club2->name, ['club/view', 'id' => $spiel->spiel->club2ID], ['class' => 'text-decoration-none']);
                                 ?>
-                                <?= $club1Name ?>
+                                <?= $club1Name  . " " . Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnier->startdatum, false) ?>
                             </td>
                             <td align="center">–</td>
-                            <td><?= $club2Name ?></td>
+                            <td><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnier->startdatum, false) . " " .$club2Name ?></td>
 
-                            <?php
-                            switch (true) {
-                                case $spiel->spiel->penalty == 1:
-                                    $ergebnisszusatz = ' i.E.';
-                                    break;
-                                case $spiel->spiel->extratime == 1:
-                                    $ergebnisszusatz = ' n.V.';
-                                    break;
-                                default:
-                                    $ergebnisszusatz = '';
-                            }
-                            ?>
-
-                            <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2 . $ergebnisszusatz, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
+                            <td align="center"><?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?>
                         </tr>
                         <?php $aktuelleRunde = $spiel->runde->name; ?>
+                        <?php $aktuellesDatum = $spiel->datum; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>

@@ -149,25 +149,12 @@ foreach ($laenderKeys as $key) {
                                         }
                                     }
                                 ?>
-                                <?= $club1Name ?>
+                                <?= $club1Name  . " " . Helper::getFlagInfo(Helper::getClubNation($spiel->club1->id), $turnier->startdatum, false) ?>
                             </td>
                             <td align="center">–</td>
-                            <td><?= $club2Name ?></td>
+                            <td><?= Helper::getFlagInfo(Helper::getClubNation($spiel->club2->id), $turnier->startdatum, false) . " " .$club2Name ?></td>
 
-                            <?php
-                            switch (true) {
-                                case $spiel->spiel->penalty == 1:
-                                    $ergebnisszusatz = ' i.E.';
-                                    break;
-                                case $spiel->spiel->extratime == 1:
-                                    $ergebnisszusatz = ' n.V.';
-                                    break;
-                                default:
-                                    $ergebnisszusatz = '';
-                            }
-                            ?>
-
-                            <td><?= Html::a($spiel->spiel->tore1 . ':' .  $spiel->spiel->tore2 . $ergebnisszusatz, ['spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?></td>
+                            <td align="center"><?= Html::a($spiel->getErgebnisHtml(), ['/spielbericht/view', 'id' => $spiel->spiel->id], ['class' => 'text-decoration-none']) ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

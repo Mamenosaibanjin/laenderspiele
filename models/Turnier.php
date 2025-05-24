@@ -126,11 +126,22 @@ class Turnier extends ActiveRecord
     
     public function getErgebnisHtml()
     {
+        if ($this->spiel->extratime == 1) {
+            $pixel = '10px;';
+            $verlaengerung = ' n.V.';
+        } elseif ($this->spiel->penalty == 1) {
+            $pixel = '10px;';
+            $verlaengerung = ' i.E.';
+        } else {
+            $pixel = '0px;';
+            $verlaengerung = '';
+        }
         if ($this->spiel) {
             return "<div class='digital-scoreboard'>
                     <span class='digit'>{$this->spiel->tore1}</span>
                     <span class='divider'>:</span>
                     <span class='digit'>{$this->spiel->tore2}</span>
+                    <span class='digit' style='padding-left: {$pixel}'>{$verlaengerung}</span>
                 </div>";
         }
         return "<div class='digital-scoreboard'>
