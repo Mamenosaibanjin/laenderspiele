@@ -121,6 +121,7 @@ $config = [
                 
                 'turnier/<wettbewerbID:\d+>/<action:(archiv|statistik|alle-sieger|torschuetzenkoenige)>' => 'turnier/<action>',
                 'turnier/search' => 'turnier/search',
+                'turnier/anlegen' => 'turnier/anlegen',
                 'site/login' => 'site/login',
                 'site/logout' => 'site/logout',
                 'spieler-land-wettbewerb/add' => 'spieler-land-wettbewerb/add',

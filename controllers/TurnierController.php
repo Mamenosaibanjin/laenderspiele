@@ -7,6 +7,7 @@ use yii\web\NotFoundHttpException;
 use Yii; // Für den Zugriff auf Yii::$app->request
 use app\models\Referee;
 use app\models\Spiel;
+use app\models\Club;
 use app\models\Spieler;
 use app\models\Stadion;
 use app\models\Tournament;
@@ -67,15 +68,66 @@ class TurnierController extends Controller
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
         
-        $term = Yii::$app->request->get('term'); // Das Suchfeld "term" wird von jQuery UI Autocomplete verwendet
-        $clubs = Wettbewerb::find()
-        ->select(['id', 'name as value']) // 'value' ist erforderlich für jQuery UI
-        ->where(['like', 'name', $term])
+        $term = Yii::$app->request->get('term');
+        
+        $tournaments = Tournament::find()
+        ->alias('t')
+        ->select([
+            't.id',
+            "CONCAT(w.name, ' ', t.jahr, ' (', t.land, ')') AS value"
+        ])
+        ->joinWith('wettbewerb w')
+        ->where(['like', 'w.name', $term])
+        ->limit(20)
         ->asArray()
         ->all();
         
-        return $clubs;
+        return $tournaments;
     }
+    
+    public function actionAnlegen()
+    {
+        $request = Yii::$app->request;
+        
+        if ($request->isPost) {
+            $club1ID = $request->post('club1ID');
+            $club2ID = $request->post('club2ID');
+            $rundeID = $request->post('rundeID');
+            $tournamentID = $request->post('tournamentID');
+            $datum = $request->post('datum');
+            $zeit = $request->post('zeit');
+            
+            // 1. Neues Spiel anlegen (in Tabelle "spiele")
+            $spiel = new Spiel();
+            $spiel->club1ID = $club1ID;
+            $spiel->club2ID = $club2ID;
+            
+            if ($spiel->save()) {
+                // 2. Details in turnier-Spiel-Tabelle speichern (angenommen: TurnierSpiel-Model)
+                $turnierSpiel = new Turnier();
+                $turnierSpiel->spielID = $spiel->id;
+                $turnierSpiel->rundeID = $rundeID;
+                $turnierSpiel->tournamentID = $tournamentID;
+                $turnierSpiel->datum = $datum;
+                $turnierSpiel->zeit = $zeit;
+                
+                if ($turnierSpiel->save()) {
+                    // 3. Redirect auf passenden Spielplan
+                    return $this->redirect(['/turnier/' . $tournamentID . '/spielplan']);
+                } else {
+                    Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spieldetails.');
+                }
+            } else {
+                Yii::$app->session->setFlash('error', 'Fehler beim Anlegen des Spiels.');
+            }
+        }
+        
+        // Falls kein POST oder Fehler: ggf. Formular erneut anzeigen oder Fehlerseite
+        return $this->render('anlegen', [
+            // Daten für Formular ggf. hier übergeben
+        ]);
+    }
+    
     
     public function actionErgebnisse($tournamentID)
     {
@@ -176,6 +228,13 @@ class TurnierController extends Controller
             throw new NotFoundHttpException('Turnier nicht gefunden.');
         }
         
+        $vereine = \app\models\Club::find()
+        ->select(['id', 'name', 'land']) 
+        ->andWhere(['typID' => [1, 2, 3, 5]])
+        ->orderBy('name')
+        ->asArray()
+        ->all();
+        
         // Spiele ermitteln
         $spiele = [];
         $query = Turnier::find()
@@ -205,9 +264,18 @@ class TurnierController extends Controller
         
         $spiele = $query->all();
         
+        
+        $vereinsDaten = array_map(function($v) {
+            return [
+                'label' => $v['name'],
+                'value' => $v['id']
+            ];
+        }, $vereine);
+        
         return $this->render('spielplan', [
             'turnier' => $turnier,
             'spiele' => $spiele,
+            'vereinsDaten' => json_encode($vereinsDaten)
         ]);
     }
     
