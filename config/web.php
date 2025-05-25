@@ -99,6 +99,7 @@ $config = [
                 
                 'turnier/<tournamentID:\d+>/ergebnisse/<action:(new|update|delete)>' => 'turnier/ergebnisse-<action>',
                 'turnier/<tournamentID:\d+>/ergebnisse/<rundeID:\d*>' => 'turnier/ergebnisse',
+                'turnier/<tournamentID:\d+>/ergebnisse' => 'turnier/ergebnisse',
                 'turnier/<tournamentID:\d+>/spiele-im-stadion/<stadionID:\d*>' => 'turnier/spiele-im-stadion',
                 'turnier/<tournamentID:\d+>/schiedsrichter-spiele/<refereeID:\d*>' => 'turnier/schiedsrichter-spiele',
                 'turnier/<tournamentID:\d+>/spieler/<positionen:[0-9,]*>/<sort:[a-zA-Z0-9\-]+>/<page:\d+>' => 'turnier/spieler',

@@ -129,8 +129,27 @@ class TurnierController extends Controller
     }
     
     
-    public function actionErgebnisse($tournamentID)
+    public function actionErgebnisse($tournamentID, $rundeID = null)
     {
+        // Wenn keine Parameter vorhanden sind → redirect auf die vollständige "Default"-URL
+        if ($rundeID === null) {
+            $runde = Turnier::find()
+            ->alias('t')
+            ->joinWith('runde r')
+            ->where(['t.tournamentID' => $tournamentID])
+            ->orderBy([
+                'r.typ' => SORT_DESC,
+                'r.sortierung' => SORT_DESC,
+            ])
+            ->limit(1)
+            ->one();
+            
+            return $this->redirect([
+                'turnier/ergebnisse',
+                'tournamentID' => $tournamentID,
+                'rundeID' => $runde->runde->id
+            ]);
+        }
         $turnier = Tournament::findOne($tournamentID);
         
         if (!$turnier) {
@@ -186,7 +205,7 @@ class TurnierController extends Controller
             ->limit(1)
             ->one();
         }
-        
+
         // 3. Spiele ermitteln
         $spiele = [];
         if ($runde) {
