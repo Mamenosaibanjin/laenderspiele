@@ -45,11 +45,12 @@ $currentPositionID = null;
                 <?php $counter = 0; ?>
                 <?php foreach ($squad as $player): ?>
                     <?php
-                    $seit = Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr));
-                   
+                    if (!$isNationalTeam) {
+                        $seit = Html::encode(Helper::getImVereinSeit($player, $club->id, $tournament->jahr));
+                    }
                     $backgroundStyle = $counter++ % 2 === 0 ? '#f0f8ff' : '#ffffff';
                     
-                    if (!$seit) {
+                    if (isset($seit) && !$seit) {
                         $color = " color: #c0c0c0;";
                         $backgroundStyle = "#f0f0f0;";
                         $filter = "filter: grayscale(100%);opacity: 0.6;";

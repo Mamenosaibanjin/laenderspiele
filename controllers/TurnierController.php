@@ -135,7 +135,7 @@ class TurnierController extends Controller
         if ($rundeID === null) {
             $runde = Turnier::find()
             ->alias('t')
-            ->joinWith('runde r')
+            ->joinWith('runde r', 't.rundeID = r.id')
             ->where(['t.tournamentID' => $tournamentID])
             ->orderBy([
                 'r.typ' => SORT_DESC,
