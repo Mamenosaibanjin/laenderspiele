@@ -7,6 +7,8 @@ use app\models\Wettbewerb;
 use Yii;
 use yii\db\Query;
 use yii\helpers\Html;
+use function PHPUnit\Framework\isNan;
+use function PHPUnit\Framework\isNumeric;
 
 class SpielerHelper
 {
@@ -494,7 +496,7 @@ class SpielerHelper
                 case 'position':
                     $position = $daten['position'] ?? null;
                     $positionId = is_object($position) ? $position->id : $position;
-                    $value = $positionId ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
+                    $value = isNumeric($positionId) ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
                     break;
                 default:
                     $value = $daten[$field] ?? Yii::t('app', 'Unknown');

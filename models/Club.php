@@ -149,7 +149,7 @@ class Club extends ActiveRecord
             $query->alias('spieler_verein_saison')
             ->andWhere(['spieler_verein_saison.vereinID' => $clubID])
             ->andWhere(['<', 'spieler_verein_saison.von', ($currentYear) . '07'])
-            ->andWhere(['>', 'spieler_verein_saison.bis', $currentYear-1 . '06']);
+            ->andWhere(['>', 'spieler_verein_saison.bis', ((int) $currentYear-1) . '06']);
         }])
         ->where(['spieler_verein_saison.vereinID' => $clubID])
         ->andWhere(['spieler_verein_saison.jugend' => 0])
