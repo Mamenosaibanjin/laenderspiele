@@ -558,7 +558,7 @@ class SpielerHelper
                     case 'position':
                         $position = $daten['position'] ?? null;
                         $positionId = is_object($position) ? $position->id : $position; // ID aus dem Objekt extrahieren
-                        $value = $positionId ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
+                        $value = isNumeric($positionId) ? Helper::getPosition($positionId) : Yii::t('app', 'Unknown Position');
                         break;
                         
                     case 'nation':
