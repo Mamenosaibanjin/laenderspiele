@@ -71,7 +71,12 @@ class Helper
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
                 'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;' . $filter
-            ]); 
+            ]);
+        } elseif ($key == 'NEP') {
+            $flagHtml = Html::img($flagUrl, [
+                'alt' => $flag[$column],
+                'style' => 'height: 20px; object-fit: cover; border-radius: 5px; border-left: 1px solid darkgrey; border-bottom: 1px solid darkgrey; margin-right: 5px; vertical-align: baseline; margin-bottom: -2px;' . $filter
+            ]);
         } else {
             $flagHtml = Html::img($flagUrl, [
                 'alt' => $flag[$column],
