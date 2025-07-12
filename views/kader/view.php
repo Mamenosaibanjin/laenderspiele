@@ -91,18 +91,18 @@ $currentPositionID = null;
                                 <?php
                                 $tournamentID = $relation[0]->tournamentID ?? null;
                                 $vereine = Helper::getClubsAtTurnier($player->id, $tournamentID, $tournament->jahr);
-                                if (!empty($vereine)) {
-                                    foreach ($vereine as $clubID) {
-                                        $clubName = Helper::getClubName($clubID);
-                                        echo "<div style='padding: 5px 0;'>";
-                                        echo Helper::getFlagInfo(Helper::getClubNation($clubID), $tournament->jahr . '-07-01', false);
-                                        echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
-                                        echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
-                                        echo "</div>";
-                                    }
-                                } else {
-                                    if ($positionID < 5) 
-                                        {echo "unbekannt/vereinslos";
+                                if ($positionID < 5) {
+                                    if (!empty($vereine)) {
+                                        foreach ($vereine as $clubID) {
+                                            $clubName = Helper::getClubName($clubID);
+                                            echo "<div style='padding: 5px 0;'>";
+                                            echo Helper::getFlagInfo(Helper::getClubNation($clubID), $tournament->jahr . '-07-01', false);
+                                            echo Html::img(Helper::getClubLogoUrl($clubID), ['alt' => Html::encode($clubName), 'style' => 'height: 30px; padding-right: 10px;']);
+                                            echo Html::a(Html::encode($clubName), ['/club/view', 'id' => $clubID], ['class' => 'text-decoration-none']);
+                                            echo "</div>";
+                                        } 
+                                    } else {
+                                        echo "unbekannt/vereinslos";
                                     }
                                 }
                                 ?>
