@@ -26,7 +26,7 @@ foreach ($refs as $index => $ref) {
     if (!$ref) continue;
     echo '<div class="info-row">';
     echo '<i class="material-icons">' . $icons[$index] . '</i>';
-    echo '<span>' . Helper::getFlagUrl($ref->nati1) . ' ' . Html::encode($ref->vorname . ' ' . $ref->name) . '</span>';
+    echo '<span>' . Helper::getFlagInfo($ref->nati1, $spiel->turnier->datum, false) . ' ' . Html::encode($ref->vorname . ' ' . $ref->name) . '</span>';
     echo '</div>';
 }
 ?>
