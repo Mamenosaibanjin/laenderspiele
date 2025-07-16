@@ -189,7 +189,7 @@ $fields = [
     <?php endif;?>
 
      <!-- Widget 4: Nationalmannschaftskarriere -->
-    <?php if ($spieler->id > 0): ?>
+    <?php if ((!empty($laenderspiele)) && ($spieler->id > 0)): ?>
     <div class="row mb-3">
         <div class="col-md-12">
             <div class="card">
