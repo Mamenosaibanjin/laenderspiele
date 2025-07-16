@@ -480,9 +480,9 @@ class SpielerHelper
         foreach ($fields as $field) {
             switch ($field) {
                 case 'zeitraum':
-                    $formattedStart = $start ? Helper::formatDate($start) : '???';
-                    $formattedEnd = $end ? Helper::formatDate($end) : '???';
-                    $value = "{$formattedStart} - {$formattedEnd}";
+                    $formattedStart = $start ? Helper::formatDate($start) : '';
+                    $formattedEnd = $end ? '- '.Helper::formatDate($end) : '';
+                    $value = "{$formattedStart} {$formattedEnd}";
                     break;
                 case 'verein':
                     $value = $vereinId
