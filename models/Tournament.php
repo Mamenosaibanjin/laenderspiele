@@ -35,6 +35,12 @@ class Tournament extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Wettbewerb::class, ['id' => 'wettbewerbID']);
     }
+    
+    public function getTiebreakRules()
+    {
+        return $this->hasMany(TiebreakRule::class, ['tournament_id' => 'id'])
+        ->orderBy(['rule_order' => SORT_ASC]);
+    }
 }
 
 ?>
