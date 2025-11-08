@@ -153,7 +153,7 @@ class TabellenHelper
                             }
                             break;
                             
-                        case 'fiarplay':
+                        case 'fairplay':
                             $fpa = self::getFairplayPoints($a);
                             $fpb = self::getFairplayPoints($b);
                             Yii::info("Vergleich [fairplay] {$clubs[$a]['club']->name}($fpa) vs {$clubs[$b]['club']->name}($fpb)", 'tabelle');
