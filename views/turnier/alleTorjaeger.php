@@ -30,30 +30,31 @@ $this->title = "Alle Torjäger - $turniername";
                 		<th>Mannschaft</th>
                 		<th>Tore</th>
                 	</thead>
-                    <tbody>
-                        <?php foreach ($turniere as $index => $turnier): ?>
-                            <tr>
-		                    	<?php 
-                            	$torschuetzenkoenige = TurnierHelper::getTorschuetzenkoenig($turnier['id']);
-                            	?>
-                            	<?php foreach ($torschuetzenkoenige as $spielerIndex => $koenig): ?>
-                            	
-                                    <td style="width: 10%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important; text-align: right;">
-                                        <?= Html::a(Helper::getTurnierJahr($turnier['id']), ['/turnier/' . $turnier['id'] . '/spielplan'], ['class' => 'text-decoration-none']) ?>
-                                    </td>
-                                    <td style="width: 40%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;">
-                                    	<?= Html::a(Helper::getSpielerName($koenig['spielerID']), ['/spieler/' . $koenig['spielerID']], ['class' => 'text-decoration-none']) ?>
-                                    </td>
-                                    <td style="width: 40%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important;">
-                                    	<?= SpielerHelper::getLandAtTournament($koenig['spielerID'], $turnier['id'])?>
-                                    </td>
-                                    <td style="width: 10%; background-color: <?= $index % 2 === 0 ? '#f0f8ff' : '#ffffff' ?> !important; text-align: right;">
-                                    	<?= $koenig['tore'];?>
-                                    </td>
-                                <?php endforeach;?>
+                	<tbody>
+                        <?php foreach ($turniere as $turnier): ?>
+                            <?php 
+                                $torschuetzenkoenige = TurnierHelper::getTorschuetzenkoenig($turnier['id']);
+                                if (empty($torschuetzenkoenige)) continue;
+                            ?>
+                        
+                            <!-- Abschnittsüberschrift -->
+                            <tr class="table-secondary fw-bold">
+                                <td colspan="4">
+                                    <?= Html::a(Helper::getTurnierJahr($turnier['id']), ['/turnier/' . $turnier['id'] . '/spielplan'], ['class' => 'text-decoration-none']) ?>
+                                    <span class="float-end"><?= $torschuetzenkoenige[0]['tore'] ?> Tore</span>
+                                </td>
                             </tr>
+                        
+                            <?php foreach ($torschuetzenkoenige as $koenig): ?>
+                                <tr>
+                                    <td style="width: 10%;"></td>
+                                    <td style="width: 40%;"><?= Html::a(Helper::getSpielerName($koenig['spielerID']), ['/spieler/' . $koenig['spielerID']], ['class' => 'text-decoration-none']) ?></td>
+                                    <td style="width: 40%;"><?= SpielerHelper::getLandAtTournament($koenig['spielerID'], $turnier['id']) ?></td>
+                                    <td style="width: 10%; text-align: right;"></td>
+                                </tr>
+                            <?php endforeach; ?>
                         <?php endforeach; ?>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </div>
