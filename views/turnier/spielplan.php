@@ -141,29 +141,46 @@ foreach ($laenderKeys as $key) {
     </div>
 
     <div class="row mt-2">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <?= Html::label('<span class="material-icons align-middle me-1">event</span> Datum', 'datum', ['class' => 'form-label']) ?>
             <?= Html::input('date', 'datum', '', ['class' => 'form-control']) ?>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <?= Html::label('<span class="material-icons align-middle me-1">schedule</span> Zeit', 'zeit', ['class' => 'form-label']) ?>
             <?= Html::input('time', 'zeit', '', ['class' => 'form-control']) ?>
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-4">
             <?= Html::label('<span class="material-icons align-middle me-1">flag</span> Runde', 'rundeID', ['class' => 'form-label']) ?>
             <?= Html::dropDownList("rundeID", null, \yii\helpers\ArrayHelper::map(Runde::find()->all(), 'id', 'name'), [
                 'class' => 'form-control',
+                'id' => 'rundeID',
                 'prompt' => 'Runde wählen',
             ]) ?>
         </div>
 
-        <div class="col-md-3 d-flex align-items-end">
-            <?= Html::submitButton('Spiel hinzufügen', [
-                'class' => 'btn btn-primary w-100'
-            ]) ?>
+        <div class="row mt-2">
+            <!-- Eingabefeld für Spieltag (versteckt, bis nötig) -->
+            <div class="col-md-3 d-none" id="spieltag-container">
+                <?= Html::label('<span class="material-icons align-middle me-1">looks_one</span> Spieltag', 'spieltag', ['class' => 'form-label']) ?>
+                <?= Html::input('number', 'spieltag', 1, [
+                    'class' => 'form-control',
+                    'id' => 'spieltag',
+                    'min' => 1,
+                ]) ?>
+    		</div>
+		</div>
+    		
+        <div class="row mt-2">
+            <div class="col-md-3 d-flex align-items-end">
+                <?= Html::submitButton('Spiel hinzufügen', [
+                    'class' => 'btn btn-primary w-100'
+                ]) ?>
+            </div>
         </div>
+    		
+
     </div>
 
     <?php ActiveForm::end(); ?>
@@ -324,3 +341,17 @@ function initAutocompleteAll() {
 
 document.addEventListener('DOMContentLoaded', initAutocompleteAll);
 </script>
+<?php
+$js = <<<JS
+$('#rundeID').on('change', function() {
+    var selectedText = $("#rundeID option:selected").text();
+    if (selectedText.startsWith('Gruppe')) {
+        $('#spieltag-container').removeClass('d-none');
+    } else {
+        $('#spieltag-container').addClass('d-none');
+        $('#spieltag').val(0); // sicherheitshalber zurücksetzen
+    }
+});
+JS;
+$this->registerJs($js);
+?>

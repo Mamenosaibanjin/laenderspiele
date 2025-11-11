@@ -96,6 +96,10 @@ class TurnierController extends Controller
             $tournamentID = $request->post('tournamentID');
             $datum = $request->post('datum');
             $zeit = $request->post('zeit');
+            $spieltag = $request->post('spieltag', 0);
+            
+            $runde = \app\models\Runde::findOne($rundeID);
+            $beschriftung = $runde ? $runde->name : null;
             
             // 1. Neues Spiel anlegen (in Tabelle "spiele")
             $spiel = new Spiel();
@@ -110,9 +114,12 @@ class TurnierController extends Controller
                 $turnierSpiel->tournamentID = $tournamentID;
                 $turnierSpiel->datum = $datum;
                 $turnierSpiel->zeit = $zeit;
+                $turnierSpiel->spieltag = (int) $spieltag;
+                $turnierSpiel->beschriftung = $spieltag == 0 ? $beschriftung : null;
                 
                 if ($turnierSpiel->save()) {
                     // 3. Redirect auf passenden Spielplan
+                    Yii::$app->session->setFlash('success', 'Spiel erfolgreich angelegt.');
                     return $this->redirect(['/turnier/' . $tournamentID . '/spielplan']);
                 } else {
                     Yii::$app->session->setFlash('error', 'Fehler beim Speichern der Spieldetails.');
