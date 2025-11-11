@@ -161,11 +161,12 @@ foreach ($laenderKeys as $key) {
         </div>
 
         <div class="row mt-2">
+        	<?= Html::hiddenInput('spieltag', 0) ?>
+        
             <!-- Eingabefeld für Spieltag (versteckt, bis nötig) -->
             <div class="col-md-3 d-none" id="spieltag-container">
                 <?= Html::label('<span class="material-icons align-middle me-1">looks_one</span> Spieltag', 'spieltag', ['class' => 'form-label']) ?>
                 <?= Html::input('number', 'spieltag', 1, [
-                    'class' => 'form-control',
                     'id' => 'spieltag',
                     'min' => 1,
                 ]) ?>
@@ -347,8 +348,10 @@ $('#rundeID').on('change', function() {
     var selectedText = $("#rundeID option:selected").text();
     if (selectedText.startsWith('Gruppe')) {
         $('#spieltag-container').removeClass('d-none');
+        $('#spieltag').prop('disabled', false);
     } else {
         $('#spieltag-container').addClass('d-none');
+        $('#spieltag').prop('disabled', true);
         $('#spieltag').val(0); // sicherheitshalber zurücksetzen
     }
 });
