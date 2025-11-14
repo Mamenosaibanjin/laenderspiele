@@ -75,7 +75,7 @@ $currentPositionID = null;
                         <!-- Spielername -->
                         <td style="background-color: <?= $backgroundStyle ?>; width: <?= $isNationalTeam ? '40%' : '30%' ?>;<?= $color;?>">
                             <?php if (!$isNationalTeam || $positionID > 4): ?>
-                                <?= !empty($player->nati1) ? Helper::getFlagInfo($player->nati1, null, false, null, $filterName) : '' ?>
+                                <?= !empty($player->nati1) ? Helper::getFlagInfo($player->nati1, Helper::getTurnierStartdatum($tournamentID), false, null, $filterName) : '' ?>
                             <?php endif; ?>
                             <?= Html::a(Html::encode(trim($player->vorname . ' ' . $player->name)), ['/spieler/view', 'id' => $player->id], ['class' => 'text-decoration-none', 'style' => $color]) ?>
                         </td>
