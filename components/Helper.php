@@ -1177,6 +1177,5 @@ class Helper
         return date('Y/m', strtotime($date));
     }
     
-    
 }
 ?>

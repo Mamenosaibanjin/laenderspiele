@@ -45,7 +45,7 @@ class SpielerController extends Controller
         ->all();
         
         // Karriere-Daten laden
-        $vereinsKarriere = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 0])->orderBy(['von' => SORT_DESC])->all();
+        $vereinsKarriere = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 0])->orderBy(['von' => SORT_DESC])->orderBy(['bis' => SORT_DESC])->all();
         $jugendvereine = SpielerVereinSaison::find()->where(['spielerID' => $id, 'jugend' => 1])->orderBy(['von' => SORT_DESC])->all();
         
         $laenderspiele = SpielerLandWettbewerb::find()
