@@ -40,8 +40,13 @@ $this->title = "Torschützenliste - $turniername $jahr";
                         	</th>
                             <td>
                                 <?= Helper::getFlagInfo($scorer['nati1'], $turnierjahr, false) ?>
-	                            <?php $spielername = htmlspecialchars($scorer['vorname']) . " " . htmlspecialchars($scorer['name'])?>
-                            	<?= Html::a($spielername, ['/spieler/view', 'id' => $scorer['id']], ['class' => 'text-decoration-none']) ?>
+	                            <?php
+                                    $spielername = trim(
+                                        htmlspecialchars($scorer['vorname'] ?? '') . ' ' .
+                                        htmlspecialchars($scorer['name'] ?? '')
+                                    );
+                                    ?>
+								<?= Html::a($spielername, ['/spieler/view', 'id' => $scorer['id']], ['class' => 'text-decoration-none']) ?>
                             </td>
                             <td><?= SpielerHelper::getLandAtTournament($scorer['id'], $tournamentID)?></td>
                             <td>

@@ -13,7 +13,7 @@ class AufstellungController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return (new \yii\db\Query())
-        ->select(['spieler.id', "CONCAT(spieler.vorname, ' ', spieler.name) AS value"])
+        ->select(['spieler.id', "CONCAT_WS(' ', spieler.vorname, spieler.name) AS value"])
         ->from('spieler')
         ->innerJoin('spieler_land_wettbewerb slw', 'slw.spielerID = spieler.id')
         ->innerJoin('tournament t', 'slw.tournamentID = t.id')
@@ -32,7 +32,7 @@ class AufstellungController extends Controller
     {
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         return (new \yii\db\Query())
-        ->select(['s.id', "CONCAT(s.vorname, ' ', s.name) AS value"])
+        ->select(['s.id', "CONCAT_WS(' ', s.vorname, s.name) AS value"])
         ->from('turnier t')
         ->innerJoin('spieler_land_wettbewerb slw', 'slw.tournamentID = t.tournamentID')
         ->innerJoin('spieler s', 's.id = slw.spielerID')

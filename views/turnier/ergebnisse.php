@@ -174,7 +174,11 @@ foreach ($laenderKeys as $key) {
                     
                     $rundeID = Yii::$app->request->get('rundeID'); // später dynamisch
                     $spieltagMax = 3;
-                    $daten = TabellenHelper::berechneTabelle($turnier->id, $rundeID, $spieltagMax);
+                    $result = TabellenHelper::berechneTabelle($turnier->id, $rundeID, $spieltagMax);
+                    
+                    $daten     = $result['rows'];
+                    $drawings  = $result['drawings'];
+                    
                     $farben = TabellenHelper::getPlatzfarben($turnier->id, $rundeID);
                     ?>
                     
@@ -197,10 +201,12 @@ foreach ($laenderKeys as $key) {
                                 <?php
                                     $diff = $club['tore'] - $club['gegentore'];
                                     $farbe = $farben[$platz] ?? null;
+                                    $hasDrawing = isset($drawings[$club['punkte']][$club['club']->id]);
+                                    $stern = $hasDrawing ? ' <sup><b>*</b></sup>' : '';
                                 ?>
                                 <tr style="<?= $farbe ? "background-color: $farbe;" : '' ?>">
                                     <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $platz ?></td>
-                                    <td style="text-align:left; <?= $farbe ? "background-color: $farbe;" : '' ?>"><?= Html::a($club['club']->name, ['club/view', 'id' => $club['club']->id], ['class' => 'text-decoration-none']) ?></td>
+                                    <td style="text-align:left; <?= $farbe ? "background-color: $farbe;" : '' ?>"><?= Html::a($club['club']->name, ['club/view', 'id' => $club['club']->id], ['class' => 'text-decoration-none']) . $stern ?></td>
                                     <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['spiele'] ?></td>
                                     <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['siege'] ?></td>
                                     <td style="<?= $farbe ? "background-color: $farbe;" : '' ?>"><?= $club['remis'] ?></td>
@@ -213,7 +219,29 @@ foreach ($laenderKeys as $key) {
                         </tbody>
                     </table>
         
-                </div>
+                    <?php if (!empty($drawings)): ?>
+                        <div class="mt-2 text-muted small">
+                            <?php foreach ($drawings as $points => $clubs): ?>
+                                <?php
+                                    asort($clubs); // niedrigste draw_order gewinnt
+                                    $winnerId = array_key_first($clubs);
+                                    $winnerName = null;
+                    
+                                    foreach ($daten as $c) {
+                                        if ($c['club']->id === $winnerId) {
+                                            $winnerName = $c['club']->name;
+                                            break;
+                                        }
+                                    }
+                                ?>
+                                <?php if ($winnerName): ?>
+                                    * <b><?= Html::encode($winnerName) ?></b> gewinnt durch Losentscheid<br>
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                    
+               </div>
        		 </div>
     	<?php endif; ?>
 	<?php endif; ?>

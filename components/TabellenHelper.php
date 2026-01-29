@@ -1,6 +1,7 @@
 <?php
 namespace app\components;
 
+use app\models\TiebreakDrawing;
 use app\models\Turnier;
 use app\models\Gruppenmarkierung;
 use Yii;
@@ -75,6 +76,19 @@ class TabellenHelper
             Yii::info("Geladene Regel: id={$rule->id}, type={$rule->tiebreakType->code}", 'tabelle');
         }
         
+        $drawingsRaw = TiebreakDrawing::find()
+        ->where([
+            'tournament_id' => $turnierID,
+            'runde_id'      => $rundeID,
+        ])
+        ->all();
+        
+        $drawings = [];
+        foreach ($drawingsRaw as $d) {
+            $drawings[$d->points][$d->club_id] = $d->draw_order;
+        }
+        
+        
         // 4) Clubs nach Punkten gruppieren
         $punkteGruppen = [];
         foreach ($clubs as $clubID => $data) {
@@ -95,7 +109,7 @@ class TabellenHelper
             Yii::info("MiniStats: " . print_r($miniStats, true), 'tabelle');
             
             // Sortierung anhand Regeln
-            usort($clubIDs, function($a, $b) use ($miniStats, $clubs, $rules) {
+            usort($clubIDs, function($a, $b) use ($miniStats, $clubs, $rules, $drawings, $punkte) {
                 foreach ($rules as $idx => $rule) {
                     Yii::info("Switch Type = {$rule->tiebreakType->code}", 'tabelle');
                     
@@ -165,8 +179,15 @@ class TabellenHelper
                             break;
                             
                         case 'drawing':
-                            Yii::info("Vergleich [drawing] {$a} vs {$b}", 'tabelle');
-                            return $a - $b;
+ 
+                            if (
+                            isset($drawings[$punkte][$a]) &&
+                            isset($drawings[$punkte][$b])
+                            ) {
+                                return $drawings[$punkte][$a]
+                                <=> $drawings[$punkte][$b];
+                            }
+                            break;
                     }
                 }
                 
@@ -185,7 +206,10 @@ class TabellenHelper
             $result[] = $clubs[$cid];
         }
         
-        return $result;
+        return [
+            'rows'     => $result,
+            'drawings' => $drawings,
+        ];
     }
     
     /**
@@ -265,77 +289,5 @@ class TabellenHelper
             }
         }
         return $farben;
-    }
-
-    private static function compareDirectPoints($a, $b, $spiele)
-    {
-        $pointsA = 0;
-        $pointsB = 0;
-        foreach ($spiele as $spiel) {
-            if (in_array($a['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ]) && in_array($b['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ])) {
-
-                $toreA = $spiel->spiel->club1ID === $a['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-                $toreB = $spiel->spiel->club1ID === $b['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-
-                if ($toreA > $toreB)
-                    $pointsA += 3;
-                elseif ($toreA < $toreB)
-                    $pointsB += 3;
-                else {
-                    $pointsA ++;
-                    $pointsB ++;
-                }
-            }
-        }
-        return $pointsB - $pointsA;
-    }
-
-    private static function compareDirectGoalDiff($a, $b, $spiele)
-    {
-        $diffA = 0;
-        $diffB = 0;
-        foreach ($spiele as $spiel) {
-            if (in_array($a['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ]) && in_array($b['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ])) {
-
-                $toreA = $spiel->spiel->club1ID === $a['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-                $toreB = $spiel->spiel->club1ID === $b['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-
-                $diffA += $toreA - $toreB;
-                $diffB += $toreB - $toreA;
-            }
-        }
-        return $diffB - $diffA;
-    }
-
-    private static function compareDirectGoals($a, $b, $spiele)
-    {
-        $goalsA = 0;
-        $goalsB = 0;
-        foreach ($spiele as $spiel) {
-            if (in_array($a['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ]) && in_array($b['club']->id, [
-                $spiel->spiel->club1ID,
-                $spiel->spiel->club2ID
-            ])) {
-
-                $goalsA += $spiel->spiel->club1ID === $a['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-                $goalsB += $spiel->spiel->club1ID === $b['club']->id ? $spiel->spiel->tore1 : $spiel->spiel->tore2;
-            }
-        }
-        return $goalsB - $goalsA;
     }
 }

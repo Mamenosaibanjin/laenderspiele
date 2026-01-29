@@ -572,7 +572,7 @@ class Helper
     /**
      * Gibt die IDs der Vereine während eines Turniers zurück.
      */
-    public static function getClubsAtTurnier($playerId, $turnier, $jahr)
+    public static function getClubsAtTurnier($playerId, $turnier, $jahr, $jugend = 0)
     {
         $query = (new \yii\db\Query())
         ->select(['c.id', 'MAX(svs.von) AS von']) // Maximales "von"-Datum je Club holen
@@ -580,7 +580,7 @@ class Helper
         ->innerJoin(['svs' => 'spieler_verein_saison'], 'svs.vereinID = c.id')
         ->where([
             'svs.spielerID' => $playerId,
-            'svs.jugend' => 0,
+            'svs.jugend' => $jugend,
         ]);
         
         if ($turnier == 0 OR $turnier == 42) {
@@ -622,7 +622,15 @@ class Helper
         //$sql = $query->createCommand()->getRawSql();
         //var_dump($sql);
         
-        return !empty($clubIDs) ? $clubIDs : null;
+        if (!empty($clubIDs)) {
+            return $clubIDs;
+        }
+        
+        if ($jugend === 0) {
+            return self::getClubsAtTurnier($playerId, $turnier, $jahr, 1);
+        }
+        
+        return null;
     }
     
     public static function getTurniername($turnier)
